@@ -643,7 +643,7 @@ Analyse this tender. Return JSON:
 | LLM cost per workspace | Target < $0.15 (prompt caching reduces ~80%) |
 | File storage cost | Supabase Storage $0.021/GB — negligible at v1 scale |
 
----
+----
 
 ## 11. Phased Delivery
 
