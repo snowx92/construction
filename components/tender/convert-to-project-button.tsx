@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useProjectStore, useInsightsStore } from "@/store";
 import { FolderKanban, Loader2 } from "lucide-react";
 import type { Tender } from "@/types";
+import { cn } from "@/lib/utils";
 
 interface ConvertToProjectButtonProps {
   tender: Tender;
@@ -62,7 +63,10 @@ export function ConvertToProjectButton({ tender, variant = "default" }: ConvertT
     if (existingWs) {
       return (
         <button
-          className="btn-secondary gap-1.5 text-xs py-1.5 px-3"
+          className={cn(
+            "inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-surface text-foreground border border-black/[0.06] text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-500 ease-out hover:bg-black/[0.035]",
+            "gap-1.5 text-xs py-1.5 px-3"
+          )}
           onClick={() => router.push(`/projects/${existingWs.id}?tab=proposals&source=tender`)}
         >
           <FolderKanban className="h-3 w-3" strokeWidth={1.5} />
@@ -73,7 +77,10 @@ export function ConvertToProjectButton({ tender, variant = "default" }: ConvertT
 
     return (
       <button
-        className="btn-primary gap-1.5 text-xs py-1.5 px-3"
+        className={cn(
+          "inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-out hover:bg-primary-hover hover:scale-[1.02]",
+          "gap-1.5 text-xs py-1.5 px-3"
+        )}
         onClick={handleConvert}
         disabled={converting}
       >
@@ -92,19 +99,16 @@ export function ConvertToProjectButton({ tender, variant = "default" }: ConvertT
     return (
       <>
         <button
-          className="btn-primary gap-2"
+          className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-out hover:bg-primary-hover hover:scale-[1.02]"
           onClick={() => router.push(`/projects/${existingWs.id}?tab=proposals&source=tender`)}
         >
           <FolderKanban className="h-4 w-4" strokeWidth={1.5} />
           Open Project
         </button>
-        <div
-          className="flex items-center justify-between gap-4 rounded-[14px] px-5 py-4"
-          style={{ background: "var(--color-success-sub)", border: "1px solid var(--color-border-sub)" }}
-        >
+        <div className="flex items-center justify-between gap-4 rounded-[14px] px-5 py-4 bg-success-soft border border-black/[0.05]">
           <div className="flex items-center gap-3">
-            <div className="h-4 w-4 rounded-full" style={{ background: "var(--color-success)" }} />
-            <p className="text-sm font-medium" style={{ color: "var(--color-text-1)" }}>
+            <div className="h-4 w-4 rounded-full bg-success" />
+            <p className="text-sm font-medium text-foreground">
               This tender has been converted to a project workspace.
             </p>
           </div>
@@ -116,7 +120,7 @@ export function ConvertToProjectButton({ tender, variant = "default" }: ConvertT
   return (
     <>
       <button
-        className="btn-primary gap-2"
+        className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-out hover:bg-primary-hover hover:scale-[1.02]"
         onClick={handleConvert}
         disabled={converting}
       >
@@ -127,23 +131,23 @@ export function ConvertToProjectButton({ tender, variant = "default" }: ConvertT
         )}
         {converting ? "Converting…" : "Convert to Project"}
       </button>
-      <div
-        className="flex items-center justify-between gap-4 rounded-[14px] px-5 py-4"
-        style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}
-      >
+      <div className="flex items-center justify-between gap-4 rounded-[14px] px-5 py-4 bg-primary-soft border border-primary-soft">
         <div className="flex items-center gap-3">
-          <FolderKanban className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+          <FolderKanban className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.5} />
           <div>
-            <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+            <p className="text-sm font-semibold text-foreground">
               Ready to proceed with this tender?
             </p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-2)" }}>
+            <p className="text-xs mt-0.5 text-foreground-muted">
               Convert it into a project workspace to manage phases, procurement, and proposals in one place.
             </p>
           </div>
         </div>
         <button
-          className="btn-primary shrink-0 gap-2"
+          className={cn(
+            "inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-out hover:bg-primary-hover hover:scale-[1.02]",
+            "shrink-0"
+          )}
           onClick={handleConvert}
           disabled={converting}
         >

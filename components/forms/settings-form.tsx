@@ -1,154 +1,213 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSettingsStore } from "@/store";
+import { useEffect, useState } from "react";
 import { showToast } from "@/lib/toast";
-import { Check, X } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { updateMyProfile } from "@/lib/api/users";
+import { ApiError } from "@/lib/api/client";
+import { useT, useLocale } from "@/lib/i18n";
+import { Loader2 } from "lucide-react";
+
+const TIMEZONES = [
+  "Asia/Muscat",
+  "Asia/Dubai",
+  "Africa/Cairo",
+  "Asia/Riyadh",
+  "Europe/London",
+  "UTC",
+];
 
 export function SettingsForm() {
-  const { settings, updateSettings } = useSettingsStore();
-  const [formData, setFormData] = useState(settings);
-  const [isDirty, setIsDirty] = useState(false);
+  const t = useT();
+  const { lang, setLang } = useLocale();
+  const { profile, refreshProfile } = useAuth();
+
+  const [form, setForm] = useState({
+    displayName: "",
+    jobTitle: "",
+    department: "",
+    phone: "",
+    locale: "en" as "en" | "ar",
+    timezone: "Asia/Muscat",
+  });
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setFormData(settings);
-  }, [settings]);
+    if (profile) {
+      setForm({
+        displayName: profile.displayName ?? "",
+        jobTitle:    profile.jobTitle ?? "",
+        department:  profile.department ?? "",
+        phone:       profile.phone ?? "",
+        locale:      profile.locale ?? "en",
+        timezone:    profile.timezone ?? "Asia/Muscat",
+      });
+      setDirty(false);
+    }
+  }, [profile]);
 
-  const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setIsDirty(true);
-  };
+  function update<K extends keyof typeof form>(key: K, value: typeof form[K]) {
+    setForm((p) => ({ ...p, [key]: value }));
+    setDirty(true);
+  }
 
-  const handleSave = () => {
-    updateSettings(formData);
-    showToast("Settings saved successfully", "success");
-    setIsDirty(false);
-  };
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await updateMyProfile({
+        displayName: form.displayName || undefined,
+        jobTitle:    form.jobTitle || undefined,
+        department:  form.department || undefined,
+        phone:       form.phone || undefined,
+        locale:      form.locale,
+        timezone:    form.timezone || undefined,
+      });
+      if (form.locale !== lang) setLang(form.locale);
+      await refreshProfile();
+      showToast(t("profile.toastUpdated"), "success");
+      setDirty(false);
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Update failed", "error");
+    } finally {
+      setSaving(false);
+    }
+  }
 
-  const handleReset = () => {
-    setFormData(settings);
-    setIsDirty(false);
-  };
+  function handleReset() {
+    if (profile) {
+      setForm({
+        displayName: profile.displayName ?? "",
+        jobTitle:    profile.jobTitle ?? "",
+        department:  profile.department ?? "",
+        phone:       profile.phone ?? "",
+        locale:      profile.locale ?? "en",
+        timezone:    profile.timezone ?? "Asia/Muscat",
+      });
+      setDirty(false);
+    }
+  }
+
+  if (!profile) {
+    return (
+      <div className="card p-6 flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-foreground-subtle" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Company Info Section */}
       <div className="card p-6">
-        <h2 className="text-base font-semibold mb-5" style={{ color: "var(--color-text-1)" }}>
-          Company Information
+        <h2 className="text-base font-semibold mb-5 text-foreground">
+          {t("profile.eyebrow")}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>
-              Company Name
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              {t("onboarding.fullName")}
             </label>
             <input
               type="text"
-              value={formData.companyName}
-              onChange={(e) => handleInputChange("companyName", e.target.value)}
+              value={form.displayName}
+              onChange={(e) => update("displayName", e.target.value)}
               className="input"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>
-              Company Email
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              {t("profile.fieldEmail")}
+            </label>
+            <input type="email" value={profile.email} disabled className="input opacity-60" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              {t("onboarding.jobTitle")}
             </label>
             <input
-              type="email"
-              value={formData.companyEmail}
-              onChange={(e) => handleInputChange("companyEmail", e.target.value)}
+              type="text"
+              value={form.jobTitle}
+              onChange={(e) => update("jobTitle", e.target.value)}
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              {t("onboarding.department")}
+            </label>
+            <input
+              type="text"
+              value={form.department}
+              onChange={(e) => update("department", e.target.value)}
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              {t("onboarding.phone")}
+            </label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => update("phone", e.target.value)}
               className="input"
             />
           </div>
         </div>
       </div>
 
-      {/* Billing Section */}
       <div className="card p-6">
-        <h2 className="text-base font-semibold mb-5" style={{ color: "var(--color-text-1)" }}>
-          Billing Contact
+        <h2 className="text-base font-semibold mb-5 text-foreground">
+          {t("language.label")} & {t("settings.sectionAppearance")}
         </h2>
-        <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>
-            Billing Contact Email
-          </label>
-          <input
-            type="email"
-            value={formData.billingContact}
-            onChange={(e) => handleInputChange("billingContact", e.target.value)}
-            className="input"
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              {t("language.label")}
+            </label>
+            <select
+              value={form.locale}
+              onChange={(e) => update("locale", e.target.value as "en" | "ar")}
+              className="input"
+            >
+              <option value="en">{t("language.english")}</option>
+              <option value="ar">{t("language.arabic")}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-foreground-muted">
+              Timezone
+            </label>
+            <select
+              value={form.timezone}
+              onChange={(e) => update("timezone", e.target.value)}
+              className="input"
+            >
+              {TIMEZONES.map((tz) => (
+                <option key={tz} value={tz}>{tz}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Notifications Section */}
-      <div className="card p-6">
-        <h2 className="text-base font-semibold mb-5" style={{ color: "var(--color-text-1)" }}>
-          Notification Preferences
-        </h2>
-        <div className="space-y-4">
-          {[
-            {
-              key: "notifyOnPOApproval" as const,
-              label: "PO Approval Notifications",
-              desc: "Get notified when purchase orders are approved",
-            },
-            {
-              key: "notifyOnRisk" as const,
-              label: "Risk Alerts",
-              desc: "Receive alerts when risks or opportunities are detected",
-            },
-            {
-              key: "notifyOnTender" as const,
-              label: "Tender Updates",
-              desc: "Get notified of new tender opportunities and deadline changes",
-            },
-          ].map(({ key, label, desc }) => (
-            <div key={key} className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium" style={{ color: "var(--color-text-1)" }}>
-                  {label}
-                </p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--color-text-3)" }}>
-                  {desc}
-                </p>
-              </div>
-              <button
-                onClick={() => handleInputChange(key, !formData[key])}
-                className="relative h-5 w-9 shrink-0 rounded-full transition-colors flex items-center justify-center"
-                style={{
-                  background: formData[key] ? "var(--color-accent)" : "var(--color-border)",
-                }}
-                type="button"
-              >
-                {formData[key] ? (
-                  <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
-                ) : (
-                  <X className="h-3 w-3 text-white" strokeWidth={2.5} />
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3 pt-4" style={{ borderTop: "1px solid var(--color-border-sub)" }}>
-        {isDirty && (
+      <div className="flex justify-end gap-3 pt-4 border-t border-black/[0.05]">
+        {dirty && (
           <button
             onClick={handleReset}
-            className="btn-secondary text-sm"
+            type="button"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-surface text-foreground border border-black/[0.06] text-sm font-medium hover:bg-black/[0.035]"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         )}
         <button
           onClick={handleSave}
-          className="btn-primary text-sm"
-          disabled={!isDirty}
-          style={!isDirty ? { opacity: 0.5 } : {}}
+          disabled={!dirty || saving}
+          className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
         >
-          Save Changes
+          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          {saving ? t("common.loading") : t("common.save")}
         </button>
       </div>
     </div>

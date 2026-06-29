@@ -19,12 +19,12 @@ interface PipelineFile {
 const STAGE_ORDER: PipelineStage[] = ["uploaded", "parsing", "extracting", "pricing", "ready"];
 
 const STAGE_META: Record<PipelineStage, { label: string; desc: string; color: string }> = {
-  uploaded:   { label: "Uploaded",        desc: "File received and queued for processing",         color: "var(--color-text-3)" },
-  parsing:    { label: "Parsing",         desc: "Extracting text and structure from document",      color: "var(--color-ai)" },
-  extracting: { label: "Extracting BOQ",  desc: "AI identifying quantities, items, and rates",      color: "var(--color-accent)" },
-  pricing:    { label: "Pricing",         desc: "Matching BOQ items to market rate database",       color: "var(--color-warning)" },
-  ready:      { label: "Ready",           desc: "Processing complete — data available in all tabs", color: "var(--color-success)" },
-  error:      { label: "Error",           desc: "Processing failed — check file format",            color: "var(--color-danger)" },
+  uploaded:   { label: "Uploaded",        desc: "File received and queued for processing",         color: "rgb(var(--foreground-subtle))" },
+  parsing:    { label: "Parsing",         desc: "Extracting text and structure from document",      color: "rgb(var(--primary))" },
+  extracting: { label: "Extracting BOQ",  desc: "AI identifying quantities, items, and rates",      color: "rgb(var(--primary))" },
+  pricing:    { label: "Pricing",         desc: "Matching BOQ items to market rate database",       color: "rgb(var(--warning))" },
+  ready:      { label: "Ready",           desc: "Processing complete — data available in all tabs", color: "rgb(var(--success))" },
+  error:      { label: "Error",           desc: "Processing failed — check file format",            color: "rgb(var(--danger))" },
 };
 
 const FILE_TYPE_ICONS: Record<string, string> = {
@@ -118,12 +118,12 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total files",  value: allFiles.length,    color: "var(--color-text-1)"  },
-          { label: "Processing",   value: processingCount,    color: "var(--color-ai)"      },
-          { label: "Ready",        value: readyCount,         color: "var(--color-success)" },
+          { label: "Total files",  value: allFiles.length,    color: "rgb(var(--foreground))"  },
+          { label: "Processing",   value: processingCount,    color: "rgb(var(--primary))"      },
+          { label: "Ready",        value: readyCount,         color: "rgb(var(--success))" },
         ].map(({ label, value, color }) => (
           <div key={label} className="card px-5 py-4">
-            <p className="text-xs mb-1" style={{ color: "var(--color-text-3)" }}>{label}</p>
+            <p className="text-xs mb-1" style={{ color: "rgb(var(--foreground-subtle))" }}>{label}</p>
             <p className="text-2xl font-bold font-mono" style={{ color }}>{value}</p>
           </div>
         ))}
@@ -137,16 +137,16 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
         onClick={() => inputRef.current?.click()}
         className="rounded-[20px] border-2 border-dashed p-10 text-center cursor-pointer transition-all"
         style={{
-          borderColor: dragging ? "var(--color-accent)" : "var(--color-border)",
-          background: dragging ? "var(--color-accent-muted)" : "var(--color-surface)",
+          borderColor: dragging ? "rgb(var(--primary))" : "rgb(var(--border) / 0.06)",
+          background: dragging ? "rgb(var(--primary-soft))" : "rgb(var(--surface))",
         }}
       >
         <input ref={inputRef} type="file" multiple className="hidden" onChange={handleInput} accept=".pdf,.dwg,.xlsx,.docx,.jpg,.png" />
-        <Upload className="mx-auto h-8 w-8 mb-3" strokeWidth={1.5} style={{ color: dragging ? "var(--color-accent)" : "var(--color-text-3)" }} />
-        <p className="text-sm font-medium mb-1" style={{ color: dragging ? "var(--color-accent)" : "var(--color-text-1)" }}>
+        <Upload className="mx-auto h-8 w-8 mb-3" strokeWidth={1.5} style={{ color: dragging ? "rgb(var(--primary))" : "rgb(var(--foreground-subtle))" }} />
+        <p className="text-sm font-medium mb-1" style={{ color: dragging ? "rgb(var(--primary))" : "rgb(var(--foreground))" }}>
           {dragging ? "Drop files to upload" : "Upload tender files"}
         </p>
-        <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+        <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
           PDF, DWG, XLSX, DOCX — AI processes automatically on upload
         </p>
       </div>
@@ -156,11 +156,11 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
         {STAGE_ORDER.map((stage, i) => (
           <div key={stage} className="flex items-center gap-1 shrink-0">
             <div className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full"
-              style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)", color: STAGE_META[stage].color }}>
+              style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)", color: STAGE_META[stage].color }}>
               <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: STAGE_META[stage].color }} />
               {STAGE_META[stage].label}
             </div>
-            {i < STAGE_ORDER.length - 1 && <ChevronRight className="h-3 w-3 shrink-0" style={{ color: "var(--color-border)" }} />}
+            {i < STAGE_ORDER.length - 1 && <ChevronRight className="h-3 w-3 shrink-0" style={{ color: "rgb(var(--border) / 0.06)" }} />}
           </div>
         ))}
       </div>
@@ -168,13 +168,13 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
       {/* File list */}
       {allFiles.length === 0 ? (
         <div className="card p-12 text-center">
-          <FileText className="mx-auto h-8 w-8 mb-3" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
-          <p className="text-sm" style={{ color: "var(--color-text-3)" }}>No files uploaded yet</p>
+          <FileText className="mx-auto h-8 w-8 mb-3" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
+          <p className="text-sm" style={{ color: "rgb(var(--foreground-subtle))" }}>No files uploaded yet</p>
         </div>
       ) : (
         <div className="card overflow-hidden">
-          <div className="px-5 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid var(--color-border-sub)", background: "var(--color-panel)" }}>
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--color-text-3)" }}>Files</p>
+          <div className="px-5 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)", background: "rgb(var(--surface-2))" }}>
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgb(var(--foreground-subtle))" }}>Files</p>
             {processingCount > 0 && (
               <span className="flex items-center gap-1 badge badge-ai animate-pulse ml-1">
                 <Loader2 className="h-2.5 w-2.5 animate-spin" />
@@ -183,7 +183,7 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
             )}
           </div>
 
-          <div className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+          <div className="divide-y divide-black/[0.05]">
             {allFiles.map((pf) => {
               const isExisting = existingFiles.some((e) => e.file.id === pf.file.id);
               const meta = STAGE_META[pf.stage];
@@ -201,15 +201,15 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
                     {/* Main info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium truncate" style={{ color: "var(--color-text-1)" }}>{pf.file.name}</p>
-                        <span className="text-[10px] font-mono shrink-0" style={{ color: "var(--color-text-3)" }}>
+                        <p className="text-sm font-medium truncate" style={{ color: "rgb(var(--foreground))" }}>{pf.file.name}</p>
+                        <span className="text-[10px] font-mono shrink-0" style={{ color: "rgb(var(--foreground-subtle))" }}>
                           {(pf.file.size / 1_000_000).toFixed(1)} MB
                         </span>
                       </div>
 
                       {/* Stage progress bar */}
                       <div className="flex items-center gap-2 mb-1.5">
-                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--color-border)" }}>
+                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgb(var(--border) / 0.06)" }}>
                           <div
                             className="h-full rounded-full transition-all duration-700"
                             style={{
@@ -233,17 +233,17 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
                               <div
                                 className="h-1.5 w-1.5 rounded-full transition-all"
                                 style={{
-                                  background: done || active ? STAGE_META[s].color : "var(--color-border)",
+                                  background: done || active ? STAGE_META[s].color : "rgb(var(--border) / 0.06)",
                                   opacity: active ? 1 : done ? 0.8 : 0.35,
                                 }}
                               />
                               {i < STAGE_ORDER.length - 1 && (
-                                <div className="h-px w-3" style={{ background: done ? "var(--color-border)" : "var(--color-border-sub)" }} />
+                                <div className="h-px w-3" style={{ background: done ? "rgb(var(--border) / 0.06)" : "rgb(var(--border) / 0.05)" }} />
                               )}
                             </div>
                           );
                         })}
-                        <span className="text-[10px] ml-2" style={{ color: "var(--color-text-3)" }}>
+                        <span className="text-[10px] ml-2" style={{ color: "rgb(var(--foreground-subtle))" }}>
                           {meta.desc}
                         </span>
                       </div>
@@ -252,17 +252,17 @@ export function FilePipelineTab({ ws }: { ws: ProjectWorkspace }) {
                     {/* Status icon + remove */}
                     <div className="shrink-0 flex items-center gap-2">
                       {pf.stage === "ready" ? (
-                        <CheckCircle className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
+                        <CheckCircle className="h-4 w-4" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
                       ) : pf.stage === "error" ? (
-                        <AlertTriangle className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-danger)" }} />
+                        <AlertTriangle className="h-4 w-4" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} />
                       ) : pf.stage === "uploaded" ? (
-                        <Clock className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                        <Clock className="h-4 w-4" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                       ) : (
-                        <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                        <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                       )}
                       {!isExisting && (
                         <button onClick={() => remove(pf.file.id)} className="btn-ghost p-1">
-                          <X className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                          <X className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                         </button>
                       )}
                       {pf.file.aiProcessed && (

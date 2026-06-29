@@ -40,10 +40,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             style={{
               background:
                 toast.type === "success"
-                  ? "var(--color-success)"
+                  ? "rgb(var(--success))"
                   : toast.type === "error"
-                    ? "var(--color-error)"
-                    : "var(--color-info)",
+                    ? "rgb(var(--danger))"
+                    : "rgb(var(--primary))",
               color: "white",
             }}
           >

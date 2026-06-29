@@ -92,10 +92,10 @@ export function CompanyProfileForm() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-semibold mb-1" style={{ color: "var(--color-text-1)" }}>
+          <h2 className="text-lg font-semibold mb-1" style={{ color: "rgb(var(--foreground))" }}>
             {t("company.title")}
           </h2>
-          <p className="text-sm" style={{ color: "var(--color-text-2)" }}>
+          <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>
             {t("company.subtitle")}
           </p>
         </div>
@@ -106,15 +106,15 @@ export function CompanyProfileForm() {
       </div>
 
       {/* Sub-section tabs */}
-      <div className="flex items-center gap-1 overflow-x-auto scrollbar-tab pb-2" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+      <div className="flex items-center gap-1 overflow-x-auto scrollbar-tab pb-2" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
         {SECTIONS.map(({ id, label, icon: Icon, count }) => (
           <button
             key={id}
             onClick={() => setSection(id)}
             className="flex items-center gap-2 px-3 py-2 text-xs font-medium transition-all border-b-2 whitespace-nowrap"
             style={{
-              borderColor: section === id ? "var(--color-accent)" : "transparent",
-              color:       section === id ? "var(--color-accent)" : "var(--color-text-2)",
+              borderColor: section === id ? "rgb(var(--primary))" : "transparent",
+              color:       section === id ? "rgb(var(--primary))" : "rgb(var(--foreground-muted))",
               marginBottom: -2,
             }}
           >
@@ -142,7 +142,7 @@ export function CompanyProfileForm() {
                 <Field label={t("company.website")} value={profile.website} onChange={(v) => updateField("website", v)} />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.description")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.description")}</label>
                 <textarea
                   className="input w-full resize-none"
                   rows={3}
@@ -151,7 +151,7 @@ export function CompanyProfileForm() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.tagline")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.tagline")}</label>
                 <input
                   className="input w-full"
                   placeholder={t("company.taglinePh")}
@@ -160,7 +160,7 @@ export function CompanyProfileForm() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.vision")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.vision")}</label>
                 <textarea
                   className="input w-full resize-none"
                   rows={3}
@@ -170,7 +170,7 @@ export function CompanyProfileForm() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.bio")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.bio")}</label>
                 <textarea
                   className="input w-full resize-none"
                   rows={5}
@@ -185,23 +185,23 @@ export function CompanyProfileForm() {
           {/* Social Media */}
           <div className="card p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Globe className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
-              <h3 className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>{t("company.socialMedia")}</h3>
+              <Globe className="h-4 w-4" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
+              <h3 className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>{t("company.socialMedia")}</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.linkedin")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.linkedin")}</label>
                 <div className="flex items-center gap-2">
-                  <Linkedin className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                  <Linkedin className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                   <input className="input flex-1" placeholder="linkedin.com/company/…" value={profile.linkedin ?? ""} onChange={(e) => updateField("linkedin", e.target.value)} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.instagram")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.instagram")}</label>
                 <input className="input w-full" placeholder="@handle" value={profile.instagram ?? ""} onChange={(e) => updateField("instagram", e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.twitter")}</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.twitter")}</label>
                 <input className="input w-full" placeholder="@handle" value={profile.twitter ?? ""} onChange={(e) => updateField("twitter", e.target.value)} />
               </div>
             </div>
@@ -211,15 +211,15 @@ export function CompanyProfileForm() {
           <div className="card p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Award className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
-                <h3 className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>{t("company.certifications")}</h3>
+                <Award className="h-4 w-4" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
+                <h3 className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>{t("company.certifications")}</h3>
               </div>
             </div>
             <ul className="space-y-2 mb-4">
               {profile.certifications.map((cert, i) => (
-                <li key={i} className="flex items-center justify-between rounded-[8px] p-2.5" style={{ background: "var(--color-panel)" }}>
-                  <span className="text-xs" style={{ color: "var(--color-text-1)" }}>{cert}</span>
-                  <button onClick={() => removeCertification(i)} className="btn-ghost p-1" style={{ color: "var(--color-danger)" }}>
+                <li key={i} className="flex items-center justify-between rounded-[8px] p-2.5" style={{ background: "rgb(var(--surface-2))" }}>
+                  <span className="text-xs" style={{ color: "rgb(var(--foreground))" }}>{cert}</span>
+                  <button onClick={() => removeCertification(i)} className="btn-ghost p-1" style={{ color: "rgb(var(--danger))" }}>
                     <X className="h-3.5 w-3.5" strokeWidth={2} />
                   </button>
                 </li>
@@ -255,7 +255,7 @@ export function CompanyProfileForm() {
       {section === "track-record" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm" style={{ color: "var(--color-text-2)" }}>{t("company.trackRecordSub")}</p>
+            <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.trackRecordSub")}</p>
             <button onClick={() => { setEditProject(null); setShowProjectModal(true); }} className="btn-primary text-sm gap-2">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addProject")}
@@ -265,30 +265,30 @@ export function CompanyProfileForm() {
           <div className="card overflow-hidden">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                   {[t("company.projectName"), t("common.client"), t("company.year"), t("common.amount"), t("project.financial.category"), t("common.status"), ""].map((h, i) => (
-                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+              <tbody className="divide-y divide-black/[0.05]">
                 {profile.pastProjects.map((p) => {
                   const sc = STATUS_CONFIG[p.status];
                   return (
-                    <tr key={p.id} className="hover:bg-sand-50/40">
-                      <td className="px-5 py-3 font-medium" style={{ color: "var(--color-text-1)" }}>{p.name}</td>
-                      <td className="px-5 py-3" style={{ color: "var(--color-text-2)" }}>{p.client}</td>
-                      <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{p.year}</td>
-                      <td className="px-5 py-3 font-mono font-semibold" style={{ color: "var(--color-text-1)" }}>{formatCurrency(p.value, "AED")}</td>
+                    <tr key={p.id} className="hover:bg-black/[0.025]">
+                      <td className="px-5 py-3 font-medium" style={{ color: "rgb(var(--foreground))" }}>{p.name}</td>
+                      <td className="px-5 py-3" style={{ color: "rgb(var(--foreground-muted))" }}>{p.client}</td>
+                      <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{p.year}</td>
+                      <td className="px-5 py-3 font-mono font-semibold" style={{ color: "rgb(var(--foreground))" }}>{formatCurrency(p.value, "AED")}</td>
                       <td className="px-5 py-3"><span className="badge badge-neutral text-[10px]">{p.category}</span></td>
                       <td className="px-5 py-3"><span className={`badge ${sc.cls} text-[10px]`}>{t(sc.key)}</span></td>
                       <td className="px-5 py-3">
                         <div className="flex gap-1">
                           <button onClick={() => { setEditProject(p); setShowProjectModal(true); }} className="btn-ghost p-1" title={t("common.edit")}>
-                            <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                            <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                           </button>
                           <button onClick={() => removePastProject(p.id)} className="btn-ghost p-1" title={t("common.delete")}>
-                            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-danger)" }} />
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} />
                           </button>
                         </div>
                       </td>
@@ -297,9 +297,9 @@ export function CompanyProfileForm() {
                 })}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: "2px solid var(--color-border)" }}>
-                  <td colSpan={3} className="px-5 py-3 font-semibold" style={{ color: "var(--color-text-2)" }}>{t("company.totalValueDelivered")}</td>
-                  <td className="px-5 py-3 font-mono font-bold" style={{ color: "var(--color-accent)" }}>
+                <tr style={{ borderTop: "2px solid rgb(var(--border) / 0.06)" }}>
+                  <td colSpan={3} className="px-5 py-3 font-semibold" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.totalValueDelivered")}</td>
+                  <td className="px-5 py-3 font-mono font-bold" style={{ color: "rgb(var(--primary))" }}>
                     {formatCurrency(profile.pastProjects.reduce((s, p) => s + p.value, 0), "AED")}
                   </td>
                   <td colSpan={3} />
@@ -314,7 +314,7 @@ export function CompanyProfileForm() {
       {section === "staff" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm" style={{ color: "var(--color-text-2)" }}>{t("company.staffSub")}</p>
+            <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.staffSub")}</p>
             <button onClick={() => { setEditStaff(null); setShowStaffModal(true); }} className="btn-primary text-sm gap-2">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addStaff")}
@@ -324,28 +324,28 @@ export function CompanyProfileForm() {
           <div className="card overflow-hidden">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                   {[t("common.name"), t("company.empId"), t("company.passportId"), t("company.jobTitle"), t("company.department"), t("company.nationality"), ""].map((h, i) => (
-                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+              <tbody className="divide-y divide-black/[0.05]">
                 {profile.staff.map((s) => (
-                  <tr key={s.id} className="hover:bg-sand-50/40">
-                    <td className="px-5 py-3 font-medium" style={{ color: "var(--color-text-1)" }}>{s.name}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{s.employeeId}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-3)" }}>{s.passportId}</td>
-                    <td className="px-5 py-3" style={{ color: "var(--color-text-1)" }}>{s.title}</td>
-                    <td className="px-5 py-3" style={{ color: "var(--color-text-2)" }}>{s.department}</td>
-                    <td className="px-5 py-3" style={{ color: "var(--color-text-3)" }}>{s.nationality ?? "—"}</td>
+                  <tr key={s.id} className="hover:bg-black/[0.025]">
+                    <td className="px-5 py-3 font-medium" style={{ color: "rgb(var(--foreground))" }}>{s.name}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{s.employeeId}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-subtle))" }}>{s.passportId}</td>
+                    <td className="px-5 py-3" style={{ color: "rgb(var(--foreground))" }}>{s.title}</td>
+                    <td className="px-5 py-3" style={{ color: "rgb(var(--foreground-muted))" }}>{s.department}</td>
+                    <td className="px-5 py-3" style={{ color: "rgb(var(--foreground-subtle))" }}>{s.nationality ?? "—"}</td>
                     <td className="px-5 py-3">
                       <div className="flex gap-1">
                         <button onClick={() => { setEditStaff(s); setShowStaffModal(true); }} className="btn-ghost p-1" title={t("common.edit")}>
-                          <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                          <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                         </button>
                         <button onClick={() => removeStaff(s.id)} className="btn-ghost p-1" title={t("common.delete")}>
-                          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-danger)" }} />
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} />
                         </button>
                       </div>
                     </td>
@@ -362,10 +362,10 @@ export function CompanyProfileForm() {
         <div className="card p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <GitBranch className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
-              <h3 className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>{t("company.orgChartTitle")}</h3>
+              <GitBranch className="h-4 w-4" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
+              <h3 className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>{t("company.orgChartTitle")}</h3>
             </div>
-            <p className="text-xs" style={{ color: "var(--color-text-3)" }}>{t("company.orgChartHint")}</p>
+            <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("company.orgChartHint")}</p>
           </div>
           {orgTree.get(undefined)?.length ? (
             <div className="org-tree scrollbar-thin">
@@ -376,7 +376,7 @@ export function CompanyProfileForm() {
               </ul>
             </div>
           ) : (
-            <p className="text-xs text-center py-8" style={{ color: "var(--color-text-3)" }}>{t("company.orgChartEmpty")}</p>
+            <p className="text-xs text-center py-8" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("company.orgChartEmpty")}</p>
           )}
         </div>
       )}
@@ -386,7 +386,7 @@ export function CompanyProfileForm() {
       {section === "equipment" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm" style={{ color: "var(--color-text-2)" }}>{t("company.equipmentSub")}</p>
+            <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.equipmentSub")}</p>
             <button onClick={() => { setEditEquip(null); setShowEquipModal(true); }} className="btn-primary text-sm gap-2">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addEquipment")}
@@ -396,35 +396,35 @@ export function CompanyProfileForm() {
           <div className="card overflow-hidden">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                   {[t("common.name"), t("project.financial.category"), t("company.model"), t("company.ownership"), t("common.qty"), t("company.dailyRate"), t("common.status"), ""].map((h, i) => (
-                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+              <tbody className="divide-y divide-black/[0.05]">
                 {profile.equipment.map((e) => (
-                  <tr key={e.id} className="hover:bg-sand-50/40">
-                    <td className="px-5 py-3 font-medium" style={{ color: "var(--color-text-1)" }}>{e.name}</td>
+                  <tr key={e.id} className="hover:bg-black/[0.025]">
+                    <td className="px-5 py-3 font-medium" style={{ color: "rgb(var(--foreground))" }}>{e.name}</td>
                     <td className="px-5 py-3"><span className="badge badge-neutral text-[10px]">{e.category}</span></td>
-                    <td className="px-5 py-3" style={{ color: "var(--color-text-2)" }}>{e.model ?? "—"}</td>
+                    <td className="px-5 py-3" style={{ color: "rgb(var(--foreground-muted))" }}>{e.model ?? "—"}</td>
                     <td className="px-5 py-3"><span className={`badge ${EQUIPMENT_OWNERSHIP_CLS[e.ownership]} text-[10px]`}>{t(`company.ownership${e.ownership.charAt(0).toUpperCase() + e.ownership.slice(1)}`)}</span></td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{e.quantity}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{e.dailyRate ? formatCurrency(e.dailyRate, "AED") : "—"}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{e.quantity}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{e.dailyRate ? formatCurrency(e.dailyRate, "AED") : "—"}</td>
                     <td className="px-5 py-3"><span className={`badge ${EQUIPMENT_STATUS_CLS[e.status]} text-[10px]`}>{t(`company.equipStatus${e.status.charAt(0).toUpperCase() + e.status.slice(1).replace("_u", "U")}`)}</span></td>
                     <td className="px-5 py-3">
                       <div className="flex gap-1">
-                        <button onClick={() => { setEditEquip(e); setShowEquipModal(true); }} className="btn-ghost p-1"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} /></button>
-                        <button onClick={() => removeEquipment(e.id)} className="btn-ghost p-1"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-danger)" }} /></button>
+                        <button onClick={() => { setEditEquip(e); setShowEquipModal(true); }} className="btn-ghost p-1"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} /></button>
+                        <button onClick={() => removeEquipment(e.id)} className="btn-ghost p-1"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} /></button>
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: "2px solid var(--color-border)" }}>
-                  <td colSpan={4} className="px-5 py-3 font-semibold" style={{ color: "var(--color-text-2)" }}>{t("company.totalUnits")}</td>
-                  <td className="px-5 py-3 font-mono font-bold" style={{ color: "var(--color-accent)" }}>
+                <tr style={{ borderTop: "2px solid rgb(var(--border) / 0.06)" }}>
+                  <td colSpan={4} className="px-5 py-3 font-semibold" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.totalUnits")}</td>
+                  <td className="px-5 py-3 font-mono font-bold" style={{ color: "rgb(var(--primary))" }}>
                     {profile.equipment.reduce((s, e) => s + e.quantity, 0)}
                   </td>
                   <td colSpan={3} />
@@ -439,7 +439,7 @@ export function CompanyProfileForm() {
       {section === "labour" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm" style={{ color: "var(--color-text-2)" }}>{t("company.labourSub")}</p>
+            <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.labourSub")}</p>
             <button onClick={() => { setEditLabour(null); setShowLabourModal(true); }} className="btn-primary text-sm gap-2">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addLabour")}
@@ -455,13 +455,13 @@ export function CompanyProfileForm() {
                 const skilled   = profile.labour.filter((l) => l.skillLevel === "skilled" || l.skillLevel === "supervisor").reduce((s, l) => s + l.headcount, 0);
                 const tradesCount = new Set(profile.labour.map((l) => l.trade)).size;
                 return [
-                  { label: t("company.totalWorkforce"),  value: totalHc,                color: "var(--color-accent)" },
-                  { label: t("company.skilledWorkforce"), value: skilled,                color: "var(--color-success)" },
-                  { label: t("company.avgDailyRate"),    value: formatCurrency(avgRate, "AED"), color: "var(--color-text-1)" },
-                  { label: t("company.trades"),          value: tradesCount,            color: "var(--color-ai)" },
+                  { label: t("company.totalWorkforce"),  value: totalHc,                color: "rgb(var(--primary))" },
+                  { label: t("company.skilledWorkforce"), value: skilled,                color: "rgb(var(--success))" },
+                  { label: t("company.avgDailyRate"),    value: formatCurrency(avgRate, "AED"), color: "rgb(var(--foreground))" },
+                  { label: t("company.trades"),          value: tradesCount,            color: "rgb(var(--primary))" },
                 ].map(({ label, value, color }) => (
                   <div key={label} className="card px-4 py-3.5">
-                    <p className="text-[11px] font-medium mb-1.5" style={{ color: "var(--color-text-3)" }}>{label}</p>
+                    <p className="text-[11px] font-medium mb-1.5" style={{ color: "rgb(var(--foreground-subtle))" }}>{label}</p>
                     <p className="text-lg font-semibold" style={{ color }}>{value}</p>
                   </div>
                 ));
@@ -472,27 +472,27 @@ export function CompanyProfileForm() {
           <div className="card overflow-hidden">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                   {[t("company.jobTitle"), t("company.trade"), t("company.headcount"), t("company.dailyRate"), t("company.skillLevel"), t("company.nationality"), ""].map((h, i) => (
-                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                    <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+              <tbody className="divide-y divide-black/[0.05]">
                 {profile.labour.map((l) => (
-                  <tr key={l.id} className="hover:bg-sand-50/40">
-                    <td className="px-5 py-3 font-medium" style={{ color: "var(--color-text-1)" }}>{l.title}</td>
+                  <tr key={l.id} className="hover:bg-black/[0.025]">
+                    <td className="px-5 py-3 font-medium" style={{ color: "rgb(var(--foreground))" }}>{l.title}</td>
                     <td className="px-5 py-3"><span className="badge badge-neutral text-[10px]">{l.trade}</span></td>
-                    <td className="px-5 py-3 font-mono font-semibold" style={{ color: "var(--color-text-1)" }}>{l.headcount}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{formatCurrency(l.dailyRate, "AED")}</td>
+                    <td className="px-5 py-3 font-mono font-semibold" style={{ color: "rgb(var(--foreground))" }}>{l.headcount}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{formatCurrency(l.dailyRate, "AED")}</td>
                     <td className="px-5 py-3">
                       <span className={`badge ${SKILL_CLS[l.skillLevel]} text-[10px]`}>{t(`company.skill${l.skillLevel.charAt(0).toUpperCase() + l.skillLevel.slice(1).replace("_s", "S")}`)}</span>
                     </td>
-                    <td className="px-5 py-3" style={{ color: "var(--color-text-3)" }}>{l.nationality ?? "—"}</td>
+                    <td className="px-5 py-3" style={{ color: "rgb(var(--foreground-subtle))" }}>{l.nationality ?? "—"}</td>
                     <td className="px-5 py-3">
                       <div className="flex gap-1">
-                        <button onClick={() => { setEditLabour(l); setShowLabourModal(true); }} className="btn-ghost p-1"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} /></button>
-                        <button onClick={() => removeLabour(l.id)} className="btn-ghost p-1"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-danger)" }} /></button>
+                        <button onClick={() => { setEditLabour(l); setShowLabourModal(true); }} className="btn-ghost p-1"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} /></button>
+                        <button onClick={() => removeLabour(l.id)} className="btn-ghost p-1"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} /></button>
                       </div>
                     </td>
                   </tr>
@@ -507,23 +507,23 @@ export function CompanyProfileForm() {
         <div className="space-y-4">
           <div className="card p-6">
             <div className="flex items-center gap-3 mb-4">
-              <FileText className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+              <FileText className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
               <div>
-                <h3 className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>{t("company.exportTitle")}</h3>
-                <p className="text-xs mt-0.5" style={{ color: "var(--color-text-2)" }}>{t("company.exportSub")}</p>
+                <h3 className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>{t("company.exportTitle")}</h3>
+                <p className="text-xs mt-0.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.exportSub")}</p>
               </div>
             </div>
-            <ul className="space-y-1.5 mb-5 text-xs" style={{ color: "var(--color-text-2)" }}>
+            <ul className="space-y-1.5 mb-5 text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>
               {(["exportItem1","exportItem2","exportItem3","exportItem4"] as const).map((k) => (
                 <li key={k} className="flex items-center gap-2">
-                  <Check className="h-3 w-3 shrink-0" style={{ color: "var(--color-success)" }} />{t(`company.${k}`)}
+                  <Check className="h-3 w-3 shrink-0" style={{ color: "rgb(var(--success))" }} />{t(`company.${k}`)}
                 </li>
               ))}
             </ul>
 
             {/* Theme picker */}
             <div className="mb-5">
-              <p className="text-xs font-medium mb-3" style={{ color: "var(--color-text-2)" }}>{t("company.pdfTheme")}</p>
+              <p className="text-xs font-medium mb-3" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.pdfTheme")}</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {([
                   { id: "corporate" as PDFTheme, header: "#1e3a5f", accent: "#e67e22" },
@@ -536,14 +536,14 @@ export function CompanyProfileForm() {
                     onClick={() => setPdfTheme(id)}
                     className="rounded-[10px] overflow-hidden transition-all"
                     style={{
-                      border: pdfTheme === id ? `2px solid ${accent}` : "2px solid var(--color-border)",
+                      border: pdfTheme === id ? `2px solid ${accent}` : "2px solid rgb(var(--border) / 0.06)",
                       outline: pdfTheme === id ? `3px solid ${accent}33` : "none",
                     }}
                   >
                     {/* Mini preview */}
                     <div style={{ background: header, height: 28 }} />
-                    <div className="px-2 py-2 text-center" style={{ background: "var(--color-panel)" }}>
-                      <span className="text-xs font-medium capitalize" style={{ color: pdfTheme === id ? accent : "var(--color-text-2)" }}>
+                    <div className="px-2 py-2 text-center" style={{ background: "rgb(var(--surface-2))" }}>
+                      <span className="text-xs font-medium capitalize" style={{ color: pdfTheme === id ? accent : "rgb(var(--foreground-muted))" }}>
                         {t(`company.theme${id.charAt(0).toUpperCase() + id.slice(1)}`)}
                       </span>
                     </div>
@@ -623,7 +623,7 @@ export function CompanyProfileForm() {
 function Field({ label, value, type = "text", onChange }: { label: string; value: string; type?: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{label}</label>
+      <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{label}</label>
       <input type={type} className="input w-full" value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
@@ -639,15 +639,15 @@ function OrgNode({ member, tree, depth }: { member: StaffMember; tree: Map<strin
 
   // Colour-code by depth so the hierarchy is visually obvious
   const ringColor =
-    depth === 0 ? "var(--color-accent)" :
-    depth === 1 ? "var(--color-ai)" :
-    depth === 2 ? "var(--color-success)" :
-                  "var(--color-warning)";
+    depth === 0 ? "rgb(var(--primary))" :
+    depth === 1 ? "rgb(var(--primary))" :
+    depth === 2 ? "rgb(var(--success))" :
+                  "rgb(var(--warning))";
   const bgColor =
-    depth === 0 ? "var(--color-accent-muted)" :
-    depth === 1 ? "var(--color-ai-sub)" :
-    depth === 2 ? "var(--color-success-sub)" :
-                  "var(--color-warning-sub)";
+    depth === 0 ? "rgb(var(--primary-soft))" :
+    depth === 1 ? "rgb(var(--primary-soft))" :
+    depth === 2 ? "rgb(var(--success-soft))" :
+                  "rgb(var(--warning-soft))";
 
   return (
     <li>
@@ -666,13 +666,13 @@ function OrgNode({ member, tree, depth }: { member: StaffMember; tree: Map<strin
         >
           {member.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
         </div>
-        <p className="text-xs font-semibold leading-tight" style={{ color: "var(--color-text-1)" }}>
+        <p className="text-xs font-semibold leading-tight" style={{ color: "rgb(var(--foreground))" }}>
           {member.name}
         </p>
         <p className="text-[10px] leading-tight" style={{ color: ringColor }}>
           {member.title}
         </p>
-        <p className="text-[10px] leading-tight" style={{ color: "var(--color-text-3)" }}>
+        <p className="text-[10px] leading-tight" style={{ color: "rgb(var(--foreground-subtle))" }}>
           {member.department}
         </p>
       </div>
@@ -702,9 +702,9 @@ function ProjectModal({ t, project, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose}>
-      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
             {project ? t("company.editProject") : t("company.addProject")}
           </p>
           <button onClick={onClose} className="btn-ghost p-1"><X className="h-4 w-4" /></button>
@@ -718,13 +718,13 @@ function ProjectModal({ t, project, onClose, onSave }: {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("project.financial.category")}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.financial.category")}</label>
               <select className="input w-full" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 {["Civil", "Roads", "MEP", "Substations", "Structures", "Fit-Out", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("common.status")}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.status")}</label>
               <select className="input w-full" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as PastProject["status"] })}>
                 <option value="completed">{t("company.statusCompleted")}</option>
                 <option value="in_progress">{t("company.statusInProgress")}</option>
@@ -733,7 +733,7 @@ function ProjectModal({ t, project, onClose, onSave }: {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("common.details")}</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.details")}</label>
             <textarea className="input w-full resize-none" rows={3} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
         </div>
@@ -761,9 +761,9 @@ function StaffModal({ t, staffMember, allStaff, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose}>
-      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
             {staffMember ? t("company.editStaff") : t("company.addStaff")}
           </p>
           <button onClick={onClose} className="btn-ghost p-1"><X className="h-4 w-4" /></button>
@@ -779,7 +779,7 @@ function StaffModal({ t, staffMember, allStaff, onClose, onSave }: {
             <Field label={t("company.department")} value={form.department} onChange={(v) => setForm({ ...form, department: v })} />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.reportsTo")}</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.reportsTo")}</label>
             <select className="input w-full" value={form.reportsTo ?? ""} onChange={(e) => setForm({ ...form, reportsTo: e.target.value || undefined })}>
               <option value="">— ({t("company.topLevel")})</option>
               {managerOptions.map((s) => <option key={s.employeeId} value={s.employeeId}>{s.name} — {s.title}</option>)}
@@ -813,9 +813,9 @@ function EquipmentModal({ t, item, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose}>
-      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
             {item ? t("company.editEquipment") : t("company.addEquipment")}
           </p>
           <button onClick={onClose} className="btn-ghost p-1"><X className="h-4 w-4" /></button>
@@ -824,7 +824,7 @@ function EquipmentModal({ t, item, onClose, onSave }: {
           <Field label={t("common.name")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("project.financial.category")}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.financial.category")}</label>
               <select className="input w-full" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 {["Earthmoving", "Lifting", "Concrete", "Transport", "Power", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -833,7 +833,7 @@ function EquipmentModal({ t, item, onClose, onSave }: {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.ownership")}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.ownership")}</label>
               <select className="input w-full" value={form.ownership} onChange={(e) => setForm({ ...form, ownership: e.target.value as Equipment["ownership"] })}>
                 <option value="owned">{t("company.ownershipOwned")}</option>
                 <option value="leased">{t("company.ownershipLeased")}</option>
@@ -847,7 +847,7 @@ function EquipmentModal({ t, item, onClose, onSave }: {
             <Field label={t("company.yearAcquired")} type="number" value={String(form.yearAcquired ?? "")} onChange={(v) => setForm({ ...form, yearAcquired: parseInt(v) || undefined })} />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("common.status")}</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.status")}</label>
             <select className="input w-full" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Equipment["status"] })}>
               <option value="available">{t("company.equipStatusAvailable")}</option>
               <option value="in_use">{t("company.equipStatusInUse")}</option>
@@ -856,7 +856,7 @@ function EquipmentModal({ t, item, onClose, onSave }: {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("common.details")}</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.details")}</label>
             <textarea className="input w-full resize-none" rows={2} value={form.notes ?? ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           </div>
         </div>
@@ -882,9 +882,9 @@ function LabourModal({ t, item, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose}>
-      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="rounded-[20px] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
             {item ? t("company.editLabour") : t("company.addLabour")}
           </p>
           <button onClick={onClose} className="btn-ghost p-1"><X className="h-4 w-4" /></button>
@@ -893,13 +893,13 @@ function LabourModal({ t, item, onClose, onSave }: {
           <Field label={t("company.jobTitle")} value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.trade")}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.trade")}</label>
               <select className="input w-full" value={form.trade} onChange={(e) => setForm({ ...form, trade: e.target.value })}>
                 {["Civil", "MEP", "Electrical", "Finishing", "Supervision", "Operator"].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-2)" }}>{t("company.skillLevel")}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.skillLevel")}</label>
               <select className="input w-full" value={form.skillLevel} onChange={(e) => setForm({ ...form, skillLevel: e.target.value as LabourCategory["skillLevel"] })}>
                 <option value="supervisor">{t("company.skillSupervisor")}</option>
                 <option value="skilled">{t("company.skillSkilled")}</option>
@@ -914,9 +914,9 @@ function LabourModal({ t, item, onClose, onSave }: {
           </div>
           <Field label={t("company.nationality")} value={form.nationality ?? ""} onChange={(v) => setForm({ ...form, nationality: v })} />
           {form.headcount > 0 && form.dailyRate > 0 && (
-            <div className="flex items-center justify-between rounded-[10px] p-3" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
-              <span className="text-xs font-medium" style={{ color: "var(--color-text-2)" }}>{t("company.totalDailyCost")}</span>
-              <span className="text-sm font-bold font-mono" style={{ color: "var(--color-accent)" }}>{(form.headcount * form.dailyRate).toLocaleString()} AED</span>
+            <div className="flex items-center justify-between rounded-[10px] p-3" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
+              <span className="text-xs font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.totalDailyCost")}</span>
+              <span className="text-sm font-bold font-mono" style={{ color: "rgb(var(--primary))" }}>{(form.headcount * form.dailyRate).toLocaleString()} AED</span>
             </div>
           )}
         </div>

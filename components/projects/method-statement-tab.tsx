@@ -133,14 +133,14 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
       {/* ── Left: form ── */}
       <div className="w-[300px] shrink-0 flex flex-col gap-4 overflow-y-auto pr-1">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--color-text-3)" }}>Project details</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "rgb(var(--foreground-subtle))" }}>Project details</p>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-2)" }}>Project name</label>
+              <label className="text-xs font-medium block mb-1" style={{ color: "rgb(var(--foreground-muted))" }}>Project name</label>
               <input className="input text-sm w-full py-2" value={fields.projectName} onChange={(e) => update("projectName", e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-2)" }}>Scope summary</label>
+              <label className="text-xs font-medium block mb-1" style={{ color: "rgb(var(--foreground-muted))" }}>Scope summary</label>
               <textarea
                 rows={3}
                 className="input text-sm w-full py-2 resize-none"
@@ -150,7 +150,7 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
               />
             </div>
             <div>
-              <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-2)" }}>Overall duration</label>
+              <label className="text-xs font-medium block mb-1" style={{ color: "rgb(var(--foreground-muted))" }}>Overall duration</label>
               <select className="input text-sm w-full py-2" value={fields.duration} onChange={(e) => update("duration", e.target.value)}>
                 <option value="">Select…</option>
                 {DURATIONS.map((d) => <option key={d}>{d}</option>)}
@@ -160,7 +160,7 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
         </div>
 
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--color-text-3)" }}>Methodology</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: "rgb(var(--foreground-subtle))" }}>Methodology</p>
           <textarea
             rows={4}
             className="input text-sm w-full py-2 resize-none"
@@ -171,7 +171,7 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
         </div>
 
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-text-3)" }}>Key trades</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "rgb(var(--foreground-subtle))" }}>Key trades</p>
           <div className="flex flex-wrap gap-1.5">
             {TRADES.map((t) => (
               <button
@@ -179,8 +179,8 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
                 onClick={() => toggleTrade(t)}
                 className="text-[11px] px-2.5 py-1 rounded-full border transition-colors"
                 style={fields.trades.includes(t)
-                  ? { background: "var(--color-accent)", color: "#fff", borderColor: "var(--color-accent)" }
-                  : { background: "transparent", color: "var(--color-text-2)", borderColor: "var(--color-border)" }}
+                  ? { background: "rgb(var(--primary))", color: "#fff", borderColor: "rgb(var(--primary))" }
+                  : { background: "transparent", color: "rgb(var(--foreground-muted))", borderColor: "rgb(var(--border) / 0.06)" }}
               >
                 {t}
               </button>
@@ -189,7 +189,7 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
         </div>
 
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-text-3)" }}>Constraints</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "rgb(var(--foreground-subtle))" }}>Constraints</p>
           <textarea
             rows={2}
             className="input text-sm w-full py-2 resize-none"
@@ -200,7 +200,7 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
         </div>
 
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--color-text-3)" }}>HSE notes</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "rgb(var(--foreground-subtle))" }}>HSE notes</p>
           <textarea
             rows={2}
             className="input text-sm w-full py-2 resize-none"
@@ -222,23 +222,23 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
       </div>
 
       {/* Divider */}
-      <div className="w-px shrink-0" style={{ background: "var(--color-border)" }} />
+      <div className="w-px shrink-0" style={{ background: "rgb(var(--border) / 0.06)" }} />
 
       {/* ── Right: output ── */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center gap-2 mb-3 shrink-0">
-          <p className="text-xs font-semibold" style={{ color: "var(--color-text-2)" }}>Method Statement</p>
+          <p className="text-xs font-semibold" style={{ color: "rgb(var(--foreground-muted))" }}>Method Statement</p>
           {generating && <span className="badge badge-ai animate-pulse">Writing…</span>}
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={() => setEditingOutput((v) => !v)}
               className="btn-ghost text-xs py-1.5 px-3 gap-1.5"
-              style={{ color: editingOutput ? "var(--color-accent)" : undefined }}
+              style={{ color: editingOutput ? "rgb(var(--primary))" : undefined }}
             >
               <Edit3 className="h-3.5 w-3.5" strokeWidth={1.5} />
               {editingOutput ? "Done editing" : "Edit"}
             </button>
-            <button onClick={handleSave} className="btn-ghost text-xs py-1.5 px-3 gap-1.5" style={{ color: saved ? "var(--color-success)" : undefined }}>
+            <button onClick={handleSave} className="btn-ghost text-xs py-1.5 px-3 gap-1.5" style={{ color: saved ? "rgb(var(--success))" : undefined }}>
               {saved ? <><Check className="h-3.5 w-3.5" strokeWidth={2} />Saved</> : "Save draft"}
             </button>
             <button onClick={printText} className="btn-secondary text-xs py-1.5 px-3 gap-1.5">
@@ -254,13 +254,13 @@ export function MethodStatementTab({ ws }: { ws: ProjectWorkspace }) {
               value={outputText}
               onChange={(e) => setOutputText(e.target.value)}
               className="flex-1 w-full p-6 text-xs font-mono leading-7 resize-none outline-none"
-              style={{ color: "var(--color-text-1)", background: "var(--color-surface)", border: "none" }}
+              style={{ color: "rgb(var(--foreground))", background: "rgb(var(--surface))", border: "none" }}
             />
           ) : (
             <div className="flex-1 overflow-y-auto p-6">
-              <pre className="text-xs font-mono leading-7 whitespace-pre-wrap" style={{ color: "var(--color-text-1)" }}>
+              <pre className="text-xs font-mono leading-7 whitespace-pre-wrap" style={{ color: "rgb(var(--foreground))" }}>
                 {outputText}
-                {generating && <span className="animate-pulse" style={{ color: "var(--color-ai)" }}>▌</span>}
+                {generating && <span className="animate-pulse" style={{ color: "rgb(var(--primary))" }}>▌</span>}
               </pre>
             </div>
           )}

@@ -16,10 +16,10 @@ export default function Loading() {
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 card h-80" style={{ background: "var(--color-panel)" }} />
+        <div className="lg:col-span-2 card h-80 bg-surface-2" />
         <div className="space-y-6">
-          <div className="card h-36" style={{ background: "var(--color-panel)" }} />
-          <div className="card h-36" style={{ background: "var(--color-panel)" }} />
+          <div className="card h-36 bg-surface-2" />
+          <div className="card h-36 bg-surface-2" />
         </div>
       </div>
     </div>

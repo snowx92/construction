@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 import { Send, Zap, FileText, TrendingUp, Users, AlertTriangle, Plus } from "lucide-react";
-
-const SUGGESTED_PROMPTS = [
-  { icon: FileText,    text: "Analyze the Al Wasl Road tender risks" },
-  { icon: TrendingUp,  text: "How do current steel prices affect my open bids?" },
-  { icon: Users,       text: "Compare vendors for rebar supply" },
-  { icon: AlertTriangle, text: "What are the critical contract clauses I should flag?" },
-  { icon: Zap,         text: "Generate a BOQ for a 5-storey residential building" },
-];
+import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 type Message = { role: "user" | "ai"; text: string; };
 
@@ -18,6 +12,16 @@ const DEMO_RESPONSES: Record<string, string> = {
 };
 
 export default function CopilotPage() {
+  const t = useT();
+
+  const SUGGESTED_PROMPTS = [
+    { icon: FileText,    text: t("copilot.promptAnalyze") },
+    { icon: TrendingUp,  text: t("copilot.promptSteelPrices") },
+    { icon: Users,       text: t("copilot.promptCompareVendors") },
+    { icon: AlertTriangle, text: t("copilot.promptContractClauses") },
+    { icon: Zap,         text: t("copilot.promptGenerateBoq") },
+  ];
+
   const [messages, setMessages] = useState<Message[]>([
     { role: "ai", text: "Hello, Ahmed. I have full context on your 4 active tenders, 3 vendors, and live market pricing. What would you like to work on?" },
   ]);
@@ -36,23 +40,26 @@ export default function CopilotPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col" style={{ background: "var(--color-bg)" }}>
+    <div className="flex h-screen flex-col">
 
       {/* Header */}
-      <div className="px-8 py-5 shrink-0" style={{ borderBottom: "1px solid var(--color-border)" }}>
+      <div className="px-8 py-5 shrink-0 border-b border-black/[0.06]">
         <div className="mx-auto max-w-3xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: "var(--color-ai-sub)" }}>
-              <Zap className="h-4 w-4" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft">
+              <Zap className="h-4 w-4 text-primary" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>AI Copilot</p>
-              <p className="text-xs" style={{ color: "var(--color-text-3)" }}>4 tenders · 3 vendors · live pricing</p>
+              <p className="text-sm font-semibold text-foreground">{t("nav.copilot")}</p>
+              <p className="text-xs text-foreground-subtle">{t("copilot.contextLine")}</p>
             </div>
           </div>
-          <button className="btn-ghost text-xs gap-1.5">
+          <button className={cn(
+            "inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-pill)] text-foreground-muted text-sm font-medium transition-all duration-500 ease-out hover:bg-black/[0.04] hover:text-foreground",
+            "text-xs gap-1.5"
+          )}>
             <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
-            New conversation
+            {t("copilot.newConversation")}
           </button>
         </div>
       </div>
@@ -64,20 +71,17 @@ export default function CopilotPage() {
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "ai" && (
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full mr-3 mt-0.5" style={{ background: "var(--color-ai-sub)" }}>
-                  <Zap className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full mr-3 mt-0.5 bg-primary-soft">
+                  <Zap className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
               )}
               <div
-                className={`max-w-[72%] rounded-[18px] px-5 py-3.5 text-sm leading-relaxed ${
+                className={cn(
+                  "max-w-[72%] rounded-[18px] px-5 py-3.5 text-sm leading-relaxed",
                   msg.role === "user"
-                    ? "rounded-tr-sm"
-                    : "ai-mark rounded-tl-sm"
-                }`}
-                style={msg.role === "user"
-                  ? { background: "var(--color-accent)", color: "oklch(99% 0 0)" }
-                  : { background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text-2)" }
-                }
+                    ? "rounded-tr-sm bg-primary text-white"
+                    : "ai-mark rounded-tl-sm bg-surface border border-black/[0.06] text-foreground-muted"
+                )}
               >
                 {msg.text}
               </div>
@@ -86,13 +90,13 @@ export default function CopilotPage() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full mr-3" style={{ background: "var(--color-ai-sub)" }}>
-                <Zap className="h-3.5 w-3.5 animate-pulse-soft" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full mr-3 bg-primary-soft">
+                <Zap className="h-3.5 w-3.5 animate-pulse-soft text-primary" strokeWidth={1.5} />
               </div>
-              <div className="rounded-[18px] rounded-tl-sm px-5 py-3.5" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
+              <div className="rounded-[18px] rounded-tl-sm px-5 py-3.5 bg-surface border border-black/[0.06]">
                 <div className="flex items-center gap-1.5">
                   {[0, 1, 2].map((i) => (
-                    <div key={i} className="h-1.5 w-1.5 rounded-full animate-pulse-soft" style={{ background: "var(--color-ai)", animationDelay: `${i * 0.2}s` }} />
+                    <div key={i} className="h-1.5 w-1.5 rounded-full animate-pulse-soft bg-primary" style={{ animationDelay: `${i * 0.2}s` }} />
                   ))}
                 </div>
               </div>
@@ -105,16 +109,15 @@ export default function CopilotPage() {
       {messages.length <= 1 && (
         <div className="px-8 pb-4">
           <div className="mx-auto max-w-3xl">
-            <p className="text-xs font-medium mb-3" style={{ color: "var(--color-text-3)" }}>Suggested prompts</p>
+            <p className="text-xs font-medium mb-3 text-foreground-subtle">{t("copilot.suggestedPrompts")}</p>
             <div className="flex flex-wrap gap-2">
               {SUGGESTED_PROMPTS.map(({ icon: Icon, text }) => (
                 <button
                   key={text}
                   onClick={() => sendMessage(text)}
-                  className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-colors hover:bg-sand-200/60"
-                  style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text-2)" }}
+                  className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-colors hover:bg-black/[0.04] bg-surface border border-black/[0.06] text-foreground-muted"
                 >
-                  <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
                   {text}
                 </button>
               ))}
@@ -127,29 +130,27 @@ export default function CopilotPage() {
       <div className="px-8 pb-6 shrink-0">
         <div className="mx-auto max-w-3xl">
           <div
-            className="flex items-end gap-3 rounded-[20px] px-4 py-3"
-            style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-float)" }}
+            className="flex items-end gap-3 rounded-[20px] px-4 py-3 bg-surface border border-black/[0.06] shadow-lg"
           >
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              placeholder="Ask about tenders, pricing, vendors, risks…"
+              placeholder={t("copilot.placeholder")}
               rows={1}
-              className="flex-1 resize-none bg-transparent text-sm outline-none"
-              style={{ color: "var(--color-text-1)", minHeight: "24px", maxHeight: "120px" }}
+              className="flex-1 resize-none bg-transparent text-sm outline-none text-foreground"
+              style={{ minHeight: "24px", maxHeight: "120px" }}
             />
             <button
               onClick={() => sendMessage(input)}
               disabled={!input.trim() || loading}
-              className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-40"
-              style={{ background: "var(--color-accent)" }}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-40 bg-primary"
             >
               <Send className="h-3.5 w-3.5 text-white" strokeWidth={2} />
             </button>
           </div>
-          <p className="mt-2 text-center text-xs" style={{ color: "var(--color-text-3)" }}>
-            Copilot has access to your tenders, vendors, and live pricing data
+          <p className="mt-2 text-center text-xs text-foreground-subtle">
+            {t("copilot.footer")}
           </p>
         </div>
       </div>

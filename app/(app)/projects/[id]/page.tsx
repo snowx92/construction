@@ -49,53 +49,25 @@ function HelpHint({
       <HelpCircle
         className="h-3 w-3 cursor-help opacity-50 hover:opacity-100 transition-opacity"
         strokeWidth={2}
-        style={{ color: "var(--color-text-3)" }}
+        style={{ color: "rgb(var(--foreground-subtle))" }}
       />
       <span
         className={`absolute z-50 invisible opacity-0 group-hover/help:visible group-hover/help:opacity-100 transition-opacity pointer-events-none w-64 px-3 py-2.5 rounded-[10px] text-[11px] leading-relaxed shadow-lg ${placementCls}`}
         style={{
-          background: "var(--color-text-1)",
-          color: "var(--color-bg)",
+          background: "rgb(var(--foreground))",
+          color: "rgb(var(--background))",
         }}
       >
         {text}
         <span
           className={`absolute h-0 w-0 border-x-[6px] border-x-transparent ${arrowCls}`}
-          style={{ borderColor: "transparent", borderTopColor: placement === "top" ? "var(--color-text-1)" : undefined, borderBottomColor: placement === "bottom" ? "var(--color-text-1)" : undefined, borderRightColor: placement === "right" ? "var(--color-text-1)" : undefined, borderLeftColor: placement === "left" ? "var(--color-text-1)" : undefined }}
+          style={{ borderColor: "transparent", borderTopColor: placement === "top" ? "rgb(var(--foreground))" : undefined, borderBottomColor: placement === "bottom" ? "rgb(var(--foreground))" : undefined, borderRightColor: placement === "right" ? "rgb(var(--foreground))" : undefined, borderLeftColor: placement === "left" ? "rgb(var(--foreground))" : undefined }}
         />
       </span>
     </span>
   );
 }
 
-const TABS = [
-  // ── BID phase ───────────────────────────────────────────
-  { id: "overview",    label: "Overview",    icon: FileText,       help: "Project summary including tender source, BOQ items, key dates, and a checklist of generated documents." },
-  { id: "boq",         label: "BOQ",         icon: ClipboardList,  help: "Bill of Quantities — generate via AI from uploaded files, upload your own sheet, or add items manually. The BOQ feeds the Pricing tab and the Financial Proposal." },
-  { id: "proposals",   label: "Proposals",   icon: Zap,            help: "All AI-generated documents — the final priced tender submission, the tender analysis docs, and standard proposal documents (technical, financial, scope, etc.)." },
-  { id: "pricing",     label: "Pricing",     icon: Tag,            help: "Set unit rates for the BOQ items via AI market scraping or by uploading your own pricing sheet. Required to generate the Financial Proposal and Tender Submission." },
-  { id: "financial",   label: "Financial",   icon: DollarSign,     help: "Cost breakdown by category (materials, labour, equipment, overhead, risk buffer) and the AI-suggested tender price. Total cost × (1 + margin %) = suggested price." },
-  { id: "submission",  label: "Checklist",   icon: ListChecks,     help: "Tender submission checklist — track which required documents are ready (auto-linked from generated proposals) and which still need to be prepared." },
-  { id: "method",      label: "Method",      icon: Wrench,         help: "Method Statement editor — fill in the form fields and let AI draft a professional method statement document ready for export." },
-  { id: "programme",   label: "Programme",   icon: BarChart2,      help: "Construction Programme — AI-generated Gantt chart showing all activities, durations, and the critical path across the project timeline." },
-  { id: "copilot",     label: "Copilot",     icon: MessageSquare,  help: "Chat with the AI about this specific project. It has full context on the tender analysis, pricing, and generated documents." },
-  { id: "documents",   label: "Files",       icon: FolderOpen,     help: "Uploaded tender files, drawings, BOQ sheets, and any reference documents attached to this project. Files are processed through an AI pipeline automatically." },
-];
-
-const ANALYSIS_TYPES: { type: ProposalDocType; label: string; icon: string }[] = [
-  { type: "tender_overview", label: "Tender Overview",  icon: "📄" },
-  { type: "risk_assessment", label: "Risk Assessment",  icon: "⚠️" },
-  { type: "boq_report",      label: "BOQ Report",       icon: "📊" },
-];
-
-const PROPOSAL_TYPES: { type: ProposalDocType; label: string; icon: string }[] = [
-  { type: "technical_proposal", label: "Technical Proposal",  icon: "📋" },
-  { type: "company_profile",    label: "Company Profile",      icon: "🏢" },
-  { type: "method_statement",   label: "Method Statement",     icon: "🔧" },
-  { type: "scope_of_work",      label: "Scope of Work",        icon: "📐" },
-  { type: "execution_plan",     label: "Execution Plan",       icon: "📅" },
-  { type: "financial_proposal", label: "Financial Proposal",   icon: "💰" },
-];
 
 
 
@@ -289,6 +261,34 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
 
   if (!ws) notFound();
 
+  const TABS = [
+    { id: "overview",    label: t("project.tabs.overview"),    icon: FileText,       help: "Project summary including tender source, BOQ items, key dates, and a checklist of generated documents." },
+    { id: "boq",         label: t("boq.tabLabel"),             icon: ClipboardList,  help: "Bill of Quantities — generate via AI from uploaded files, upload your own sheet, or add items manually. The BOQ feeds the Pricing tab and the Financial Proposal." },
+    { id: "proposals",   label: t("project.tabs.proposals"),   icon: Zap,            help: "All AI-generated documents — the final priced tender submission, the tender analysis docs, and standard proposal documents (technical, financial, scope, etc.)." },
+    { id: "pricing",     label: t("project.tabs.pricing"),     icon: Tag,            help: "Set unit rates for the BOQ items via AI market scraping or by uploading your own pricing sheet. Required to generate the Financial Proposal and Tender Submission." },
+    { id: "financial",   label: t("project.tabs.financial"),   icon: DollarSign,     help: "Cost breakdown by category (materials, labour, equipment, overhead, risk buffer) and the AI-suggested tender price. Total cost × (1 + margin %) = suggested price." },
+    { id: "submission",  label: t("project.tabs.submission"),  icon: ListChecks,     help: "Tender submission checklist — track which required documents are ready (auto-linked from generated proposals) and which still need to be prepared." },
+    { id: "method",      label: t("project.tabs.method"),      icon: Wrench,         help: "Method Statement editor — fill in the form fields and let AI draft a professional method statement document ready for export." },
+    { id: "programme",   label: t("project.tabs.programme"),   icon: BarChart2,      help: "Construction Programme — AI-generated Gantt chart showing all activities, durations, and the critical path across the project timeline." },
+    { id: "copilot",     label: t("project.tabs.copilot"),     icon: MessageSquare,  help: "Chat with the AI about this specific project. It has full context on the tender analysis, pricing, and generated documents." },
+    { id: "documents",   label: t("project.tabs.documents"),   icon: FolderOpen,     help: "Uploaded tender files, drawings, BOQ sheets, and any reference documents attached to this project. Files are processed through an AI pipeline automatically." },
+  ];
+
+  const ANALYSIS_TYPES: { type: ProposalDocType; label: string; icon: string }[] = [
+    { type: "tender_overview", label: t("project.analysisTypes.tenderOverview"),  icon: "📄" },
+    { type: "risk_assessment", label: t("project.analysisTypes.riskAssessment"),  icon: "⚠️" },
+    { type: "boq_report",      label: t("project.analysisTypes.boqReport"),       icon: "📊" },
+  ];
+
+  const PROPOSAL_TYPES: { type: ProposalDocType; label: string; icon: string }[] = [
+    { type: "technical_proposal", label: t("proposal.typeTechnical"),  icon: "📋" },
+    { type: "company_profile",    label: t("proposal.sectionCompanyProfile"),      icon: "🏢" },
+    { type: "method_statement",   label: t("proposal.sectionMethodStatement"),     icon: "🔧" },
+    { type: "scope_of_work",      label: t("proposal.sectionScopeOfWork"),        icon: "📐" },
+    { type: "execution_plan",     label: t("proposal.sectionExecutionPlan"),       icon: "📅" },
+    { type: "financial_proposal", label: t("proposal.typeFinancial"),   icon: "💰" },
+  ];
+
   useEffect(() => {
     if (renaming) renameRef.current?.focus();
   }, [renaming]);
@@ -444,15 +444,15 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
   const isGeneratingCurrent = generatingType === activeProposal;
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: "var(--color-bg)" }}>
+    <div className="flex flex-col min-h-screen" style={{ background: "rgb(var(--background))" }}>
 
       {/* Project header */}
-      <div className="px-8 py-5 shrink-0" style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-surface)" }}>
+      <div className="px-8 py-5 shrink-0" style={{ borderBottom: "1px solid rgb(var(--border) / 0.06)", background: "rgb(var(--surface))" }}>
         <div className="mx-auto max-w-[1200px]">
-          <div className="flex items-center gap-2 mb-2 text-xs" style={{ color: "var(--color-text-3)" }}>
-            <Link href="/projects" style={{ color: "var(--color-text-3)" }}>Projects</Link>
+          <div className="flex items-center gap-2 mb-2 text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+            <Link href="/projects" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("nav.projects")}</Link>
             <ChevronRight className="h-3 w-3" />
-            <span style={{ color: "var(--color-text-1)" }}>{ws.name}</span>
+            <span style={{ color: "rgb(var(--foreground))" }}>{ws.name}</span>
           </div>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
@@ -464,32 +464,32 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                     onChange={(e) => setRenameVal(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") commitRename(); if (e.key === "Escape") setRenaming(false); }}
                     className="input text-xl font-semibold py-1 px-2"
-                    style={{ color: "var(--color-text-1)", maxWidth: 400 }}
+                    style={{ color: "rgb(var(--foreground))", maxWidth: 400 }}
                   />
                   <button onClick={commitRename} className="btn-primary py-1 px-2"><Check className="h-4 w-4" strokeWidth={2} /></button>
                   <button onClick={() => setRenaming(false)} className="btn-ghost py-1 px-2"><X className="h-4 w-4" strokeWidth={2} /></button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group">
-                  <h1 className="text-xl font-semibold truncate" style={{ color: "var(--color-text-1)" }}>{ws.name}</h1>
+                  <h1 className="text-xl font-semibold truncate" style={{ color: "rgb(var(--foreground))" }}>{ws.name}</h1>
                   <button onClick={() => { setRenameVal(ws.name); setRenaming(true); }}
                     className="opacity-0 group-hover:opacity-100 transition-opacity btn-ghost p-1">
-                    <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                    <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                   </button>
                 </div>
               )}
-              <p className="text-sm mt-0.5" style={{ color: "var(--color-text-2)" }}>
+              <p className="text-sm mt-0.5" style={{ color: "rgb(var(--foreground-muted))" }}>
                 {ws.clientName} · {ws.projectType}
-                {ws.financials && <span style={{ color: "var(--color-accent)" }} className="font-medium"> · {formatCurrency(ws.financials.suggestedPrice, "AED")}</span>}
+                {ws.financials && <span style={{ color: "rgb(var(--primary))" }} className="font-medium"> · {formatCurrency(ws.financials.suggestedPrice, "AED")}</span>}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => pinWorkspace(ws.id, !ws.pinned)}
                 className="btn-ghost py-1.5 px-3 text-xs gap-1.5"
-                title={ws.pinned ? "Unpin" : "Pin to top"}
+                title={ws.pinned ? t("project.header.unpin") : t("project.header.pinToTop")}
               >
-                <Pin className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: ws.pinned ? "var(--color-accent)" : undefined }} />
+                <Pin className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: ws.pinned ? "rgb(var(--primary))" : undefined }} />
               </button>
               <div className="relative">
                 <button onClick={() => setConfirmDelete(!confirmDelete)} className="btn-ghost py-1.5 px-3 text-xs">
@@ -497,25 +497,25 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                 </button>
                 {confirmDelete && (
                   <div className="absolute right-0 top-full mt-1 z-50 rounded-[12px] px-1 py-1 min-w-[160px]"
-                    style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+                    style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
                     <button
                       onClick={handleDelete}
-                      className="w-full flex items-center gap-2 rounded-[8px] px-3 py-2 text-xs font-medium text-left transition-colors hover:bg-danger-sub"
-                      style={{ color: "var(--color-danger)" }}
+                      className="w-full flex items-center gap-2 rounded-[8px] px-3 py-2 text-xs font-medium text-left transition-colors hover:bg-danger-soft"
+                      style={{ color: "rgb(var(--danger))" }}
                     >
                       <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                      Delete project
+                      {t("project.header.deleteProject")}
                     </button>
                     <button onClick={() => setConfirmDelete(false)}
-                      className="w-full flex items-center gap-2 rounded-[8px] px-3 py-2 text-xs text-left hover:bg-sand-100"
-                      style={{ color: "var(--color-text-2)" }}>
-                      Cancel
+                      className="w-full flex items-center gap-2 rounded-[8px] px-3 py-2 text-xs text-left hover:bg-black/[0.03]"
+                      style={{ color: "rgb(var(--foreground-muted))" }}>
+                      {t("common.cancel")}
                     </button>
                   </div>
                 )}
               </div>
               <button className="btn-secondary text-xs py-1.5 px-3 gap-1.5">
-                <Download className="h-3.5 w-3.5" strokeWidth={1.5} />Export all
+                <Download className="h-3.5 w-3.5" strokeWidth={1.5} />{t("project.header.exportAll")}
               </button>
               <button
                 onClick={() => { setTab("proposals"); generateAll(); }}
@@ -523,7 +523,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                 className="btn-primary text-xs py-1.5 px-3 gap-1.5 disabled:opacity-60"
               >
                 {generatingType ? <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} /> : <Zap className="h-3.5 w-3.5" strokeWidth={1.5} />}
-                {generatingType ? "Generating…" : "Generate proposals"}
+                {generatingType ? t("project.header.generating") : t("project.header.generateProposals")}
               </button>
             </div>
           </div>
@@ -531,7 +531,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
       </div>
 
       {/* Tabs */}
-      <div className="px-8 shrink-0" style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-surface)" }}>
+      <div className="px-8 shrink-0" style={{ borderBottom: "1px solid rgb(var(--border) / 0.06)", background: "rgb(var(--surface))" }}>
         <div className="mx-auto max-w-[1200px] flex items-center gap-0.5 overflow-x-auto scrollbar-tab">
           {TABS.map(({ id, label, icon: Icon, help }) => (
             <button
@@ -539,8 +539,8 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
               onClick={() => setTab(id)}
               className="flex items-center gap-2 px-3 py-3 text-xs font-medium transition-all border-b-2 whitespace-nowrap"
               style={{
-                borderColor: tab === id ? "var(--color-accent)" : "transparent",
-                color: tab === id ? "var(--color-accent)" : "var(--color-text-2)",
+                borderColor: tab === id ? "rgb(var(--primary))" : "transparent",
+                color: tab === id ? "rgb(var(--primary))" : "rgb(var(--foreground-muted))",
               }}
             >
               <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
@@ -549,13 +549,13 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                 <span className="badge badge-ai px-1.5 py-0">{ws.proposals.filter(p => p.status === "ready").length}</span>
               )}
               {id === "pricing" && !ws.pricingItems?.length && (
-                <span className="badge badge-warning px-1.5 py-0">Set up</span>
+                <span className="badge badge-warning px-1.5 py-0">{t("project.badge.setUp")}</span>
               )}
               {id === "pricing" && !!ws.pricingItems?.length && (
                 <span className="badge badge-success px-1.5 py-0">✓</span>
               )}
               {id === "boq" && !ws.analysis?.boqItems.length && (
-                <span className="badge badge-warning px-1.5 py-0">Set up</span>
+                <span className="badge badge-warning px-1.5 py-0">{t("project.badge.setUp")}</span>
               )}
               {id === "boq" && !!ws.analysis?.boqItems.length && (
                 <span className="badge badge-success px-1.5 py-0">{ws.analysis!.boqItems.length}</span>
@@ -568,13 +568,13 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
               onClick={() => setShowHelp((v) => !v)}
               className="btn-ghost flex items-center gap-1.5 py-1.5 px-3 text-xs"
               style={{
-                color: showHelp ? "var(--color-accent)" : "var(--color-text-3)",
-                background: showHelp ? "var(--color-accent-muted)" : undefined,
+                color: showHelp ? "rgb(var(--primary))" : "rgb(var(--foreground-subtle))",
+                background: showHelp ? "rgb(var(--primary-soft))" : undefined,
               }}
               title={showHelp ? "Hide help hints" : "Show help hints"}
             >
               <HelpCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-              {showHelp ? "Hints on" : "Hints off"}
+              {showHelp ? t("common.hintsOn") : t("common.hintsOff")}
             </button>
           </div>
         </div>
@@ -591,33 +591,33 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                 <div className="lg:col-span-2 space-y-6">
                   {/* Tender Source Card */}
                   {ws.tenderId && (
-                    <div className="card p-5 border-l-4" style={{ borderColor: "var(--color-ai)" }}>
+                    <div className="card p-5 border-l-4" style={{ borderColor: "rgb(var(--primary))" }}>
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-3)" }}>CONVERTED FROM TENDER</p>
-                          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
-                            Tender ID: <span style={{ color: "var(--color-ai)" }}>{ws.tenderId}</span>
+                          <p className="text-xs font-medium mb-1" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.overview.convertedFromTender")}</p>
+                          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
+                            {t("project.header.tenderId")} <span style={{ color: "rgb(var(--primary))" }}>{ws.tenderId}</span>
                           </p>
-                          <p className="text-xs mt-1" style={{ color: "var(--color-text-2)" }}>
-                            {ws.clientName && <>Client: {ws.clientName} · </>}
-                            Project type: {ws.projectType}
+                          <p className="text-xs mt-1" style={{ color: "rgb(var(--foreground-muted))" }}>
+                            {ws.clientName && <>{t("project.header.clientLabel")} {ws.clientName} · </>}
+                            {t("project.header.projectTypeLabel")} {ws.projectType}
                           </p>
                         </div>
-                        <Zap className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                        <Zap className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                       </div>
                     </div>
                   )}
 
                   {ws.analysis.risks.length > 0 && (
-                    <div className="card p-5 flex items-center justify-between gap-4" style={{ background: "var(--color-danger-sub)", border: "1px solid var(--color-border-sub)" }}>
+                    <div className="card p-5 flex items-center justify-between gap-4" style={{ background: "rgb(var(--danger-soft))", border: "1px solid rgb(var(--border) / 0.05)" }}>
                       <div className="flex items-center gap-3">
-                        <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-danger)" }} />
-                        <p className="text-sm" style={{ color: "var(--color-text-1)" }}>
-                          <span className="font-semibold">{ws.analysis.risks.length} risks</span> identified and sent to AI Insights
+                        <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} />
+                        <p className="text-sm" style={{ color: "rgb(var(--foreground))" }}>
+                          <span className="font-semibold">{t("project.overview.risksIdentified", { count: ws.analysis.risks.length })}</span>
                         </p>
                       </div>
                       <Link href="/insights" className="btn-ghost text-xs py-1.5 px-3 gap-1.5 shrink-0">
-                        View Insights
+                        {t("project.overview.viewInsights")}
                         <ChevronRight className="h-3 w-3" strokeWidth={2} />
                       </Link>
                     </div>
@@ -625,32 +625,32 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
 
                   {ws.analysis.boqItems.length > 0 ? (
                     <div className="card overflow-hidden">
-                      <div className="px-6 py-4 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                      <div className="px-6 py-4 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                         <div className="flex items-center gap-2">
-                          <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--color-text-3)" }}>{t("project.overview.boqItems")}</p>
+                          <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.overview.boqItems")}</p>
                           <HelpHint visible={showHelp} text="Bill of Quantities — every measurable item in the tender (materials, units, quantities, rates, totals). AI extracted these directly from the tender drawings and specs. The 'Total' column is quantity × unit rate from the original tender estimate." />
                         </div>
-                        <button onClick={() => setTab("boq")} className="btn-ghost text-xs py-1 px-2 gap-1.5" style={{ color: "var(--color-accent)" }}>
+                        <button onClick={() => setTab("boq")} className="btn-ghost text-xs py-1 px-2 gap-1.5" style={{ color: "rgb(var(--primary))" }}>
                           <ClipboardList className="h-3 w-3" strokeWidth={1.5} />
                           {t("boq.tabLabel")}
                         </button>
                       </div>
                       <table className="w-full text-xs">
                         <thead>
-                          <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                          <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                             {[t("project.pricing.description"), t("common.unit"), t("common.qty"), t("common.rate"), t("common.total")].map(h => (
-                              <th key={h} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                              <th key={h} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
-                        <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+                        <tbody className="divide-y divide-black/[0.05]">
                           {ws.analysis.boqItems.map(item => (
-                            <tr key={item.id} className="hover:bg-sand-50/40">
-                              <td className="px-5 py-3" style={{ color: "var(--color-text-1)" }}>{item.description}</td>
-                              <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{item.unit}</td>
-                              <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{item.quantity.toLocaleString()}</td>
-                              <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{item.unitPrice.toLocaleString()}</td>
-                              <td className="px-5 py-3 font-mono font-semibold" style={{ color: "var(--color-text-1)" }}>{formatCurrency(item.total, "AED")}</td>
+                            <tr key={item.id} className="hover:bg-black/[0.025]">
+                              <td className="px-5 py-3" style={{ color: "rgb(var(--foreground))" }}>{item.description}</td>
+                              <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{item.unit}</td>
+                              <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{item.quantity.toLocaleString()}</td>
+                              <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{item.unitPrice.toLocaleString()}</td>
+                              <td className="px-5 py-3 font-mono font-semibold" style={{ color: "rgb(var(--foreground))" }}>{formatCurrency(item.total, "AED")}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -658,12 +658,12 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                     </div>
                   ) : (
                     /* No BOQ yet — prompt to generate */
-                    <div className="card p-6 flex items-center justify-between gap-4" style={{ background: "var(--color-warning-sub)", border: "1px solid var(--color-border-sub)" }}>
+                    <div className="card p-6 flex items-center justify-between gap-4" style={{ background: "rgb(var(--warning-soft))", border: "1px solid rgb(var(--border) / 0.05)" }}>
                       <div className="flex items-center gap-3">
-                        <ClipboardList className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-warning)" }} />
+                        <ClipboardList className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--warning))" }} />
                         <div>
-                          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>{t("boq.title")}</p>
-                          <p className="text-xs" style={{ color: "var(--color-text-2)" }}>{t("boq.empty.sub")}</p>
+                          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>{t("boq.title")}</p>
+                          <p className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.empty.sub")}</p>
                         </div>
                       </div>
                       <button onClick={() => setTab("boq")} className="btn-primary text-xs py-1.5 px-3 gap-1.5 shrink-0">
@@ -676,26 +676,26 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
 
                 <div className="space-y-5">
                   {ws.financials && (
-                    <div className="card p-5" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
+                    <div className="card p-5" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
                       <div className="flex items-center gap-2 mb-3">
-                        <p className="text-xs font-medium" style={{ color: "var(--color-text-3)" }}>Suggested Price</p>
+                        <p className="text-xs font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.overview.suggestedPrice")}</p>
                         <HelpHint visible={showHelp} text="The price we recommend bidding. Calculated as Total Cost × (1 + margin %). Total Cost = materials + labor + equipment + overhead + risk buffer (4%)." />
                       </div>
-                      <p className="text-2xl font-bold mb-1" style={{ color: "var(--color-accent)" }}>{formatCurrency(ws.financials.suggestedPrice, "AED")}</p>
-                      <p className="text-xs mb-4" style={{ color: "var(--color-text-3)" }}>Margin: {ws.financials.margin}% · Cost: {formatCurrency(ws.financials.totalCost, "AED")}</p>
-                      <button onClick={() => setTab("financial")} className="btn-secondary text-xs w-full justify-center">View breakdown</button>
+                      <p className="text-2xl font-bold mb-1" style={{ color: "rgb(var(--primary))" }}>{formatCurrency(ws.financials.suggestedPrice, "AED")}</p>
+                      <p className="text-xs mb-4" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.overview.marginFormat", { margin: ws.financials.margin, cost: formatCurrency(ws.financials.totalCost, "AED") })}</p>
+                      <button onClick={() => setTab("financial")} className="btn-secondary text-xs w-full justify-center">{t("project.overview.viewBreakdown")}</button>
                     </div>
                   )}
 
                   <div className="card p-5">
                     <div className="flex items-center gap-2 mb-4">
-                      <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--color-text-3)" }}>Key Dates</p>
+                      <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.overview.keyDates")}</p>
                       <HelpHint visible={showHelp} text="Important deadlines parsed from the tender — bid submission cutoff, site mobilization date, substantial completion, etc. Use these to plan resourcing and document deadlines." />
                     </div>
                     {ws.analysis.deadlines.map(d => (
-                      <div key={d.label} className="flex justify-between py-2" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
-                        <span className="text-xs" style={{ color: "var(--color-text-2)" }}>{d.label}</span>
-                        <span className="text-xs font-medium font-mono" style={{ color: "var(--color-text-1)" }}>{d.date}</span>
+                      <div key={d.label} className="flex justify-between py-2" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
+                        <span className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>{d.label}</span>
+                        <span className="text-xs font-medium font-mono" style={{ color: "rgb(var(--foreground))" }}>{d.date}</span>
                       </div>
                     ))}
                   </div>
@@ -703,7 +703,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                   <div className="card p-5">
                     {ws.tenderId && (
                       <>
-                        <p className="text-[10px] font-medium uppercase tracking-widest mb-2" style={{ color: "var(--color-ai)" }}>Analysis Docs</p>
+                        <p className="text-[10px] font-medium uppercase tracking-widest mb-2" style={{ color: "rgb(var(--primary))" }}>{t("project.overview.analysisDocs")}</p>
                         <div className="space-y-1.5 mb-3">
                           {ANALYSIS_TYPES.map(({ type, label, icon }) => {
                             const exists = ws.proposals.find(p => p.type === type && p.status === "ready");
@@ -711,20 +711,20 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                               <div key={type} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm">{icon}</span>
-                                  <span className="text-xs" style={{ color: "var(--color-text-2)" }}>{label}</span>
+                                  <span className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>{label}</span>
                                 </div>
                                 {exists
-                                  ? <CheckCircle className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
-                                  : <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "var(--color-panel)", color: "var(--color-text-3)", border: "1px solid var(--color-border)" }}>—</span>
+                                  ? <CheckCircle className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
+                                  : <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgb(var(--surface-2))", color: "rgb(var(--foreground-subtle))", border: "1px solid rgb(var(--border) / 0.06)" }}>—</span>
                                 }
                               </div>
                             );
                           })}
                         </div>
-                        <div className="h-px mb-3" style={{ background: "var(--color-border-sub)" }} />
+                        <div className="h-px mb-3" style={{ background: "rgb(var(--border) / 0.05)" }} />
                       </>
                     )}
-                    <p className="text-[10px] font-medium uppercase tracking-widest mb-2" style={{ color: "var(--color-text-3)" }}>Proposals</p>
+                    <p className="text-[10px] font-medium uppercase tracking-widest mb-2" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.overview.proposals")}</p>
                     <div className="space-y-1.5">
                       {PROPOSAL_TYPES.map(({ type, label, icon }) => {
                         const exists = ws.proposals.find(p => p.type === type && p.status === "ready");
@@ -733,13 +733,13 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                           <div key={type} className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-sm">{icon}</span>
-                              <span className="text-xs" style={{ color: "var(--color-text-2)" }}>{label}</span>
+                              <span className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>{label}</span>
                             </div>
                             {isGen
-                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--color-ai)" }} />
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: "rgb(var(--primary))" }} />
                               : exists
-                              ? <CheckCircle className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
-                              : <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "var(--color-panel)", color: "var(--color-text-3)", border: "1px solid var(--color-border)" }}>—</span>
+                              ? <CheckCircle className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
+                              : <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgb(var(--surface-2))", color: "rgb(var(--foreground-subtle))", border: "1px solid rgb(var(--border) / 0.06)" }}>—</span>
                             }
                           </div>
                         );
@@ -751,7 +751,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                       className="btn-primary text-xs w-full justify-center mt-4 disabled:opacity-60"
                     >
                       <Zap className="h-3.5 w-3.5" strokeWidth={1.5} />
-                      {generatingType ? "Generating…" : "Generate proposals"}
+                      {generatingType ? t("project.header.generating") : t("project.header.generateProposals")}
                     </button>
                   </div>
                 </div>
@@ -759,16 +759,16 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
             ) : (
               /* No analysis yet (new project) */
               <div className="max-w-[560px] mx-auto text-center py-20">
-                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[20px]" style={{ background: "var(--color-ai-sub)" }}>
-                  <Zap className="h-8 w-8" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[20px]" style={{ background: "rgb(var(--primary-soft))" }}>
+                  <Zap className="h-8 w-8" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                 </div>
-                <h2 className="text-xl font-semibold mb-2" style={{ color: "var(--color-text-1)" }}>AI is analyzing your tender</h2>
-                <p className="text-sm mb-6" style={{ color: "var(--color-text-2)" }}>
-                  Upload tender files to get risk analysis, BOQ extraction, pricing recommendations, and auto-generated proposals.
+                <h2 className="text-xl font-semibold mb-2" style={{ color: "rgb(var(--foreground))" }}>{t("project.overview.aiAnalyzing")}</h2>
+                <p className="text-sm mb-6" style={{ color: "rgb(var(--foreground-muted))" }}>
+                  {t("project.overview.aiAnalyzingSub")}
                 </p>
                 <button onClick={() => setTab("documents")} className="btn-primary mx-auto">
                   <Upload className="h-4 w-4" strokeWidth={1.5} />
-                  Upload tender files
+                  {t("project.overview.uploadFiles")}
                 </button>
               </div>
             )
@@ -786,16 +786,16 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
               {/* Pricing nudge */}
               {!ws.pricingItems?.length && (
                 <div className="flex items-center justify-between gap-4 rounded-[14px] px-5 py-3.5"
-                  style={{ background: "var(--color-warning-sub)", border: "1px solid var(--color-border-sub)" }}>
+                  style={{ background: "rgb(var(--warning-soft))", border: "1px solid rgb(var(--border) / 0.05)" }}>
                   <div className="flex items-center gap-3">
-                    <Tag className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-warning)" }} />
-                    <p className="text-sm" style={{ color: "var(--color-text-1)" }}>
-                      Set up pricing to generate an accurate Financial Proposal
+                    <Tag className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--warning))" }} />
+                    <p className="text-sm" style={{ color: "rgb(var(--foreground))" }}>
+                      {t("project.proposals.pricingNudge")}
                     </p>
                   </div>
                   <button onClick={() => setTab("pricing")} className="btn-secondary text-xs py-1.5 px-3 gap-1.5 shrink-0">
                     <Tag className="h-3.5 w-3.5" strokeWidth={1.5} />
-                    Set Pricing
+                    {t("project.proposals.setPricing")}
                   </button>
                 </div>
               )}
@@ -815,8 +815,8 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                     return (
                       <div className="mb-1">
                         <div className="px-2 mb-2 flex items-center gap-1.5">
-                          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--color-accent)" }}>
-                            Tender Document
+                          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgb(var(--primary))" }}>
+                            {t("project.proposals.tenderDocument")}
                           </p>
                           <HelpHint visible={showHelp} placement="right" text="The final priced tender bid you submit to the client. AI builds this using your tender analysis PLUS the unit rates you set in the Pricing tab — so every BOQ item has a real number against it." />
                         </div>
@@ -827,31 +827,31 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                           }}
                           className="w-full flex items-center gap-3 rounded-[14px] px-3.5 py-3 text-left transition-all"
                           style={active
-                            ? { background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }
-                            : { background: "var(--color-panel)", border: "1px solid var(--color-border-sub)" }}
+                            ? { background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }
+                            : { background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.05)" }}
                         >
                           <span className="text-lg shrink-0 leading-none">📑</span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold" style={{ color: active ? "var(--color-accent)" : "var(--color-text-1)" }}>
-                              Tender Submission
+                            <p className="text-xs font-semibold" style={{ color: active ? "rgb(var(--primary))" : "rgb(var(--foreground))" }}>
+                              {t("project.proposals.tenderSubmission")}
                             </p>
                             <p className="text-[11px] mt-0.5" style={{ color:
-                              isGen ? "var(--color-ai)" :
-                              ready ? "var(--color-success)" :
-                              ws.pricingItems?.length ? "var(--color-accent)" :
-                              "var(--color-warning)"
+                              isGen ? "rgb(var(--primary))" :
+                              ready ? "rgb(var(--success))" :
+                              ws.pricingItems?.length ? "rgb(var(--primary))" :
+                              "rgb(var(--warning))"
                             }}>
-                              {isGen ? "Generating with pricing…"
-                                : ready ? `Ready · ${p!.wordCount.toLocaleString()} words`
-                                : ws.pricingItems?.length ? "Pricing ready — click to generate"
-                                : "Set up pricing first"}
+                              {isGen ? t("project.proposals.generatingWithPricing")
+                                : ready ? t("project.proposals.wordsFormat", { count: p!.wordCount.toLocaleString() })
+                                : ws.pricingItems?.length ? t("project.proposals.pricingReady")
+                                : t("project.proposals.pricingMissing")}
                             </p>
                           </div>
-                          {isGen ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" style={{ color: "var(--color-ai)" }} />
-                            : ready ? <CheckCircle className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
-                            : <Zap className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: ws.pricingItems?.length ? "var(--color-accent)" : "var(--color-text-3)" }} />}
+                          {isGen ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                            : ready ? <CheckCircle className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
+                            : <Zap className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: ws.pricingItems?.length ? "rgb(var(--primary))" : "rgb(var(--foreground-subtle))" }} />}
                         </button>
-                        <div className="mt-4 mb-3 h-px" style={{ background: "var(--color-border)" }} />
+                        <div className="mt-4 mb-3 h-px" style={{ background: "rgb(var(--border) / 0.06)" }} />
                       </div>
                     );
                   })()}
@@ -860,8 +860,8 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                   {ws.tenderId && (
                     <div className="mb-1">
                       <div className="px-2 mb-2 flex items-center gap-1.5">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--color-ai)" }}>
-                          Tender Analysis
+                        <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgb(var(--primary))" }}>
+                          {t("project.proposals.tenderAnalysis")}
                         </p>
                         <HelpHint visible={showHelp} placement="right" text="AI-generated documents that summarise what's inside the tender — project overview, identified risks, and the extracted Bill of Quantities. Pre-generated automatically when you converted from a tender." />
                       </div>
@@ -877,32 +877,32 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                               onClick={() => { setActiveProposal(type); if (!p && !isGen) generateProposal(type); }}
                               className="w-full flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-left transition-all"
                               style={active
-                                ? { background: "var(--color-ai-sub)", border: "1px solid var(--color-ai-line)" }
+                                ? { background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary))" }
                                 : { background: "transparent", border: "1px solid transparent" }}
                             >
                               <span className="text-base shrink-0 leading-none">{icon}</span>
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium" style={{ color: active ? "var(--color-ai)" : "var(--color-text-1)" }}>{label}</p>
-                                <p className="text-[11px] mt-0.5" style={{ color: isGen ? "var(--color-ai)" : ready ? "var(--color-success)" : "var(--color-text-3)" }}>
-                                  {isGen ? "Generating…" : ready ? `Ready · ${p!.wordCount.toLocaleString()} words` : "Pre-generated"}
+                                <p className="text-xs font-medium" style={{ color: active ? "rgb(var(--primary))" : "rgb(var(--foreground))" }}>{label}</p>
+                                <p className="text-[11px] mt-0.5" style={{ color: isGen ? "rgb(var(--primary))" : ready ? "rgb(var(--success))" : "rgb(var(--foreground-subtle))" }}>
+                                  {isGen ? t("common.generating") : ready ? t("project.proposals.wordsFormat", { count: p!.wordCount.toLocaleString() }) : t("project.proposals.preGenerated")}
                                 </p>
                               </div>
-                              {isGen ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "var(--color-ai)" }} />
-                                : ready ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
+                              {isGen ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                                : ready ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
                                 : null}
                             </button>
                           );
                         })}
                       </div>
-                      <div className="mt-4 mb-3 h-px" style={{ background: "var(--color-border)" }} />
+                      <div className="mt-4 mb-3 h-px" style={{ background: "rgb(var(--border) / 0.06)" }} />
                     </div>
                   )}
 
                   {/* Proposals */}
                   <div className="flex-1">
                     <div className="px-2 mb-2 flex items-center gap-1.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--color-text-3)" }}>
-                        Proposals
+                      <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgb(var(--foreground-subtle))" }}>
+                        {t("project.proposals.proposalsLabel")}
                       </p>
                       <HelpHint visible={showHelp} placement="right" text="Standard proposal documents you submit alongside the tender — technical approach, company profile, method statement, scope of work, execution plan, and financial proposal. Click any item to let the AI write it." />
                     </div>
@@ -918,18 +918,18 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                             onClick={() => { setActiveProposal(type); if (!p && !isGen) generateProposal(type); }}
                             className="w-full flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-left transition-all"
                             style={active
-                              ? { background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }
+                              ? { background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }
                               : { background: "transparent", border: "1px solid transparent" }}
                           >
                             <span className="text-base shrink-0 leading-none">{icon}</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium" style={{ color: active ? "var(--color-accent)" : "var(--color-text-1)" }}>{label}</p>
-                              <p className="text-[11px] mt-0.5" style={{ color: isGen ? "var(--color-ai)" : ready ? "var(--color-success)" : "var(--color-text-3)" }}>
-                                {isGen ? "Generating…" : ready ? `Ready · ${p!.wordCount.toLocaleString()} words` : "Click to generate"}
+                              <p className="text-xs font-medium" style={{ color: active ? "rgb(var(--primary))" : "rgb(var(--foreground))" }}>{label}</p>
+                              <p className="text-[11px] mt-0.5" style={{ color: isGen ? "rgb(var(--primary))" : ready ? "rgb(var(--success))" : "rgb(var(--foreground-subtle))" }}>
+                                {isGen ? t("common.generating") : ready ? t("project.proposals.wordsFormat", { count: p!.wordCount.toLocaleString() }) : t("project.proposals.clickToGenerate")}
                               </p>
                             </div>
-                            {isGen ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "var(--color-ai)" }} />
-                              : ready ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
+                            {isGen ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                              : ready ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
                               : null}
                           </button>
                         );
@@ -943,7 +943,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                     className="btn-primary w-full justify-center text-xs mt-5 disabled:opacity-60"
                   >
                     <Zap className="h-3.5 w-3.5" strokeWidth={1.5} />
-                    Generate all proposals
+                    {t("project.proposals.generateAllProposals")}
                   </button>
                 </div>
 
@@ -952,31 +952,32 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                   {isGeneratingCurrent ? (
                     <div className="card p-8 space-y-8">
                       {/* Header */}
-                      <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ background: "var(--color-ai-sub)" }}>
-                          <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                      <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ background: "rgb(var(--primary-soft))" }}>
+                          <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
-                            AI is writing{" "}
-                            {[...ANALYSIS_TYPES, ...PROPOSAL_TYPES, { type: "tender_submission" as const, label: "Tender Submission", icon: "📑" }]
-                              .find(p => p.type === activeProposal)?.label ?? activeProposal}…
+                          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
+                            {t("project.proposals.aiWriting", {
+                              label: [...ANALYSIS_TYPES, ...PROPOSAL_TYPES, { type: "tender_submission" as const, label: t("project.proposals.tenderSubmission"), icon: "📑" }]
+                                .find(p => p.type === activeProposal)?.label ?? activeProposal ?? ""
+                            })}
                           </p>
-                          <p className="text-xs" style={{ color: "var(--color-text-3)" }}>Using tender analysis as source</p>
+                          <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.proposals.usingSource")}</p>
                         </div>
                       </div>
                       {/* Stream */}
                       {(GENERATED_SECTIONS[activeProposal!] ?? []).slice(0, streamIdx).map((sec, i) => (
                         <div key={i} className="ai-mark">
-                          <h3 className="text-base font-semibold mb-2" style={{ color: "var(--color-text-1)" }}>{sec.heading}</h3>
-                          <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-2)" }}>{sec.body}</p>
+                          <h3 className="text-base font-semibold mb-2" style={{ color: "rgb(var(--foreground))" }}>{sec.heading}</h3>
+                          <p className="text-sm leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{sec.body}</p>
                         </div>
                       ))}
                       {streamIdx < (GENERATED_SECTIONS[activeProposal!] ?? []).length && (
                         <div className="flex items-center gap-1.5 pt-2">
                           {[0,1,2].map(i => (
                             <div key={i} className="h-2 w-2 rounded-full animate-pulse-soft"
-                              style={{ background: "var(--color-ai)", animationDelay: `${i * 0.2}s` }} />
+                              style={{ background: "rgb(var(--primary))", animationDelay: `${i * 0.2}s` }} />
                           ))}
                         </div>
                       )}
@@ -984,17 +985,17 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                   ) : currentProposal?.status === "ready" ? (
                     <div className="card overflow-hidden">
                       {/* Doc header */}
-                      <div className="flex items-center justify-between px-7 py-5" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                      <div className="flex items-center justify-between px-7 py-5" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                         <div>
-                          <p className="text-base font-semibold" style={{ color: "var(--color-text-1)" }}>{currentProposal.title}</p>
-                          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-3)" }}>
-                            {currentProposal.wordCount.toLocaleString()} words · AI generated · {new Date(currentProposal.createdAt).toLocaleDateString()}
+                          <p className="text-base font-semibold" style={{ color: "rgb(var(--foreground))" }}>{currentProposal.title}</p>
+                          <p className="text-xs mt-0.5" style={{ color: "rgb(var(--foreground-subtle))" }}>
+                            {t("project.proposals.wordsFormat", { count: currentProposal.wordCount.toLocaleString(), date: new Date(currentProposal.createdAt).toLocaleDateString() })}
                           </p>
                         </div>
                         <div className="flex items-center gap-2.5">
-                          <span className="badge badge-ai">AI</span>
+                          <span className="badge badge-ai">{t("project.proposals.aiGenerated")}</span>
                           <button className="btn-secondary text-xs py-1.5 px-3 gap-1.5">
-                            <Download className="h-3.5 w-3.5" strokeWidth={1.5} />Export PDF
+                            <Download className="h-3.5 w-3.5" strokeWidth={1.5} />{t("project.proposals.exportPdf")}
                           </button>
                         </div>
                       </div>
@@ -1002,27 +1003,27 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                       <div className="px-8 py-8 space-y-10 overflow-y-auto" style={{ maxHeight: "calc(100vh - 300px)" }}>
                         {currentProposal.sections.map((sec, i) => (
                           <div key={sec.id} className="ai-mark">
-                            {i > 0 && <div className="h-px mb-10" style={{ background: "var(--color-border-sub)" }} />}
-                            <h3 className="text-base font-semibold mb-3" style={{ color: "var(--color-text-1)" }}>{sec.heading}</h3>
-                            <p className="text-sm leading-7" style={{ color: "var(--color-text-2)" }}>{sec.body}</p>
+                            {i > 0 && <div className="h-px mb-10" style={{ background: "rgb(var(--border) / 0.05)" }} />}
+                            <h3 className="text-base font-semibold mb-3" style={{ color: "rgb(var(--foreground))" }}>{sec.heading}</h3>
+                            <p className="text-sm leading-7" style={{ color: "rgb(var(--foreground-muted))" }}>{sec.body}</p>
                           </div>
                         ))}
                       </div>
                     </div>
                   ) : (
                     <div className="card flex flex-col items-center justify-center text-center py-24 px-10">
-                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[20px]" style={{ background: "var(--color-accent-muted)" }}>
-                        <Zap className="h-7 w-7" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[20px]" style={{ background: "rgb(var(--primary-soft))" }}>
+                        <Zap className="h-7 w-7" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                       </div>
-                      <p className="text-base font-semibold mb-1.5" style={{ color: "var(--color-text-1)" }}>Not generated yet</p>
-                      <p className="text-sm mb-6 max-w-[320px]" style={{ color: "var(--color-text-3)" }}>
-                        AI will write this document using your tender analysis and pricing data
+                      <p className="text-base font-semibold mb-1.5" style={{ color: "rgb(var(--foreground))" }}>{t("project.proposals.notGeneratedYet")}</p>
+                      <p className="text-sm mb-6 max-w-[320px]" style={{ color: "rgb(var(--foreground-subtle))" }}>
+                        {t("project.proposals.notGeneratedSub")}
                       </p>
                       <button
                         onClick={() => activeProposal && generateProposal(activeProposal)}
                         className="btn-primary mx-auto"
                       >
-                        <Zap className="h-4 w-4" strokeWidth={1.5} />Generate now
+                        <Zap className="h-4 w-4" strokeWidth={1.5} />{t("project.proposals.generateNow")}
                       </button>
                     </div>
                   )}
@@ -1049,23 +1050,22 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
 
               {/* Generate CTA — appears once pricing is set */}
               {ws.pricingItems && ws.pricingItems.length > 0 && (
-                <div className="card p-6" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
+                <div className="card p-6" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
                   <div className="flex items-start justify-between gap-6">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-accent-sub)" }}>
-                        <Zap className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--primary-soft))" }}>
+                        <Zap className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-text-1)" }}>
-                          Pricing ready — generate your tender document
+                        <p className="text-sm font-semibold mb-1" style={{ color: "rgb(var(--foreground))" }}>
+                          {t("project.pricing.readyCta")}
                         </p>
-                        <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>
-                          AI will combine the {ws.pricingItems.length} priced BOQ items with your tender analysis to generate a complete,
-                          submission-ready tender document with real rates baked in.
+                        <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>
+                          {t("project.pricing.readyCtaSub", { n: ws.pricingItems.length })}
                         </p>
                         {ws.pricingSource && (
-                          <p className="text-xs mt-1.5" style={{ color: "var(--color-text-3)" }}>
-                            Pricing source: <span className="font-medium">{ws.pricingSource === "scraped" ? "AI Market Scraping" : "Uploaded Sheet"}</span>
+                          <p className="text-xs mt-1.5" style={{ color: "rgb(var(--foreground-subtle))" }}>
+                            {t("project.pricing.pricingSource")}: <span className="font-medium">{ws.pricingSource === "scraped" ? t("project.pricing.sourceScraped") : t("project.pricing.sourceUploaded")}</span>
                           </p>
                         )}
                       </div>
@@ -1080,10 +1080,10 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                       className="btn-primary shrink-0 gap-2 disabled:opacity-60"
                     >
                       {generatingType === "tender_submission"
-                        ? <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />Generating…</>
+                        ? <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />{t("common.generating")}</>
                         : ws.proposals.find((p) => p.type === "tender_submission" && p.status === "ready")
-                        ? <><CheckCircle className="h-4 w-4" strokeWidth={1.5} />View Tender</>
-                        : <><Zap className="h-4 w-4" strokeWidth={1.5} />Generate Tender Document</>
+                        ? <><CheckCircle className="h-4 w-4" strokeWidth={1.5} />{t("project.pricing.viewTender")}</>
+                        : <><Zap className="h-4 w-4" strokeWidth={1.5} />{t("project.pricing.generateTender")}</>
                       }
                     </button>
                   </div>
@@ -1097,83 +1097,83 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
             <div className="grid gap-6 lg:grid-cols-3">
               <div className="space-y-4">
                 {[
-                  { label: "Materials",        value: ws.financials.materialCost,   color: "var(--color-accent)",  help: "Sum of all material costs (cement, steel, aggregates, etc.) — quantity × unit rate, totalled from the BOQ." },
-                  { label: "Labor",            value: ws.financials.laborCost,      color: "var(--color-success)", help: "Estimated workforce cost: crew size × duration × daily rates. Includes skilled and unskilled labour." },
-                  { label: "Equipment",        value: ws.financials.equipmentCost,  color: "var(--color-ai)",      help: "Plant and equipment rental, fuel, and operator costs — based on the project programme." },
-                  { label: "Overhead",         value: ws.financials.overheadCost,   color: "var(--color-warning)", help: "Indirect costs — site supervision, insurance, bonds, utilities, mobilization. Typically 8–12% of direct cost." },
-                  { label: "Risk Buffer (4%)", value: ws.financials.riskBuffer,     color: "var(--color-danger)",  help: "Contingency for unforeseen costs (weather, scope variation, material price changes). Set to 4% of base cost by default." },
+                  { label: t("project.financial.materials"),  value: ws.financials.materialCost,   color: "rgb(var(--primary))",  help: "Sum of all material costs (cement, steel, aggregates, etc.) — quantity × unit rate, totalled from the BOQ." },
+                  { label: t("project.financial.labor"),      value: ws.financials.laborCost,      color: "rgb(var(--success))", help: "Estimated workforce cost: crew size × duration × daily rates. Includes skilled and unskilled labour." },
+                  { label: t("project.financial.equipment"),  value: ws.financials.equipmentCost,  color: "rgb(var(--primary))",      help: "Plant and equipment rental, fuel, and operator costs — based on the project programme." },
+                  { label: t("project.financial.overhead"),   value: ws.financials.overheadCost,   color: "rgb(var(--warning))", help: "Indirect costs — site supervision, insurance, bonds, utilities, mobilization. Typically 8–12% of direct cost." },
+                  { label: t("project.financial.riskBuffer"), value: ws.financials.riskBuffer,     color: "rgb(var(--danger))",  help: "Contingency for unforeseen costs (weather, scope variation, material price changes). Set to 4% of base cost by default." },
                 ].map(({ label, value, color, help }) => (
                   <div key={label} className="card px-5 py-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-medium" style={{ color: "var(--color-text-2)" }}>{label}</p>
+                        <p className="text-xs font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>{label}</p>
                         <HelpHint visible={showHelp} text={help} />
                       </div>
                       <p className="text-sm font-semibold font-mono" style={{ color }}>{formatCurrency(value, "AED")}</p>
                     </div>
-                    <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: "var(--color-border)" }}>
+                    <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: "rgb(var(--border) / 0.06)" }}>
                       <div className="h-full rounded-full" style={{ width: `${(value / ws.financials!.totalCost) * 100}%`, background: color }} />
                     </div>
                   </div>
                 ))}
-                <div className="card px-5 py-5" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
+                <div className="card px-5 py-5" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
                   <div className="flex items-center gap-1.5 mb-1">
-                    <p className="text-xs" style={{ color: "var(--color-text-3)" }}>Total Cost</p>
+                    <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.financial.totalCost")}</p>
                     <HelpHint visible={showHelp} text="Sum of all five cost categories above: Materials + Labor + Equipment + Overhead + Risk Buffer. This is what the project will cost ConstructCo to deliver." />
                   </div>
-                  <p className="text-xl font-bold mb-2" style={{ color: "var(--color-text-1)" }}>{formatCurrency(ws.financials.totalCost, "AED")}</p>
-                  <div className="h-px w-full my-3" style={{ background: "var(--color-accent-sub)" }} />
+                  <p className="text-xl font-bold mb-2" style={{ color: "rgb(var(--foreground))" }}>{formatCurrency(ws.financials.totalCost, "AED")}</p>
+                  <div className="h-px w-full my-3" style={{ background: "rgb(var(--primary-soft))" }} />
                   <div className="flex items-center gap-1.5 mb-1">
-                    <p className="text-xs" style={{ color: "var(--color-text-3)" }}>Margin: {ws.financials.margin}% · Suggested Price</p>
+                    <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.financial.marginFormat", { margin: ws.financials.margin })}</p>
                     <HelpHint visible={showHelp} text={`Total Cost × (1 + ${ws.financials.margin}% margin) = the price we recommend bidding. Margin covers profit and competitive positioning. Adjust margin to be more or less aggressive.`} />
                   </div>
-                  <p className="text-2xl font-bold" style={{ color: "var(--color-accent)" }}>{formatCurrency(ws.financials.suggestedPrice, "AED")}</p>
+                  <p className="text-2xl font-bold" style={{ color: "rgb(var(--primary))" }}>{formatCurrency(ws.financials.suggestedPrice, "AED")}</p>
                 </div>
               </div>
 
               <div className="lg:col-span-2 card overflow-hidden">
-                <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                <div className="px-6 py-4" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                   <div className="flex items-center gap-2">
-                    <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--color-text-3)" }}>Cost Breakdown</p>
+                    <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.financial.costBreakdown")}</p>
                     <HelpHint visible={showHelp} text="Line-by-line cost for every item in the BOQ. Quantities come from the tender; rates come from your set pricing source (or estimated if not set). Sum equals Total Cost." />
                   </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
-                        {["Category", "Item", "Unit", "Qty", "Rate", "Total"].map(h => (
-                          <th key={h} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                      <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
+                        {[t("project.financial.category"), t("project.financial.item"), t("common.unit"), t("common.qty"), t("common.rate"), t("common.total")].map(h => (
+                          <th key={h} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+                    <tbody className="divide-y divide-black/[0.05]">
                       {ws.financials.breakdown.map(line => (
-                        <tr key={line.id} className="hover:bg-sand-50/40">
+                        <tr key={line.id} className="hover:bg-black/[0.025]">
                           <td className="px-5 py-3"><span className="badge badge-neutral capitalize">{line.category}</span></td>
-                          <td className="px-5 py-3" style={{ color: "var(--color-text-1)" }}>{line.item}</td>
-                          <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{line.unit}</td>
-                          <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{line.qty.toLocaleString()}</td>
-                          <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{line.rate.toLocaleString()}</td>
-                          <td className="px-5 py-3 font-mono font-semibold" style={{ color: "var(--color-text-1)" }}>{formatCurrency(line.total, "AED")}</td>
+                          <td className="px-5 py-3" style={{ color: "rgb(var(--foreground))" }}>{line.item}</td>
+                          <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{line.unit}</td>
+                          <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{line.qty.toLocaleString()}</td>
+                          <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{line.rate.toLocaleString()}</td>
+                          <td className="px-5 py-3 font-mono font-semibold" style={{ color: "rgb(var(--foreground))" }}>{formatCurrency(line.total, "AED")}</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr style={{ borderTop: "2px solid var(--color-border)" }}>
-                        <td colSpan={5} className="px-5 py-3 text-xs font-semibold" style={{ color: "var(--color-text-2)" }}>Total Cost</td>
-                        <td className="px-5 py-3 text-sm font-bold font-mono" style={{ color: "var(--color-accent)" }}>{formatCurrency(ws.financials.totalCost, "AED")}</td>
+                      <tr style={{ borderTop: "2px solid rgb(var(--border) / 0.06)" }}>
+                        <td colSpan={5} className="px-5 py-3 text-xs font-semibold" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.financial.totalCost")}</td>
+                        <td className="px-5 py-3 text-sm font-bold font-mono" style={{ color: "rgb(var(--primary))" }}>{formatCurrency(ws.financials.totalCost, "AED")}</td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
                 {ws.financials.notes.length > 0 && (
-                  <div className="px-6 py-4" style={{ borderTop: "1px solid var(--color-border-sub)", background: "var(--color-ai-sub)" }}>
-                    <p className="text-xs font-medium mb-2 flex items-center gap-1.5" style={{ color: "var(--color-ai)" }}>
-                      <Zap className="h-3 w-3" strokeWidth={1.5} />AI pricing notes
+                  <div className="px-6 py-4" style={{ borderTop: "1px solid rgb(var(--border) / 0.05)", background: "rgb(var(--primary-soft))" }}>
+                    <p className="text-xs font-medium mb-2 flex items-center gap-1.5" style={{ color: "rgb(var(--primary))" }}>
+                      <Zap className="h-3 w-3" strokeWidth={1.5} />{t("project.financial.aiNotes")}
                     </p>
                     {ws.financials.notes.map((n, i) => (
-                      <p key={i} className="text-xs" style={{ color: "var(--color-text-2)" }}>• {n}</p>
+                      <p key={i} className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>• {n}</p>
                     ))}
                   </div>
                 )}
@@ -1183,7 +1183,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
 
           {tab === "financial" && !ws.financials && (
             <div className="text-center py-20">
-              <p className="text-sm" style={{ color: "var(--color-text-3)" }}>No financial analysis yet — upload tender files and generate proposals first.</p>
+              <p className="text-sm" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.financial.empty")}</p>
             </div>
           )}
 
@@ -1200,11 +1200,11 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
           {tab === "copilot" && (
             <div className="max-w-[760px] mx-auto">
               <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full" style={{ background: "var(--color-ai-sub)" }}>
-                  <Zap className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                <div className="flex h-7 w-7 items-center justify-center rounded-full" style={{ background: "rgb(var(--primary-soft))" }}>
+                  <Zap className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                 </div>
-                <span className="text-sm font-medium" style={{ color: "var(--color-text-2)" }}>
-                  AI Copilot · {ws.name} · {ws.proposals.filter(p => p.status === "ready").length} proposals
+                <span className="text-sm font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>
+                  {t("project.copilot.header", { name: ws.name, count: ws.proposals.filter(p => p.status === "ready").length })}
                 </span>
               </div>
               <div className="card overflow-hidden" style={{ minHeight: "480px", display: "flex", flexDirection: "column" }}>
@@ -1212,14 +1212,14 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                   {messages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                       {msg.role === "ai" && (
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-2 mt-0.5" style={{ background: "var(--color-ai-sub)" }}>
-                          <Zap className="h-3 w-3" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-2 mt-0.5" style={{ background: "rgb(var(--primary-soft))" }}>
+                          <Zap className="h-3 w-3" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                         </div>
                       )}
                       <div className="max-w-[75%] rounded-[16px] px-4 py-2.5 text-sm leading-relaxed"
                         style={msg.role === "user"
-                          ? { background: "var(--color-accent)", color: "white", borderRadius: "16px 16px 4px 16px" }
-                          : { background: "var(--color-panel)", border: "1px solid var(--color-border)", color: "var(--color-text-2)", borderRadius: "4px 16px 16px 16px" }
+                          ? { background: "rgb(var(--primary))", color: "white", borderRadius: "16px 16px 4px 16px" }
+                          : { background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)", color: "rgb(var(--foreground-muted))", borderRadius: "4px 16px 16px 16px" }
                         }>
                         {msg.text}
                       </div>
@@ -1227,22 +1227,22 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                   ))}
                   {chatLoading && (
                     <div className="flex justify-start">
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-2" style={{ background: "var(--color-ai-sub)" }}>
-                        <Loader2 className="h-3 w-3 animate-spin" style={{ color: "var(--color-ai)" }} />
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-2" style={{ background: "rgb(var(--primary-soft))" }}>
+                        <Loader2 className="h-3 w-3 animate-spin" style={{ color: "rgb(var(--primary))" }} />
                       </div>
-                      <div className="rounded-[16px] px-4 py-2.5" style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)" }}>
+                      <div className="rounded-[16px] px-4 py-2.5" style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)" }}>
                         <div className="flex items-center gap-1">
-                          {[0,1,2].map(i => <div key={i} className="h-1.5 w-1.5 rounded-full animate-pulse-soft" style={{ background: "var(--color-ai)", animationDelay: `${i*0.2}s` }} />)}
+                          {[0,1,2].map(i => <div key={i} className="h-1.5 w-1.5 rounded-full animate-pulse-soft" style={{ background: "rgb(var(--primary))", animationDelay: `${i*0.2}s` }} />)}
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
                 <div className="px-4 pb-2 flex flex-wrap gap-2">
-                  {["What are the key risks?", "Generate guarantee letter", "What are the legal penalties?", "Explain the BOQ items"].map(prompt => (
+                  {[t("project.copilot.askRisks"), t("project.copilot.generateGuarantee"), t("project.copilot.askPenalties"), t("project.copilot.explainBoq")].map(prompt => (
                     <button key={prompt} onClick={() => sendChat(prompt)}
-                      className="text-[11px] px-3 py-1.5 rounded-full transition-colors hover:bg-sand-200/60"
-                      style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)", color: "var(--color-text-2)" }}>
+                      className="text-[11px] px-3 py-1.5 rounded-full transition-colors hover:bg-black/[0.04]"
+                      style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)", color: "rgb(var(--foreground-muted))" }}>
                       {prompt}
                     </button>
                   ))}
@@ -1253,12 +1253,12 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") sendChat(chatInput); }}
-                    placeholder="Ask anything about this tender…"
+                    placeholder={t("project.copilot.placeholder")}
                     className="flex-1 input text-sm py-2.5"
                   />
                   <button onClick={() => sendChat(chatInput)} disabled={!chatInput.trim()}
                     className="flex h-9 w-9 items-center justify-center rounded-full disabled:opacity-40 transition-opacity"
-                    style={{ background: "var(--color-accent)" }}>
+                    style={{ background: "rgb(var(--primary))" }}>
                     <Send className="h-4 w-4 text-white" strokeWidth={2} />
                   </button>
                 </div>

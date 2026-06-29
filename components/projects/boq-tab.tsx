@@ -201,34 +201,34 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
     return (
       <div className="max-w-[1000px]">
         {/* Workflow indicator */}
-        <div className="mb-6 flex items-center gap-3 text-xs" style={{ color: "var(--color-text-3)" }}>
-          <span className="flex items-center gap-2 font-medium" style={{ color: "var(--color-accent)" }}>
-            <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: "var(--color-accent)" }}>1</span>
+        <div className="mb-6 flex items-center gap-3 text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+          <span className="flex items-center gap-2 font-medium" style={{ color: "rgb(var(--primary))" }}>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: "rgb(var(--primary))" }}>1</span>
             {t("boq.step1")}
           </span>
-          <span className="h-px flex-1" style={{ background: "var(--color-border)" }} />
+          <span className="h-px flex-1" style={{ background: "rgb(var(--border) / 0.06)" }} />
           <span className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold" style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)", color: "var(--color-text-3)" }}>2</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold" style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)", color: "rgb(var(--foreground-subtle))" }}>2</span>
             {t("boq.step2")}
           </span>
         </div>
 
         <div className="mb-6">
-          <h2 className="text-base font-semibold mb-1" style={{ color: "var(--color-text-1)" }}>{t("boq.step1Title")}</h2>
-          <p className="text-sm" style={{ color: "var(--color-text-2)" }}>{t("boq.step1Sub")}</p>
+          <h2 className="text-base font-semibold mb-1" style={{ color: "rgb(var(--foreground))" }}>{t("boq.step1Title")}</h2>
+          <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.step1Sub")}</p>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-3">
           {/* AI extract from uploaded tender files */}
           <div className="card p-6 flex flex-col gap-5"
-            style={extracting ? { border: "1px solid var(--color-ai-line)", background: "var(--color-ai-sub)" } : {}}>
+            style={extracting ? { border: "1px solid rgb(var(--primary))", background: "rgb(var(--primary-soft))" } : {}}>
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-ai-sub)", border: "1px solid var(--color-ai-line)" }}>
-                <Sparkles className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary))" }}>
+                <Sparkles className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
               </div>
               <div>
-                <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("boq.aiExtract.title")}</p>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>{t("boq.aiExtract.sub")}</p>
+                <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("boq.aiExtract.title")}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.aiExtract.sub")}</p>
               </div>
             </div>
             {extracting && (
@@ -236,11 +236,11 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
                 {EXTRACT_STEPS_KEYS.map((k, i) => (
                   <div key={k} className={`flex items-center gap-2 text-xs transition-opacity ${i < extractStep ? "opacity-100" : "opacity-30"}`}>
                     {i < extractStep
-                      ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                      ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                       : i === extractStep
-                      ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "var(--color-ai)" }} />
-                      : <div className="h-3.5 w-3.5 shrink-0 rounded-full" style={{ border: "1.5px solid var(--color-border)" }} />}
-                    <span style={{ color: i < extractStep ? "var(--color-text-2)" : "var(--color-text-3)" }}>{t(k)}</span>
+                      ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                      : <div className="h-3.5 w-3.5 shrink-0 rounded-full" style={{ border: "1.5px solid rgb(var(--border) / 0.06)" }} />}
+                    <span style={{ color: i < extractStep ? "rgb(var(--foreground-muted))" : "rgb(var(--foreground-subtle))" }}>{t(k)}</span>
                   </div>
                 ))}
               </div>
@@ -255,20 +255,20 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
           {/* Upload BOQ sheet (from tender) */}
           <div className="card p-6 flex flex-col gap-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
-                <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
+                <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
               </div>
               <div>
-                <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("boq.upload.title")}</p>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>{t("boq.upload.sub")}</p>
+                <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("boq.upload.title")}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.upload.sub")}</p>
               </div>
             </div>
-            <div className="rounded-[12px] p-3.5 flex items-center justify-between gap-3" style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)" }}>
+            <div className="rounded-[12px] p-3.5 flex items-center justify-between gap-3" style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)" }}>
               <div className="flex items-center gap-2 min-w-0">
-                <FileSpreadsheet className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
+                <FileSpreadsheet className="h-4 w-4 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                 <div className="min-w-0">
-                  <p className="text-xs font-medium truncate" style={{ color: "var(--color-text-1)" }}>{t("boq.upload.template")}</p>
-                  <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>{t("boq.upload.templateSub")}</p>
+                  <p className="text-xs font-medium truncate" style={{ color: "rgb(var(--foreground))" }}>{t("boq.upload.template")}</p>
+                  <p className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("boq.upload.templateSub")}</p>
                 </div>
               </div>
               <button onClick={downloadBoqTemplate} className="btn-secondary text-xs py-1.5 px-3 gap-1.5 shrink-0">
@@ -276,20 +276,20 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
               </button>
             </div>
             <div
-              className="rounded-[12px] border-2 border-dashed p-5 text-center cursor-pointer transition-colors hover:border-accent mt-auto"
-              style={{ borderColor: "var(--color-border)" }}
+              className="rounded-[12px] border-2 border-dashed p-5 text-center cursor-pointer transition-colors hover:border-primary mt-auto"
+              style={{ borderColor: "rgb(var(--border) / 0.06)" }}
               onClick={() => fileRef.current?.click()}
             >
               {uploading ? (
                 <div className="flex flex-col items-center gap-2">
-                  <Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--color-accent)" }} />
-                  <p className="text-xs" style={{ color: "var(--color-text-2)" }}>{t("project.pricing.parsing")} {fileName}…</p>
+                  <Loader2 className="h-5 w-5 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                  <p className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.pricing.parsing")} {fileName}…</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-1.5">
-                  <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
-                  <p className="text-xs font-medium" style={{ color: "var(--color-text-2)" }}>{t("boq.upload.drop")}</p>
-                  <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>{t("boq.upload.formats")}</p>
+                  <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
+                  <p className="text-xs font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.upload.drop")}</p>
+                  <p className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("boq.upload.formats")}</p>
                 </div>
               )}
             </div>
@@ -300,12 +300,12 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
           {/* Manual */}
           <div className="card p-6 flex flex-col gap-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-success-sub)", border: "1px solid var(--color-success)" }}>
-                <Plus className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--success-soft))", border: "1px solid rgb(var(--success))" }}>
+                <Plus className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
               </div>
               <div>
-                <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("boq.manual.title")}</p>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>{t("boq.manual.sub")}</p>
+                <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("boq.manual.title")}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.manual.sub")}</p>
               </div>
             </div>
             <button onClick={() => setShowManual(true)} className="btn-secondary justify-center mt-auto">
@@ -323,22 +323,22 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
   return (
     <div className="space-y-5">
       {/* Workflow indicator */}
-      <div className="flex items-center gap-3 text-xs" style={{ color: "var(--color-text-3)" }}>
-        <span className="flex items-center gap-2 font-medium" style={{ color: "var(--color-success)" }}>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: "var(--color-success)" }}>
+      <div className="flex items-center gap-3 text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+        <span className="flex items-center gap-2 font-medium" style={{ color: "rgb(var(--success))" }}>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: "rgb(var(--success))" }}>
             <CheckCircle className="h-3 w-3" strokeWidth={3} />
           </span>
           {t("boq.step1")}
         </span>
-        <span className="h-px flex-1" style={{ background: needsPricing ? "var(--color-border)" : "var(--color-success)" }} />
+        <span className="h-px flex-1" style={{ background: needsPricing ? "rgb(var(--border) / 0.06)" : "rgb(var(--success))" }} />
         <span className="flex items-center gap-2 font-medium"
-          style={{ color: fullyPriced ? "var(--color-success)" : needsPricing ? "var(--color-accent)" : "var(--color-text-3)" }}>
+          style={{ color: fullyPriced ? "rgb(var(--success))" : needsPricing ? "rgb(var(--primary))" : "rgb(var(--foreground-subtle))" }}>
           <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
             style={fullyPriced
-              ? { background: "var(--color-success)", color: "white" }
+              ? { background: "rgb(var(--success))", color: "white" }
               : needsPricing
-              ? { background: "var(--color-accent)", color: "white" }
-              : { background: "var(--color-panel)", border: "1px solid var(--color-border)" }}>
+              ? { background: "rgb(var(--primary))", color: "white" }
+              : { background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)" }}>
             {fullyPriced ? <CheckCircle className="h-3 w-3" strokeWidth={3} /> : "2"}
           </span>
           {t("boq.step2")}
@@ -348,21 +348,21 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
       {/* Status bar */}
       <div className="card p-5 flex items-center justify-between gap-4"
         style={{
-          background: needsPricing ? "var(--color-warning-sub)" : "var(--color-success-sub)",
-          border: "1px solid var(--color-border-sub)",
+          background: needsPricing ? "rgb(var(--warning-soft))" : "rgb(var(--success-soft))",
+          border: "1px solid rgb(var(--border) / 0.05)",
         }}>
         <div className="flex items-center gap-3">
           {needsPricing
-            ? <AlertCircle className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-warning)" }} />
-            : <CheckCircle className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />}
+            ? <AlertCircle className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--warning))" }} />
+            : <CheckCircle className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />}
           <div>
-            <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+            <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
               {items.length} {t("boq.itemsCount")}
               {needsPricing
-                ? <> · <span style={{ color: "var(--color-warning)" }}>{unpricedCount} {t("boq.unpriced")}</span></>
+                ? <> · <span style={{ color: "rgb(var(--warning))" }}>{unpricedCount} {t("boq.unpriced")}</span></>
                 : <> · {formatCurrency(totalValue, "AED")}</>}
             </p>
-            <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+            <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
               {needsPricing ? t("boq.needsPricingSub") : t("boq.totalEstimate")}
             </p>
           </div>
@@ -371,7 +371,7 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
           <button onClick={() => setShowManual(true)} className="btn-secondary text-xs py-1.5 px-3 gap-1.5">
             <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />{t("common.add")}
           </button>
-          <button onClick={clearAll} className="btn-ghost text-xs py-1.5 px-3 gap-1.5" style={{ color: "var(--color-danger)" }}>
+          <button onClick={clearAll} className="btn-ghost text-xs py-1.5 px-3 gap-1.5" style={{ color: "rgb(var(--danger))" }}>
             <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />{t("common.delete")}
           </button>
         </div>
@@ -379,27 +379,27 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
 
       {/* ─── STEP 2 — Pricing completion (only shown if needed) ─── */}
       {needsPricing && (
-        <div className="card p-6" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
+        <div className="card p-6" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
           <div className="flex items-start gap-3 mb-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-accent)", color: "white" }}>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--primary))", color: "white" }}>
               <Wand2 className="h-5 w-5" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("boq.completePricing.title")}</p>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>{t("boq.completePricing.sub")}</p>
+              <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("boq.completePricing.title")}</p>
+              <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.completePricing.sub")}</p>
             </div>
           </div>
 
           {pricing && (
-            <div className="space-y-1.5 mb-5 rounded-[12px] p-4" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border-sub)" }}>
+            <div className="space-y-1.5 mb-5 rounded-[12px] p-4" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.05)" }}>
               {PRICING_STEPS_KEYS.map((k, i) => (
                 <div key={k} className={`flex items-center gap-2 text-xs transition-opacity ${i < priceStep ? "opacity-100" : "opacity-30"}`}>
                   {i < priceStep
-                    ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+                    ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                     : i === priceStep
-                    ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "var(--color-accent)" }} />
-                    : <div className="h-3.5 w-3.5 shrink-0 rounded-full" style={{ border: "1.5px solid var(--color-border)" }} />}
-                  <span style={{ color: i < priceStep ? "var(--color-text-2)" : "var(--color-text-3)" }}>{t(k)}</span>
+                    ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                    : <div className="h-3.5 w-3.5 shrink-0 rounded-full" style={{ border: "1.5px solid rgb(var(--border) / 0.06)" }} />}
+                  <span style={{ color: i < priceStep ? "rgb(var(--foreground-muted))" : "rgb(var(--foreground-subtle))" }}>{t(k)}</span>
                 </div>
               ))}
             </div>
@@ -407,16 +407,16 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
 
           <div className="grid gap-4 md:grid-cols-2">
             {/* AI auto-price */}
-            <div className="rounded-[14px] p-5 flex flex-col gap-4" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
+            <div className="rounded-[14px] p-5 flex flex-col gap-4" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }}>
               <div className="flex items-start gap-3">
-                <Globe className="h-5 w-5 shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                <Globe className="h-5 w-5 shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                 <div>
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("boq.aiPrice.title")}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>{t("boq.aiPrice.sub")}</p>
+                  <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("boq.aiPrice.title")}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.aiPrice.sub")}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between gap-2 text-xs">
-                <span style={{ color: "var(--color-text-3)" }}>{t("project.pricing.market")}</span>
+                <span style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.pricing.market")}</span>
                 <select className="input text-xs py-1 px-2" value={country} onChange={(e) => setCountry(e.target.value as CountryCode)}>
                   {(["eg", "om"] as CountryCode[]).map((c) => (
                     <option key={c} value={c}>{COUNTRIES[c].flag} {COUNTRIES[c].name} ({COUNTRIES[c].currency})</option>
@@ -431,12 +431,12 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
             </div>
 
             {/* Upload pricing template */}
-            <div className="rounded-[14px] p-5 flex flex-col gap-4" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
+            <div className="rounded-[14px] p-5 flex flex-col gap-4" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }}>
               <div className="flex items-start gap-3">
-                <FileSpreadsheet className="h-5 w-5 shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+                <FileSpreadsheet className="h-5 w-5 shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                 <div>
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("boq.uploadPrice.title")}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>{t("boq.uploadPrice.sub")}</p>
+                  <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("boq.uploadPrice.title")}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>{t("boq.uploadPrice.sub")}</p>
                 </div>
               </div>
               <button onClick={downloadPriceTemplate} className="btn-secondary text-xs py-1.5 px-3 gap-1.5 self-start">
@@ -447,7 +447,7 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
                 onClick={() => priceFileRef.current?.click()}
                 disabled={pricing}
                 className="btn-primary justify-center disabled:opacity-60 mt-auto"
-                style={{ background: "var(--color-accent)" }}
+                style={{ background: "rgb(var(--primary))" }}
               >
                 {pricing && priceFileName
                   ? <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />{t("boq.uploadPrice.matching")} {priceFileName}…</>
@@ -465,32 +465,32 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+              <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                 {[t("project.pricing.description"), t("common.unit"), t("common.qty"), t("common.rate"), t("common.total"), t("project.financial.category"), ""].map((h, i) => (
-                  <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                  <th key={i} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+            <tbody className="divide-y divide-black/[0.05]">
               {items.map((it) => {
                 const unpriced = it.unitPrice === 0;
                 return (
-                  <tr key={it.id} className={`transition-colors ${unpriced ? "" : "hover:bg-sand-50/40"}`}
-                    style={unpriced ? { background: "var(--color-warning-sub)" } : undefined}>
-                    <td className="px-5 py-3" style={{ color: "var(--color-text-1)" }}>{it.description}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{it.unit}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{it.quantity.toLocaleString()}</td>
-                    <td className="px-5 py-3 font-mono" style={{ color: unpriced ? "var(--color-warning)" : "var(--color-text-2)" }}>
+                  <tr key={it.id} className={`transition-colors ${unpriced ? "" : "hover:bg-black/[0.025]"}`}
+                    style={unpriced ? { background: "rgb(var(--warning-soft))" } : undefined}>
+                    <td className="px-5 py-3" style={{ color: "rgb(var(--foreground))" }}>{it.description}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{it.unit}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{it.quantity.toLocaleString()}</td>
+                    <td className="px-5 py-3 font-mono" style={{ color: unpriced ? "rgb(var(--warning))" : "rgb(var(--foreground-muted))" }}>
                       {unpriced ? <span className="italic">{t("boq.tbd")}</span> : it.unitPrice.toLocaleString()}
                     </td>
-                    <td className="px-5 py-3 font-mono font-semibold" style={{ color: unpriced ? "var(--color-text-3)" : "var(--color-text-1)" }}>
+                    <td className="px-5 py-3 font-mono font-semibold" style={{ color: unpriced ? "rgb(var(--foreground-subtle))" : "rgb(var(--foreground))" }}>
                       {unpriced ? "—" : formatCurrency(it.total, "AED")}
                     </td>
                     <td className="px-5 py-3">
                       <span className="badge badge-neutral text-[10px]">{it.category}</span>
                     </td>
                     <td className="px-5 py-3">
-                      <button onClick={() => removeItem(it.id)} className="btn-ghost p-1" style={{ color: "var(--color-text-3)" }} title={t("common.delete")}>
+                      <button onClick={() => removeItem(it.id)} className="btn-ghost p-1" style={{ color: "rgb(var(--foreground-subtle))" }} title={t("common.delete")}>
                         <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                       </button>
                     </td>
@@ -499,10 +499,10 @@ export function BoqTab({ ws }: { ws: ProjectWorkspace }) {
               })}
             </tbody>
             <tfoot>
-              <tr style={{ borderTop: "2px solid var(--color-border)" }}>
-                <td colSpan={4} className="px-5 py-3 font-semibold" style={{ color: "var(--color-text-2)" }}>{t("common.total")}</td>
-                <td className="px-5 py-3 font-mono font-bold" style={{ color: "var(--color-accent)" }}>
-                  {fullyPriced ? formatCurrency(totalValue, "AED") : <span style={{ color: "var(--color-warning)" }}>{t("boq.pending")}</span>}
+              <tr style={{ borderTop: "2px solid rgb(var(--border) / 0.06)" }}>
+                <td colSpan={4} className="px-5 py-3 font-semibold" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.total")}</td>
+                <td className="px-5 py-3 font-mono font-bold" style={{ color: "rgb(var(--primary))" }}>
+                  {fullyPriced ? formatCurrency(totalValue, "AED") : <span style={{ color: "rgb(var(--warning))" }}>{t("boq.pending")}</span>}
                 </td>
                 <td colSpan={2} />
               </tr>
@@ -528,23 +528,23 @@ function ManualEntryModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose}>
-      <div className="rounded-[20px] p-6 w-full max-w-md" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="rounded-[20px] p-6 w-full max-w-md" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.06)" }} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>{t("boq.manual.modalTitle")}</p>
+          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>{t("boq.manual.modalTitle")}</p>
           <button onClick={onClose} className="btn-ghost p-1"><X className="h-4 w-4" /></button>
         </div>
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-medium mb-1 block" style={{ color: "var(--color-text-2)" }}>{t("project.pricing.description")}</label>
+            <label className="text-xs font-medium mb-1 block" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.pricing.description")}</label>
             <input className="input w-full" value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "var(--color-text-2)" }}>{t("common.unit")}</label>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.unit")}</label>
               <input className="input w-full" placeholder="m³ / ton / m²" value={draft.unit} onChange={(e) => setDraft({ ...draft, unit: e.target.value })} />
             </div>
             <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "var(--color-text-2)" }}>{t("project.financial.category")}</label>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.financial.category")}</label>
               <select className="input w-full" value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })}>
                 {["Civil", "Materials", "Electrical", "MEP", "Finishing", "Structures"].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -552,18 +552,18 @@ function ManualEntryModal({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "var(--color-text-2)" }}>{t("common.qty")}</label>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.qty")}</label>
               <input type="number" className="input w-full" value={draft.quantity || ""} onChange={(e) => setDraft({ ...draft, quantity: parseFloat(e.target.value) || 0 })} />
             </div>
             <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "var(--color-text-2)" }}>{t("common.rate")} (AED) — {t("boq.optional")}</label>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.rate")} (AED) — {t("boq.optional")}</label>
               <input type="number" className="input w-full" value={draft.unitPrice || ""} onChange={(e) => setDraft({ ...draft, unitPrice: parseFloat(e.target.value) || 0 })} />
             </div>
           </div>
           {draft.quantity > 0 && draft.unitPrice > 0 && (
-            <div className="flex items-center justify-between rounded-[10px] p-3" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
-              <span className="text-xs font-medium" style={{ color: "var(--color-text-2)" }}>{t("common.total")}</span>
-              <span className="text-sm font-bold font-mono" style={{ color: "var(--color-accent)" }}>{formatCurrency(draft.quantity * draft.unitPrice, "AED")}</span>
+            <div className="flex items-center justify-between rounded-[10px] p-3" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
+              <span className="text-xs font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>{t("common.total")}</span>
+              <span className="text-sm font-bold font-mono" style={{ color: "rgb(var(--primary))" }}>{formatCurrency(draft.quantity * draft.unitPrice, "AED")}</span>
             </div>
           )}
         </div>

@@ -15,10 +15,10 @@ type SearchResult =
   | { type: "project"; id: string; title: string; subtitle: string; href: string }
   | { type: "insight"; id: string; title: string; subtitle: string; href: string };
 
-const BADGE_STYLES: Record<SearchResult["type"], { bg: string; text: string }> = {
-  tender:  { bg: "var(--color-warning-sub)", text: "var(--color-warning)" },
-  project: { bg: "var(--color-accent-muted)", text: "var(--color-accent)" },
-  insight: { bg: "var(--color-ai-sub)", text: "var(--color-ai)" },
+const BADGE_STYLES: Record<SearchResult["type"], string> = {
+  tender:  "bg-warning-soft text-warning",
+  project: "bg-primary-soft text-primary",
+  insight: "bg-primary-soft text-primary",
 };
 
 const RECENT_SEARCHES_KEY = "global-search-recent";
@@ -207,13 +207,13 @@ export function GlobalSearch() {
     <div className="relative flex-1 max-w-sm">
       {/* Search Input */}
       <div
-        className="relative flex items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-all duration-150"
-        style={{
-          background: "var(--color-surface)",
-          border: `1px solid ${isOpen ? "var(--color-accent)" : "var(--color-border)"}`,
-        }}
+        className={cn(
+          "relative flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 transition-all duration-500 ease-out",
+          "bg-surface border",
+          isOpen ? "border-primary" : "border-black/[0.06]",
+        )}
       >
-        <Search className="h-4 w-4 shrink-0" style={{ color: "var(--color-text-3)" }} strokeWidth={1.5} />
+        <Search className="h-4 w-4 shrink-0 text-foreground-subtle" strokeWidth={1.5} />
 
         <input
           ref={inputRef}
@@ -226,8 +226,7 @@ export function GlobalSearch() {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          className="flex-1 bg-transparent text-sm outline-none"
-          style={{ color: "var(--color-text-1)" }}
+          className="flex-1 bg-transparent text-sm text-foreground outline-none"
         />
 
         {query && (
@@ -239,16 +238,16 @@ export function GlobalSearch() {
             }}
             className="shrink-0 transition-opacity hover:opacity-70"
           >
-            <X className="h-4 w-4" style={{ color: "var(--color-text-3)" }} strokeWidth={1.5} />
+            <X className="h-4 w-4 text-foreground-subtle" strokeWidth={1.5} />
           </button>
         )}
 
         {!query && (
-          <div className="flex items-center gap-1 text-xs shrink-0" style={{ color: "var(--color-text-3)" }}>
-            <kbd className="rounded-md px-2 py-1" style={{ background: "var(--color-border)", fontSize: "0.75rem" }}>
+          <div className="flex items-center gap-1 text-xs shrink-0 text-foreground-subtle">
+            <kbd className="rounded-md px-2 py-1 bg-black/[0.06] text-xs">
               {/Mac|iPhone|iPad|iPod/.test(navigator.platform) ? "⌘" : "Ctrl"}
             </kbd>
-            <kbd className="rounded-md px-2 py-1" style={{ background: "var(--color-border)", fontSize: "0.75rem" }}>
+            <kbd className="rounded-md px-2 py-1 bg-black/[0.06] text-xs">
               K
             </kbd>
           </div>
@@ -259,15 +258,14 @@ export function GlobalSearch() {
       {isOpen && items && (
         <div
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 z-50 mt-2 rounded-[12px] overflow-hidden shadow-lg"
-          style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)" }}
+          className="absolute top-full left-0 right-0 z-50 mt-2 rounded-[var(--radius-md)] overflow-hidden glass-strong shadow-lg"
         >
           {displayResults.length > 0 ? (
             <div className="max-h-96 overflow-y-auto">
               {/* Results Section */}
               {query && displayResults.length > 0 && (
                 <div>
-                  <div className="px-3 py-2 text-xs font-medium" style={{ color: "var(--color-text-3)", borderBottom: "1px solid var(--color-border-sub)" }}>
+                  <div className="px-3 py-2 text-xs font-medium text-foreground-subtle border-b border-black/[0.05]">
                     {t("search.results")}
                   </div>
                   <ul className="space-y-1 p-2">
@@ -276,29 +274,20 @@ export function GlobalSearch() {
                         <button
                           onClick={() => handleSelectResult(result)}
                           className={cn(
-                            "w-full text-left rounded-lg px-3 py-2.5 transition-colors duration-150",
-                            idx === selectedIndex ? "opacity-100" : "hover:opacity-70"
+                            "w-full text-left rounded-[var(--radius-sm)] px-3 py-2.5 transition-colors duration-500 ease-out",
+                            idx === selectedIndex ? "bg-black/[0.04]" : "hover:bg-black/[0.025]",
                           )}
-                          style={{
-                            background: idx === selectedIndex ? "var(--color-border)" : "transparent",
-                          }}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <p className="text-sm font-medium truncate" style={{ color: "var(--color-text-1)" }}>
+                              <p className="text-sm font-medium truncate text-foreground">
                                 {result.title}
                               </p>
-                              <p className="text-xs truncate" style={{ color: "var(--color-text-3)" }}>
+                              <p className="text-xs truncate text-foreground-subtle">
                                 {result.subtitle}
                               </p>
                             </div>
-                            <div
-                              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap"
-                              style={{
-                                background: BADGE_STYLES[result.type].bg,
-                                color: BADGE_STYLES[result.type].text,
-                              }}
-                            >
+                            <div className={cn("shrink-0 rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap", BADGE_STYLES[result.type])}>
                               {t(`search.badge.${result.type}`)}
                             </div>
                           </div>
@@ -311,7 +300,7 @@ export function GlobalSearch() {
             </div>
           ) : showRecent ? (
             <div>
-              <div className="px-3 py-2 text-xs font-medium" style={{ color: "var(--color-text-3)", borderBottom: "1px solid var(--color-border-sub)" }}>
+              <div className="px-3 py-2 text-xs font-medium text-foreground-subtle border-b border-black/[0.05]">
                 {t("search.recent")}
               </div>
               <ul className="space-y-1 p-2">
@@ -319,12 +308,9 @@ export function GlobalSearch() {
                   <li key={item.timestamp}>
                     <button
                       onClick={() => handleRecentClick(item.query)}
-                      className="w-full text-left rounded-lg px-3 py-2.5 transition-colors hover:opacity-70"
-                      style={{
-                        background: "transparent",
-                      }}
+                      className="w-full text-left rounded-[var(--radius-sm)] px-3 py-2.5 transition-colors hover:bg-black/[0.025]"
                     >
-                      <p className="text-sm" style={{ color: "var(--color-text-2)" }}>
+                      <p className="text-sm text-foreground-muted">
                         {item.query}
                       </p>
                     </button>
@@ -334,7 +320,7 @@ export function GlobalSearch() {
             </div>
           ) : (
             <div className="px-3 py-8 text-center">
-              <p className="text-sm" style={{ color: "var(--color-text-3)" }}>
+              <p className="text-sm text-foreground-subtle">
                 {t("search.noResults")}
               </p>
             </div>

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { mockTenders } from "@/data/mock";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { Upload, Search, Filter, FileText, X } from "lucide-react";
 import { ConvertToProjectButton } from "@/components/tender/convert-to-project-button";
 import { useT } from "@/lib/i18n";
@@ -17,19 +17,19 @@ interface UploadedTender extends Tender {
 export default function TenderListPage() {
   const t = useT();
   const STATUS_CONFIG = {
-    pending:       { label: t("tender.statusPending"),    cls: "badge-neutral"  },
-    analyzing:     { label: t("tender.statusAnalyzing"),  cls: "badge-ai"       },
-    ready:         { label: t("tender.statusReady"),      cls: "badge-success"  },
-    proposal_sent: { label: t("tender.statusSent"),       cls: "badge-neutral"  },
-    won:           { label: t("tender.statusWon"),        cls: "badge-success"  },
-    lost:          { label: t("tender.statusLost"),       cls: "badge-danger"   },
+    pending:       { label: t("tender.statusPending"),    cls: "bg-surface-2 text-foreground-muted border border-black/[0.06]" },
+    analyzing:     { label: t("tender.statusAnalyzing"),  cls: "bg-primary-soft text-primary" },
+    ready:         { label: t("tender.statusReady"),      cls: "bg-success-soft text-success"  },
+    proposal_sent: { label: t("tender.statusSent"),       cls: "bg-surface-2 text-foreground-muted border border-black/[0.06]" },
+    won:           { label: t("tender.statusWon"),        cls: "bg-success-soft text-success"  },
+    lost:          { label: t("tender.statusLost"),       cls: "bg-danger-soft text-danger"   },
   } as const;
 
   const COMPLEXITY_CONFIG = {
-    simple:     { label: t("tender.complexitySimple"),     cls: "badge-success"  },
-    moderate:   { label: t("tender.complexityModerate"),   cls: "badge-warning"  },
-    complex:    { label: t("tender.complexityComplex"),    cls: "badge-danger"   },
-    enterprise: { label: t("tender.complexityEnterprise"), cls: "badge-ai"       },
+    simple:     { label: t("tender.complexitySimple"),     cls: "bg-success-soft text-success"  },
+    moderate:   { label: t("tender.complexityModerate"),   cls: "bg-warning-soft text-warning"  },
+    complex:    { label: t("tender.complexityComplex"),    cls: "bg-danger-soft text-danger"   },
+    enterprise: { label: t("tender.complexityEnterprise"), cls: "bg-primary-soft text-primary"  },
   } as const;
 
   const [tenders, setTenders] = useState<UploadedTender[]>(mockTenders);
@@ -168,24 +168,21 @@ export default function TenderListPage() {
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <p
-            className="text-xs font-medium uppercase tracking-widest mb-1"
-            style={{ color: "var(--color-text-3)" }}
-          >
+          <p className="text-xs font-medium uppercase tracking-widest mb-1 text-foreground-subtle">
             {t("tender.subtitle")}
           </p>
-          <h1
-            className="text-3xl font-semibold"
-            style={{ color: "var(--color-text-1)" }}
-          >
+          <h1 className="text-3xl font-semibold text-foreground">
             {t("tender.title")}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--color-text-2)" }}>
+          <p className="mt-1 text-sm text-foreground-muted">
             {displayCount} {t("tender.title").toLowerCase()} · {displayReady} {t("tender.countSuffix")}
           </p>
         </div>
         <label
-          className="btn-primary cursor-pointer"
+          className={cn(
+            "inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-out hover:bg-primary-hover hover:scale-[1.02]",
+            "cursor-pointer"
+          )}
           htmlFor="tender-upload"
           role="button"
           tabIndex={0}
@@ -209,9 +206,8 @@ export default function TenderListPage() {
       <div className="mb-6 flex gap-3">
         <div className="relative flex-1">
           <Search
-            className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2"
+            className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-subtle"
             strokeWidth={1.5}
-            style={{ color: "var(--color-text-3)" }}
           />
           <input
             type="text"
@@ -223,14 +219,13 @@ export default function TenderListPage() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium"
-              style={{ color: "var(--color-text-3)" }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-foreground-subtle"
             >
               {t("common.cancel")}
             </button>
           )}
         </div>
-        <button className="btn-secondary gap-2">
+        <button className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-surface text-foreground border border-black/[0.06] text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-500 ease-out hover:bg-black/[0.035]">
           <Filter className="h-4 w-4" strokeWidth={1.5} />
           {t("common.filter")}
         </button>
@@ -238,40 +233,24 @@ export default function TenderListPage() {
 
       {/* Upload zone (drag & drop) */}
       <div
-        className={`mb-6 rounded-[20px] border-2 border-dashed p-10 text-center transition-all ${
-          isDragOver
-            ? "border-accent bg-accent/10"
-            : "border-border bg-surface"
-        }`}
+        className={cn(
+          "mb-6 rounded-[20px] border-2 border-dashed p-10 text-center transition-all",
+          isDragOver ? "border-primary bg-primary-soft" : "border-black/[0.06] bg-surface"
+        )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        style={
-          !isDragOver
-            ? {
-                borderColor: "var(--color-border)",
-                background: "var(--color-surface)",
-              }
-            : {
-                borderColor: "var(--color-accent)",
-                background: "oklch(var(--color-accent) / 0.1)",
-              }
-        }
       >
-        <div
-          className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[14px]"
-          style={{ background: "var(--color-accent-muted)" }}
-        >
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] bg-primary-soft">
           <Upload
-            className="h-5 w-5"
+            className="h-5 w-5 text-primary"
             strokeWidth={1.5}
-            style={{ color: "var(--color-accent)" }}
           />
         </div>
-        <p className="text-sm font-medium mb-1" style={{ color: "var(--color-text-1)" }}>
+        <p className="text-sm font-medium mb-1 text-foreground">
           {t("tender.uploadZoneTitle")}
         </p>
-        <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+        <p className="text-xs text-foreground-subtle">
           {t("tender.uploadZoneSub")}
         </p>
         <input
@@ -288,12 +267,10 @@ export default function TenderListPage() {
 
       {/* Toast notification */}
       {toast && (
-        <div className="fixed bottom-4 right-4 rounded-[12px] px-4 py-3 text-sm font-medium shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
-          style={{
-            background: toast.type === "success" ? "var(--color-success)" : "var(--color-danger)",
-            color: "white",
-          }}
-        >
+        <div className={cn(
+          "fixed bottom-4 right-4 rounded-[12px] px-4 py-3 text-sm font-medium shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-300 text-white",
+          toast.type === "success" ? "bg-success" : "bg-danger"
+        )}>
           {toast.message}
         </div>
       )}
@@ -301,7 +278,7 @@ export default function TenderListPage() {
       {/* Tender list - grid or list view */}
       <div className="space-y-3">
         {filteredTenders.length === 0 ? (
-          <div className="text-center py-8" style={{ color: "var(--color-text-3)" }}>
+          <div className="text-center py-8 text-foreground-subtle">
             <p>{t("tender.noMatch")}</p>
           </div>
         ) : (
@@ -317,38 +294,31 @@ export default function TenderListPage() {
                 key={tender.id}
                 className="card flex items-center gap-5 p-5 transition-all"
               >
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px]"
-                  style={{ background: "var(--color-panel)" }}
-                >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-surface-2">
                   <FileText
-                    className="h-5 w-5"
+                    className="h-5 w-5 text-foreground-subtle"
                     strokeWidth={1.5}
-                    style={{ color: "var(--color-text-3)" }}
                   />
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p
-                      className="text-sm font-semibold truncate"
-                      style={{ color: "var(--color-text-1)" }}
-                    >
+                    <p className="text-sm font-semibold truncate text-foreground">
                       {tender.title}
                     </p>
                     {cc && (
-                      <span className={`badge ${cc.cls} shrink-0`}>
+                      <span className={cn("inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2.5 py-0.5 text-xs font-medium shrink-0", cc.cls)}>
                         {cc.label}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+                  <p className="text-xs text-foreground-subtle">
                     {tender.client} · {t("tender.uploaded")} {formatDate(tender.submittedAt)} · {t("tender.due")}{" "}
                     {formatDate(tender.deadline)}
                     {aiConfidence && (
                       <>
                         {" "}
-                        · <span className="text-accent font-medium">
+                        · <span className="text-primary font-medium">
                           AI {aiConfidence}% {t("tender.confidence")}
                         </span>
                       </>
@@ -359,21 +329,15 @@ export default function TenderListPage() {
                 <div className="flex items-center gap-4 shrink-0">
                   {tender.value && (
                     <div className="text-right">
-                      <p
-                        className="text-sm font-semibold"
-                        style={{ color: "var(--color-text-1)" }}
-                      >
+                      <p className="text-sm font-semibold text-foreground">
                         {formatCurrency(tender.value, "AED")}
                       </p>
-                      <p
-                        className="text-xs"
-                        style={{ color: "var(--color-text-3)" }}
-                      >
+                      <p className="text-xs text-foreground-subtle">
                         {t("tender.estValue")}
                       </p>
                     </div>
                   )}
-                  <span className={`badge ${sc.cls}`}>{sc.label}</span>
+                  <span className={cn("inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2.5 py-0.5 text-xs font-medium", sc.cls)}>{sc.label}</span>
                   <ConvertToProjectButton tender={tender as Tender} variant="inline" />
                 </div>
               </div>

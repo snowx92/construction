@@ -160,21 +160,21 @@ export function PricingPanel({ ws }: Props) {
       <div className="space-y-5">
         {/* Status bar */}
         <div className="card p-5 flex items-center justify-between gap-4"
-          style={{ background: "var(--color-success-sub)", border: "1px solid var(--color-border-sub)" }}>
+          style={{ background: "rgb(var(--success-soft))", border: "1px solid rgb(var(--border) / 0.05)" }}>
           <div className="flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
+            <CheckCircle className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>
+              <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>
                 {ws.pricingItems.length} {t("project.pricing.itemsPriced")}
               </p>
-              <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+              <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
                 {t("common.source")}: {source} · {t("common.market")}: {cfg.flag} {cfg.name} ({cfg.currency}) · {t("project.pricing.validUntil")} 2026-08-31
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {/* Inline market switcher */}
-            <div className="flex gap-0.5 rounded-[8px] p-0.5" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border-sub)" }}>
+            <div className="flex gap-0.5 rounded-[8px] p-0.5" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.05)" }}>
               {COUNTRY_LIST.map((c) => {
                 const active = country === c.code;
                 return (
@@ -183,8 +183,8 @@ export function PricingPanel({ ws }: Props) {
                     onClick={() => setCountry(c.code)}
                     className="flex items-center gap-1 px-2 py-1 rounded-[6px] text-[10px] font-medium transition-all"
                     style={active
-                      ? { background: "var(--color-accent)", color: "white" }
-                      : { background: "transparent", color: "var(--color-text-3)" }}
+                      ? { background: "rgb(var(--primary))", color: "white" }
+                      : { background: "transparent", color: "rgb(var(--foreground-subtle))" }}
                     title={`${c.name} (${c.currency})`}
                   >
                     <span className="text-xs leading-none">{c.flag}</span>
@@ -205,36 +205,36 @@ export function PricingPanel({ ws }: Props) {
 
         {/* Pricing table */}
         <div className="card overflow-hidden">
-          <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
-            <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--color-text-3)" }}>
+          <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
+            <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "rgb(var(--foreground-subtle))" }}>
               {t("project.pricing.pricingSheet")}
             </p>
-            <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+            <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
               {ws.pricingItems.length} {t("project.pricing.lineItems")}
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: "1px solid var(--color-border-sub)" }}>
+                <tr style={{ borderBottom: "1px solid rgb(var(--border) / 0.05)" }}>
                   {[t("project.pricing.description"), t("common.unit"), t("project.pricing.marketRate"), t("project.pricing.tenderEstimate"), t("project.pricing.variance"), t("common.source")].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left font-medium" style={{ color: "var(--color-text-3)" }}>{h}</th>
+                    <th key={h} className="px-5 py-3 text-left font-medium" style={{ color: "rgb(var(--foreground-subtle))" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: "var(--color-border-sub)" }}>
+              <tbody className="divide-y divide-black/[0.05]">
                 {ws.pricingItems.map((item) => {
                   const v     = item.variance;
-                  const vColor = v == null ? "var(--color-text-3)" : v > 5 ? "var(--color-danger)" : v < -5 ? "var(--color-success)" : "var(--color-warning)";
+                  const vColor = v == null ? "rgb(var(--foreground-subtle))" : v > 5 ? "rgb(var(--danger))" : v < -5 ? "rgb(var(--success))" : "rgb(var(--warning))";
                   const VIcon  = v == null ? null : v > 5 ? TrendingUp : v < -5 ? TrendingDown : Minus;
                   return (
-                    <tr key={item.id} className="hover:bg-sand-50/30 transition-colors">
-                      <td className="px-5 py-3" style={{ color: "var(--color-text-1)" }}>{item.description}</td>
-                      <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>{item.unit}</td>
-                      <td className="px-5 py-3 font-mono font-semibold" style={{ color: "var(--color-text-1)" }}>
+                    <tr key={item.id} className="hover:bg-black/[0.02] transition-colors">
+                      <td className="px-5 py-3" style={{ color: "rgb(var(--foreground))" }}>{item.description}</td>
+                      <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>{item.unit}</td>
+                      <td className="px-5 py-3 font-mono font-semibold" style={{ color: "rgb(var(--foreground))" }}>
                         {formatCurrency(item.unitPrice, cfg.currency)}
                       </td>
-                      <td className="px-5 py-3 font-mono" style={{ color: "var(--color-text-2)" }}>
+                      <td className="px-5 py-3 font-mono" style={{ color: "rgb(var(--foreground-muted))" }}>
                         {item.tenderRate != null ? formatCurrency(item.tenderRate, "AED") : "—"}
                       </td>
                       <td className="px-5 py-3">
@@ -243,9 +243,9 @@ export function PricingPanel({ ws }: Props) {
                             <VIcon className="h-3 w-3" strokeWidth={2} />
                             {v > 0 ? "+" : ""}{v}%
                           </span>
-                        ) : <span style={{ color: "var(--color-text-3)" }}>—</span>}
+                        ) : <span style={{ color: "rgb(var(--foreground-subtle))" }}>—</span>}
                       </td>
-                      <td className="px-5 py-3" style={{ color: "var(--color-text-3)" }}>{item.source}</td>
+                      <td className="px-5 py-3" style={{ color: "rgb(var(--foreground-subtle))" }}>{item.source}</td>
                     </tr>
                   );
                 })}
@@ -261,21 +261,21 @@ export function PricingPanel({ ws }: Props) {
   return (
     <div className="space-y-6 max-w-[900px]">
       <div>
-        <h2 className="text-base font-semibold mb-1" style={{ color: "var(--color-text-1)" }}>
+        <h2 className="text-base font-semibold mb-1" style={{ color: "rgb(var(--foreground))" }}>
           {t("project.pricing.setSource")}
         </h2>
-        <p className="text-sm" style={{ color: "var(--color-text-2)" }}>
+        <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>
           {t("project.pricing.sourceSub")}
         </p>
       </div>
 
       {/* Country / Market switcher */}
-      <div className="flex items-center justify-between gap-4 rounded-[14px] p-3" style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)" }}>
+      <div className="flex items-center justify-between gap-4 rounded-[14px] p-3" style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)" }}>
         <div className="flex items-center gap-3 px-2">
-          <p className="text-xs font-medium" style={{ color: "var(--color-text-2)" }}>{t("project.pricing.market")}</p>
-          <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>{t("project.pricing.marketSub")} · {cfg.currency}</p>
+          <p className="text-xs font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.pricing.market")}</p>
+          <p className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.pricing.marketSub")} · {cfg.currency}</p>
         </div>
-        <div className="flex gap-1 rounded-[10px] p-1" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border-sub)" }}>
+        <div className="flex gap-1 rounded-[10px] p-1" style={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--border) / 0.05)" }}>
           {COUNTRY_LIST.map((c) => {
             const active = country === c.code;
             return (
@@ -284,8 +284,8 @@ export function PricingPanel({ ws }: Props) {
                 onClick={() => setCountry(c.code)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-medium transition-all"
                 style={active
-                  ? { background: "var(--color-accent)", color: "white" }
-                  : { background: "transparent", color: "var(--color-text-2)" }}
+                  ? { background: "rgb(var(--primary))", color: "white" }
+                  : { background: "transparent", color: "rgb(var(--foreground-muted))" }}
               >
                 <span className="text-sm leading-none">{c.flag}</span>
                 {c.name}
@@ -298,14 +298,14 @@ export function PricingPanel({ ws }: Props) {
       <div className="grid gap-5 lg:grid-cols-2">
 
         {/* Option A — AI Scraping */}
-        <div className="card p-6 flex flex-col gap-5" style={scraping ? { border: "1px solid var(--color-ai-line)", background: "var(--color-ai-sub)" } : {}}>
+        <div className="card p-6 flex flex-col gap-5" style={scraping ? { border: "1px solid rgb(var(--primary))", background: "rgb(var(--primary-soft))" } : {}}>
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-ai-sub)", border: "1px solid var(--color-ai-line)" }}>
-              <Globe className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary))" }}>
+              <Globe className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("project.pricing.aiScraping")}</p>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>
+              <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("project.pricing.aiScraping")}</p>
+              <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>
                 {t("project.pricing.aiScrapingSub", { country: cfg.name, currency: cfg.currency })}
               </p>
             </div>
@@ -314,8 +314,8 @@ export function PricingPanel({ ws }: Props) {
           {/* Sources list */}
           <ul className="space-y-1.5">
             {cfg.sources.map((s) => (
-              <li key={s} className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-3)" }}>
-                <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: "var(--color-ai)" }} />
+              <li key={s} className="flex items-center gap-2 text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+                <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: "rgb(var(--primary))" }} />
                 {s}
               </li>
             ))}
@@ -327,12 +327,12 @@ export function PricingPanel({ ws }: Props) {
               {scrapeSteps.map((step, i) => (
                 <div key={i} className={`flex items-center gap-2 text-xs transition-opacity ${i < stepIdx ? "opacity-100" : "opacity-30"}`}>
                   {i < stepIdx
-                    ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "var(--color-ai)" }} />
+                    ? <CheckCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
                     : i === stepIdx
-                    ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "var(--color-ai)" }} />
-                    : <div className="h-3.5 w-3.5 shrink-0 rounded-full" style={{ border: "1.5px solid var(--color-border)" }} />
+                    ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                    : <div className="h-3.5 w-3.5 shrink-0 rounded-full" style={{ border: "1.5px solid rgb(var(--border) / 0.06)" }} />
                   }
-                  <span style={{ color: i < stepIdx ? "var(--color-text-2)" : "var(--color-text-3)" }}>{step}</span>
+                  <span style={{ color: i < stepIdx ? "rgb(var(--foreground-muted))" : "rgb(var(--foreground-subtle))" }}>{step}</span>
                 </div>
               ))}
             </div>
@@ -353,22 +353,22 @@ export function PricingPanel({ ws }: Props) {
         {/* Option B — Upload Sheet */}
         <div className="card p-6 flex flex-col gap-5">
           <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--color-accent-muted)", border: "1px solid var(--color-accent-sub)" }}>
-              <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-accent)" }} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgb(var(--primary-soft))", border: "1px solid rgb(var(--primary-soft))" }}>
+              <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--primary))" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("project.pricing.uploadSheet")}</p>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-2)" }}>
+              <p className="text-sm font-semibold mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("project.pricing.uploadSheet")}</p>
+              <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--foreground-muted))" }}>
                 {t("project.pricing.uploadSub")}
               </p>
             </div>
           </div>
 
           {/* Template download */}
-          <div className="rounded-[12px] p-4 flex items-center justify-between gap-3" style={{ background: "var(--color-panel)", border: "1px solid var(--color-border)" }}>
+          <div className="rounded-[12px] p-4 flex items-center justify-between gap-3" style={{ background: "rgb(var(--surface-2))", border: "1px solid rgb(var(--border) / 0.06)" }}>
             <div>
-              <p className="text-xs font-medium mb-0.5" style={{ color: "var(--color-text-1)" }}>{t("project.pricing.templateName")}</p>
-              <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>
+              <p className="text-xs font-medium mb-0.5" style={{ color: "rgb(var(--foreground))" }}>{t("project.pricing.templateName")}</p>
+              <p className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>
                 {t("project.pricing.templateSub", { n: ws.analysis?.boqItems.length ?? 6 })}
               </p>
             </div>
@@ -383,28 +383,28 @@ export function PricingPanel({ ws }: Props) {
 
           {/* Upload zone */}
           <div
-            className="rounded-[12px] border-2 border-dashed p-6 text-center cursor-pointer transition-colors hover:border-accent"
-            style={{ borderColor: "var(--color-border)" }}
+            className="rounded-[12px] border-2 border-dashed p-6 text-center cursor-pointer transition-colors hover:border-primary"
+            style={{ borderColor: "rgb(var(--border) / 0.06)" }}
             onClick={() => fileRef.current?.click()}
           >
             {uploading ? (
               <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--color-accent)" }} />
-                <p className="text-xs" style={{ color: "var(--color-text-2)" }}>{t("project.pricing.parsing")} {fileName}…</p>
+                <Loader2 className="h-5 w-5 animate-spin" style={{ color: "rgb(var(--primary))" }} />
+                <p className="text-xs" style={{ color: "rgb(var(--foreground-muted))" }}>{t("project.pricing.parsing")} {fileName}…</p>
               </div>
             ) : fileName ? (
               <div className="flex flex-col items-center gap-2">
-                <CheckCircle className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-success)" }} />
-                <p className="text-xs font-medium" style={{ color: "var(--color-text-1)" }}>{fileName}</p>
-                <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>{t("project.pricing.clickToReplace")}</p>
+                <CheckCircle className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--success))" }} />
+                <p className="text-xs font-medium" style={{ color: "rgb(var(--foreground))" }}>{fileName}</p>
+                <p className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.pricing.clickToReplace")}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
-                <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "var(--color-text-3)" }} />
-                <p className="text-xs font-medium" style={{ color: "var(--color-text-2)" }}>
+                <Upload className="h-5 w-5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
+                <p className="text-xs font-medium" style={{ color: "rgb(var(--foreground-muted))" }}>
                   {t("project.pricing.dropSheet")}
                 </p>
-                <p className="text-[10px]" style={{ color: "var(--color-text-3)" }}>{t("project.pricing.dropSheetSub")}</p>
+                <p className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>{t("project.pricing.dropSheetSub")}</p>
               </div>
             )}
           </div>

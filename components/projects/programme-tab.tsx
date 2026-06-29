@@ -94,13 +94,13 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div>
-          <p className="text-sm font-semibold" style={{ color: "var(--color-text-1)" }}>Construction Programme</p>
-          <p className="text-xs" style={{ color: "var(--color-text-3)" }}>
+          <p className="text-sm font-semibold" style={{ color: "rgb(var(--foreground))" }}>Construction Programme</p>
+          <p className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
             {activities.length} activities · {TOTAL_WEEKS} weeks · {ws.name}
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <button className="btn-ghost text-xs py-1.5 px-3 gap-1.5" style={{ color: "var(--color-ai)" }}>
+          <button className="btn-ghost text-xs py-1.5 px-3 gap-1.5" style={{ color: "rgb(var(--primary))" }}>
             <Zap className="h-3.5 w-3.5" strokeWidth={1.5} />Generate from BOQ
           </button>
           <button onClick={exportPDF} className="btn-secondary text-xs py-1.5 px-3 gap-1.5">
@@ -117,13 +117,13 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
             onClick={() => toggleCat(cat)}
             className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full border transition-all"
             style={{
-              borderColor: visibleCats.has(cat) ? color : "var(--color-border)",
-              color: visibleCats.has(cat) ? color : "var(--color-text-3)",
+              borderColor: visibleCats.has(cat) ? color : "rgb(var(--border) / 0.06)",
+              color: visibleCats.has(cat) ? color : "rgb(var(--foreground-subtle))",
               background: visibleCats.has(cat) ? `color-mix(in srgb, ${color} 12%, transparent)` : "transparent",
               fontWeight: visibleCats.has(cat) ? 600 : 400,
             }}
           >
-            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: visibleCats.has(cat) ? color : "var(--color-border)" }} />
+            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: visibleCats.has(cat) ? color : "rgb(var(--border) / 0.06)" }} />
             {cat}
           </button>
         ))}
@@ -139,7 +139,7 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
             <svg width={CHART_W} height={totalH} style={{ display: "block" }}>
 
               {/* ── Background fill ── */}
-              <rect width={CHART_W} height={totalH} fill="var(--color-surface)" />
+              <rect width={CHART_W} height={totalH} fill="rgb(var(--surface))" />
 
               {/* ── Alternating row stripes ── */}
               {visible.map((_, i) => (
@@ -150,7 +150,7 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
                     y={HEADER_H + i * ROW_H}
                     width={CHART_W}
                     height={ROW_H}
-                    fill="var(--color-panel)"
+                    fill="rgb(var(--surface-2))"
                   />
                 ) : null
               ))}
@@ -163,7 +163,7 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
                   y1={0}
                   x2={NAME_W + w * WEEK_W}
                   y2={totalH}
-                  stroke="var(--color-border-sub)"
+                  stroke="rgb(var(--border) / 0.05)"
                   strokeWidth={w % 4 === 0 ? 1.5 : 0.5}
                 />
               ))}
@@ -176,19 +176,19 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
                   y1={HEADER_H + i * ROW_H}
                   x2={CHART_W}
                   y2={HEADER_H + i * ROW_H}
-                  stroke="var(--color-border-sub)"
+                  stroke="rgb(var(--border) / 0.05)"
                   strokeWidth={0.5}
                 />
               ))}
 
               {/* ── Header background ── */}
-              <rect width={CHART_W} height={HEADER_H} fill="var(--color-panel)" />
-              <line x1={0} y1={HEADER_H} x2={CHART_W} y2={HEADER_H} stroke="var(--color-border)" strokeWidth={1} />
+              <rect width={CHART_W} height={HEADER_H} fill="rgb(var(--surface-2))" />
+              <line x1={0} y1={HEADER_H} x2={CHART_W} y2={HEADER_H} stroke="rgb(var(--border) / 0.06)" strokeWidth={1} />
 
               {/* ── Name column header ── */}
-              <rect width={NAME_W} height={totalH} fill="var(--color-panel)" opacity={0.6} />
-              <line x1={NAME_W} y1={0} x2={NAME_W} y2={totalH} stroke="var(--color-border)" strokeWidth={1} />
-              <text x={12} y={HEADER_H / 2 + 5} fontSize={10} fontWeight={600} fill="var(--color-text-3)">ACTIVITY</text>
+              <rect width={NAME_W} height={totalH} fill="rgb(var(--surface-2))" opacity={0.6} />
+              <line x1={NAME_W} y1={0} x2={NAME_W} y2={totalH} stroke="rgb(var(--border) / 0.06)" strokeWidth={1} />
+              <text x={12} y={HEADER_H / 2 + 5} fontSize={10} fontWeight={600} fill="rgb(var(--foreground-subtle))">ACTIVITY</text>
 
               {/* ── Week numbers ── */}
               {Array.from({ length: TOTAL_WEEKS }, (_, w) => {
@@ -197,12 +197,12 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
                 return (
                   <g key={wk}>
                     {wk % 2 === 0 && (
-                      <text x={cx} y={HEADER_H / 2 + 5} textAnchor="middle" fontSize={9} fill="var(--color-text-3)" fontWeight={wk % 4 === 0 ? 600 : 400}>
+                      <text x={cx} y={HEADER_H / 2 + 5} textAnchor="middle" fontSize={9} fill="rgb(var(--foreground-subtle))" fontWeight={wk % 4 === 0 ? 600 : 400}>
                         {wk}
                       </text>
                     )}
                     {wk % 4 === 0 && (
-                      <text x={cx} y={HEADER_H - 8} textAnchor="middle" fontSize={8} fill="var(--color-text-3)" opacity={0.6}>
+                      <text x={cx} y={HEADER_H - 8} textAnchor="middle" fontSize={8} fill="rgb(var(--foreground-subtle))" opacity={0.6}>
                         M{Math.ceil(wk / 4)}
                       </text>
                     )}
@@ -226,7 +226,7 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
                       x={8}
                       y={y + ROW_H / 2 + 4}
                       fontSize={10.5}
-                      fill="var(--color-text-1)"
+                      fill="rgb(var(--foreground))"
                       style={{ userSelect: "none" }}
                     >
                       {act.name.length > 26 ? act.name.slice(0, 26) + "…" : act.name}
@@ -279,7 +279,7 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
                 y1={HEADER_H}
                 x2={NAME_W + 0.5 * WEEK_W}
                 y2={totalH}
-                stroke="var(--color-danger)"
+                stroke="rgb(var(--danger))"
                 strokeWidth={1.5}
                 strokeDasharray="4 3"
                 opacity={0.5}
@@ -289,19 +289,19 @@ export function ProgrammeTab({ ws }: { ws: ProjectWorkspace }) {
         </div>
 
         {/* Summary footer */}
-        <div className="flex items-center gap-6 px-5 py-3" style={{ borderTop: "1px solid var(--color-border-sub)", background: "var(--color-panel)" }}>
-          <span className="text-xs" style={{ color: "var(--color-text-3)" }}>
-            <span className="font-semibold" style={{ color: "var(--color-text-1)" }}>{visible.length}</span> activities shown
+        <div className="flex items-center gap-6 px-5 py-3" style={{ borderTop: "1px solid rgb(var(--border) / 0.05)", background: "rgb(var(--surface-2))" }}>
+          <span className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+            <span className="font-semibold" style={{ color: "rgb(var(--foreground))" }}>{visible.length}</span> activities shown
           </span>
-          <span className="text-xs" style={{ color: "var(--color-text-3)" }}>
-            <span className="font-semibold" style={{ color: "var(--color-text-1)" }}>{activities.filter((a) => a.critical).length}</span> on critical path
+          <span className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+            <span className="font-semibold" style={{ color: "rgb(var(--foreground))" }}>{activities.filter((a) => a.critical).length}</span> on critical path
           </span>
-          <span className="text-xs" style={{ color: "var(--color-text-3)" }}>
-            Duration: <span className="font-semibold" style={{ color: "var(--color-text-1)" }}>{TOTAL_WEEKS} weeks</span>
+          <span className="text-xs" style={{ color: "rgb(var(--foreground-subtle))" }}>
+            Duration: <span className="font-semibold" style={{ color: "rgb(var(--foreground))" }}>{TOTAL_WEEKS} weeks</span>
           </span>
           <div className="flex items-center gap-1 ml-2">
-            <span className="h-2 w-8 rounded" style={{ background: "var(--color-danger)", display: "inline-block", opacity: 0.7 }} />
-            <span className="text-[10px]" style={{ color: "var(--color-text-3)" }}>Critical path</span>
+            <span className="h-2 w-8 rounded" style={{ background: "rgb(var(--danger))", display: "inline-block", opacity: 0.7 }} />
+            <span className="text-[10px]" style={{ color: "rgb(var(--foreground-subtle))" }}>Critical path</span>
           </div>
         </div>
       </div>

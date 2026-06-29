@@ -21,13 +21,17 @@ export function formatDate(date: string | Date): string {
   }).format(new Date(date));
 }
 
-export function formatRelative(date: string | Date): string {
+export function relativeTime(date: string | Date): string {
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
   const diff = (new Date(date).getTime() - Date.now()) / 1000;
-  if (Math.abs(diff) < 60)   return rtf.format(Math.round(diff), "second");
+  if (Math.abs(diff) < 60) return rtf.format(Math.round(diff), "second");
   if (Math.abs(diff) < 3600) return rtf.format(Math.round(diff / 60), "minute");
   if (Math.abs(diff) < 86400) return rtf.format(Math.round(diff / 3600), "hour");
   return rtf.format(Math.round(diff / 86400), "day");
+}
+
+export function formatRelative(date: string | Date): string {
+  return relativeTime(date);
 }
 
 export function truncate(str: string, n: number): string {

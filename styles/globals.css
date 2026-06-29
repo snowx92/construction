@@ -1,45 +1,147 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* ── Design Tokens ─────────────────────────────────────────────── */
+/* ── Design Tokens (RGB channels) ─────────────────────────────────
+   All colors stored as space-separated RGB channels and consumed
+   via rgb(var(--name)) or rgb(var(--name) / alpha).                 */
 :root {
-  --color-bg:          oklch(97.8% 0.006 75);
-  --color-surface:     oklch(99%   0.004 75);
-  --color-panel:       oklch(96.5% 0.008 75);
-  --color-border:      oklch(90%   0.006 75);
-  --color-border-sub:  oklch(93%   0.005 75);
+  /* Surfaces (warm off-white, NOT pure white) */
+  --background:            248 246 243;
+  --surface:               252 251 248;
+  --surface-2:             246 243 238;
+  --surface-translucent:   255 255 255;
 
-  --color-accent:      oklch(55%   0.08  75);
-  --color-accent-sub:  oklch(88%   0.04  75);
-  --color-accent-hover:oklch(52%   0.08  75);
-  --color-accent-muted:oklch(92%   0.03  75);
+  /* Text */
+  --foreground:            17 17 17;
+  --foreground-muted:      107 107 107;
+  --foreground-subtle:     155 155 155;
 
-  --color-text-1:      oklch(18%   0.008 75);
-  --color-text-2:      oklch(45%   0.006 75);
-  --color-text-3:      oklch(68%   0.004 75);
+  /* Primary (deep purple) */
+  --primary:               76 42 139;
+  --primary-hover:         61 33 115;
+  --primary-active:        46 25 91;
+  --primary-soft:          237 230 247;
 
-  --color-ai:          oklch(55%   0.06  260);
-  --color-ai-sub:      oklch(94%   0.03  260);
-  --color-ai-line:     oklch(70%   0.06  260);
+  /* Warm accents */
+  --accent-warm:           243 231 218;
+  --accent-peach:          246 221 210;
+  --accent-amber:          245 231 204;
 
-  --color-success:     oklch(50%   0.12  145);
-  --color-success-sub: oklch(94%   0.05  145);
-  --color-warning:     oklch(65%   0.10  75);
-  --color-warning-sub: oklch(94%   0.04  75);
-  --color-danger:      oklch(50%   0.15  25);
-  --color-danger-sub:  oklch(94%   0.05  25);
+  /* Status (desaturated, gentle) */
+  --success:               81 119 78;
+  --success-soft:          224 232 218;
+  --danger:                168 70 55;
+  --danger-soft:           244 220 213;
+  --warning:               175 130 56;
+  --warning-soft:          245 231 204;
 
-  --radius-sm:   8px;
-  --radius-md:   12px;
-  --radius-lg:   20px;
+  /* Borders — black applied at low opacity */
+  --border:                0 0 0;
+  --border-strong:         0 0 0;
+  --hover:                 0 0 0;
+  --ring:                  76 42 139;
+
+  /* Radii */
+  --radius-sm:   10px;
+  --radius-md:   18px;
+  --radius-lg:   24px;
   --radius-xl:   28px;
-  --radius-full: 9999px;
+  --radius-pill: 999px;
 
-  --shadow-nav:  0 1px 3px oklch(0% 0 0 / 0.06), 0 0 0 1px var(--color-border);
-  --shadow-float:0 4px 24px oklch(18% 0.008 75 / 0.06);
-  --ease-quint:  cubic-bezier(0.16, 1, 0.3, 1);
+  /* Shadows (soft, almost imperceptible) */
+  --shadow-xs:    0 1px 0 rgba(0,0,0,0.02);
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.03), 0 1px 1px rgba(0,0,0,0.02);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-lg:    0 12px 32px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.6);
+
+  /* ── Backward-compatible aliases ────────────────────────────────
+     Map old --color-* variable names to the new token system so
+     any remaining inline-style references keep working.            */
+  --color-bg:            rgb(var(--background));
+  --color-surface:       rgb(var(--surface));
+  --color-panel:         rgb(var(--surface-2));
+  --color-border:        rgb(var(--border) / 0.08);
+  --color-border-sub:    rgb(var(--border) / 0.05);
+  --color-accent:        rgb(var(--primary));
+  --color-accent-hover:  rgb(var(--primary-hover));
+  --color-accent-sub:    rgb(var(--primary-soft));
+  --color-accent-muted:  rgb(var(--primary-soft));
+  --color-text-1:        rgb(var(--foreground));
+  --color-text-2:        rgb(var(--foreground-muted));
+  --color-text-3:        rgb(var(--foreground-subtle));
+  --color-ai:            rgb(var(--primary));
+  --color-ai-sub:        rgb(var(--primary-soft));
+  --color-ai-line:       rgb(var(--primary));
+  --color-success:       rgb(var(--success));
+  --color-success-sub:   rgb(var(--success-soft));
+  --color-success-line:  rgb(var(--success));
+  --color-warning:       rgb(var(--warning));
+  --color-warning-sub:   rgb(var(--warning-soft));
+  --color-danger:        rgb(var(--danger));
+  --color-danger-sub:    rgb(var(--danger-soft));
+  --color-info:          rgb(var(--primary));
+  --color-error:         rgb(var(--danger));
+  --shadow-nav:          var(--shadow-sm);
+  --shadow-float:        var(--shadow-lg);
+  --ease-quint:          cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-full:         var(--radius-pill);
+}
+
+/* ── Tailwind v4 Theme Mapping ────────────────────────────────────
+   Maps CSS variables to Tailwind utilities (bg-background,
+   text-foreground-muted, bg-primary, border-border, etc.).         */
+@theme inline {
+  --color-background:          rgb(var(--background));
+  --color-surface:             rgb(var(--surface));
+  --color-surface-2:           rgb(var(--surface-2));
+  --color-foreground:          rgb(var(--foreground));
+  --color-foreground-muted:    rgb(var(--foreground-muted));
+  --color-foreground-subtle:   rgb(var(--foreground-subtle));
+  --color-border:              rgb(var(--border) / 0.06);
+  --color-border-strong:       rgb(var(--border-strong) / 0.10);
+  --color-hover:               rgb(var(--hover) / 0.035);
+  --color-primary:             rgb(var(--primary));
+  --color-primary-hover:       rgb(var(--primary-hover));
+  --color-primary-active:      rgb(var(--primary-active));
+  --color-primary-soft:        rgb(var(--primary-soft));
+  --color-accent-warm:         rgb(var(--accent-warm));
+  --color-accent-peach:        rgb(var(--accent-peach));
+  --color-accent-amber:        rgb(var(--accent-amber));
+  --color-success:             rgb(var(--success));
+  --color-success-soft:        rgb(var(--success-soft));
+  --color-danger:              rgb(var(--danger));
+  --color-danger-soft:         rgb(var(--danger-soft));
+  --color-warning:             rgb(var(--warning));
+  --color-warning-soft:        rgb(var(--warning-soft));
+  --color-ring:                rgb(var(--ring));
+
+  /* Backward-compat sand palette (warm neutrals for hover tints) */
+  --color-sand-50:             rgb(var(--background));
+  --color-sand-100:            rgb(var(--surface-2));
+  --color-sand-200:            rgb(var(--hover) / 0.05);
+
+  --font-sans:   var(--font-inter), 'SF Pro', -apple-system, system-ui, sans-serif;
+  --font-arabic: var(--font-cairo), system-ui, sans-serif;
+
+  --radius-sm:   10px;
+  --radius-md:   18px;
+  --radius-lg:   24px;
+  --radius-xl:   28px;
+  --radius-pill: 999px;
+
+  --shadow-xs:    0 1px 0 rgba(0,0,0,0.02);
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.03), 0 1px 1px rgba(0,0,0,0.02);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-lg:    0 12px 32px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.6);
+
+  --animate-fade-in:   fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up:  slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float:     float 8s ease-in-out infinite;
+
+  @keyframes fade-in  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slide-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes float    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 }
 
 /* ── Base ───────────────────────────────────────────────────────── */
@@ -52,69 +154,113 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text-1);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-inter), 'SF Pro', -apple-system, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.011em;
+  font-feature-settings: 'ss01', 'cv11';
   font-size: 1rem;
   line-height: 1.6;
 }
 
-/* ── Arabic / RTL ──────────────────────────────────────────────── */
-/* When Arabic is active, switch the entire font stack to Cairo
-   (loaded via next/font as var(--font-cairo)). Cairo also has decent
-   Latin glyphs so mixed content reads well. */
-html[lang="ar"] body,
-html[dir="rtl"] body {
-  font-family: var(--font-cairo), "Cairo", "Inter", system-ui, sans-serif;
-  letter-spacing: 0;
+/* ── Typography ─────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.52rem; }
+h4 { font-size: 1.32rem; }
+
+/* ── Arabic / RTL ─────────────────────────────────────────────────
+   Critical: dir="rtl" is on a <div> inside <body>, so the selector
+   must be [dir='rtl'] (not html[dir='rtl'] body).                     */
+[dir='rtl'] {
+  font-family: var(--font-cairo), system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  font-feature-settings: 'kern', 'liga';
+  line-height: 1.75;
 }
 
-/* Latin font fallback still uses Cairo for consistency so mixed
-   bilingual content doesn't jump between fonts. */
-html[lang="en"] body {
-  font-family: "Inter", var(--font-cairo), system-ui, sans-serif;
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3,
+[dir='rtl'] h4,
+[dir='rtl'] h5,
+[dir='rtl'] h6 {
+  font-family: var(--font-cairo), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
-/* RTL adjustments — flip icons that imply direction (chevrons, arrows). */
-html[dir="rtl"] .rtl-flip {
-  transform: scaleX(-1);
-}
+/* RTL adjustments — flip directional icons */
+[dir='rtl'] .rtl-flip { transform: scaleX(-1); }
 
 /* Tabular numbers stay LTR even inside RTL paragraphs */
-html[dir="rtl"] .tabular-num,
-html[dir="rtl"] .font-mono {
+[dir='rtl'] .tabular-num,
+[dir='rtl'] .font-mono {
   direction: ltr;
   unicode-bidi: embed;
   display: inline-block;
 }
 
-/* Better Arabic line-height — Arabic glyphs are tall */
-html[lang="ar"] {
-  line-height: 1.75;
+/* ── Glass / Utility Classes ────────────────────────────────────── */
+.glass {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgb(0 0 0 / 0.06);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
 }
 
-/* ── Typography ─────────────────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 { letter-spacing: -0.015em; font-weight: 600; line-height: 1.25; }
-h1 { font-size: 2.25rem; }
-h2 { font-size: 1.75rem; }
-h3 { font-size: 1.52rem; }
-h4 { font-size: 1.32rem; }
+.glass-strong {
+  background: rgb(255 255 255 / 0.84);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgb(0 0 0 / 0.06);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--foreground-subtle));
+}
+
+.editorial {
+  font-feature-settings: 'ss01', 'cv11', 'kern';
+  letter-spacing: -0.03em;
+}
+
+.inset-highlight {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(0 0 0 / 0.08); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(0 0 0 / 0.14); }
 
 /* ── Utility Layer ──────────────────────────────────────────────── */
 @layer utilities {
   .text-balance { text-wrap: balance; }
 
   /* Surfaces */
-  .surface     { background: var(--color-surface); }
-  .surface-panel { background: var(--color-panel); }
+  .surface       { background: rgb(var(--surface)); }
+  .surface-panel { background: rgb(var(--surface-2)); }
 
   /* Borders */
-  .border-card { border: 1px solid var(--color-border); }
-  .border-sub  { border-color: var(--color-border-sub); }
+  .border-card { border: 1px solid rgb(var(--border) / 0.06); }
+  .border-sub  { border-color: rgb(var(--border) / 0.05); }
 
   /* AI provenance marker */
   .ai-mark {
-    border-left: 1.5px solid var(--color-ai-line);
+    border-left: 1.5px solid rgb(var(--primary));
     padding-left: 12px;
   }
 
@@ -122,9 +268,9 @@ h4 { font-size: 1.32rem; }
   .skeleton {
     background: linear-gradient(
       90deg,
-      var(--color-panel) 0%,
-      var(--color-border-sub) 50%,
-      var(--color-panel) 100%
+      rgb(var(--surface-2)) 0%,
+      rgb(var(--border) / 0.06) 50%,
+      rgb(var(--surface-2)) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.8s linear infinite;
@@ -133,51 +279,61 @@ h4 { font-size: 1.32rem; }
 
   /* Focus ring */
   .focus-ring:focus-visible {
-    outline: 1.5px solid var(--color-accent);
+    outline: 2px solid rgb(var(--ring));
     outline-offset: 2px;
   }
 
-  /* Scrollbar */
+  /* Thin scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
+    scrollbar-color: rgb(0 0 0 / 0.08) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: var(--radius-full);
+    background: rgb(0 0 0 / 0.08);
+    border-radius: var(--radius-pill);
   }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-3);
+    background: rgb(0 0 0 / 0.14);
   }
 
+  /* Tab scrollbar — invisible until hover */
+  .scrollbar-tab {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.2s ease;
+  }
+  .scrollbar-tab:hover { scrollbar-color: rgb(0 0 0 / 0.08) transparent; }
+  .scrollbar-tab::-webkit-scrollbar { height: 3px; }
+  .scrollbar-tab::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-tab::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: var(--radius-pill);
+    transition: background 0.2s ease;
+  }
+  .scrollbar-tab:hover::-webkit-scrollbar-thumb { background: rgb(0 0 0 / 0.08); }
+  .scrollbar-tab::-webkit-scrollbar-thumb:hover { background: rgb(0 0 0 / 0.14); }
+
   /* ── Organisation chart tree ─────────────────────────────────── */
-  /* Classic CSS pure-tree: ul > li nesting renders boxes top-down,
-     with sibling and parent connectors drawn via ::before/::after.   */
   .org-tree,
   .org-tree ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .org-tree {
-    overflow-x: auto;
-    padding: 16px 8px 24px;
-  }
+  .org-tree { overflow-x: auto; padding: 16px 8px 24px; }
   .org-tree > ul {
     display: inline-flex;
     justify-content: center;
     min-width: 100%;
   }
-  /* Each tier of children */
   .org-tree ul {
     display: flex;
     justify-content: center;
     position: relative;
     padding-top: 22px;
   }
-  /* Connector from parent down to the children's horizontal bar */
   .org-tree li::before {
     content: "";
     position: absolute;
@@ -185,7 +341,7 @@ h4 { font-size: 1.32rem; }
     left: 50%;
     width: 50%;
     height: 22px;
-    border-top: 1.5px solid var(--color-border);
+    border-top: 1.5px solid rgb(var(--border) / 0.06);
   }
   .org-tree li::after {
     content: "";
@@ -194,17 +350,12 @@ h4 { font-size: 1.32rem; }
     right: 50%;
     width: 50%;
     height: 22px;
-    border-top: 1.5px solid var(--color-border);
-    border-left: 1.5px solid var(--color-border);
+    border-top: 1.5px solid rgb(var(--border) / 0.06);
+    border-left: 1.5px solid rgb(var(--border) / 0.06);
   }
-  /* The first / last child should only have the half-bar that reaches inward */
   .org-tree li:only-child::before,
-  .org-tree li:only-child::after {
-    display: none;
-  }
-  .org-tree li:only-child {
-    padding-top: 22px;
-  }
+  .org-tree li:only-child::after { display: none; }
+  .org-tree li:only-child { padding-top: 22px; }
   .org-tree li:only-child > .org-card::before {
     content: "";
     position: absolute;
@@ -212,150 +363,127 @@ h4 { font-size: 1.32rem; }
     left: 50%;
     width: 1.5px;
     height: 22px;
-    background: var(--color-border);
+    background: rgb(var(--border) / 0.06);
   }
   .org-tree li:first-child::before { border: 0; }
   .org-tree li:last-child::after   { border: 0; }
   .org-tree li:last-child::before  { border-top-right-radius: 6px; }
-  .org-tree li:first-child::after  { border-top-left-radius: 6px; border-left: 1.5px solid var(--color-border); }
+  .org-tree li:first-child::after  {
+    border-top-left-radius: 6px;
+    border-left: 1.5px solid rgb(var(--border) / 0.06);
+  }
   .org-tree li {
     position: relative;
     padding: 22px 14px 0;
     text-align: center;
   }
-  /* The root level (top-most) — no incoming connectors */
-  .org-tree > ul > li {
-    padding-top: 0;
-  }
+  .org-tree > ul > li { padding-top: 0; }
   .org-tree > ul > li::before,
-  .org-tree > ul > li::after {
-    display: none;
-  }
-  .org-tree > ul > li > .org-card::before {
-    display: none;
-  }
-
-  /* Even-thinner variant for tab scrolling — barely visible, only on hover */
-  .scrollbar-tab {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-    transition: scrollbar-color 0.2s ease;
-  }
-  .scrollbar-tab:hover {
-    scrollbar-color: var(--color-border) transparent;
-  }
-  .scrollbar-tab::-webkit-scrollbar { height: 3px; }
-  .scrollbar-tab::-webkit-scrollbar-track { background: transparent; }
-  .scrollbar-tab::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: var(--radius-full);
-    transition: background 0.2s ease;
-  }
-  .scrollbar-tab:hover::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-  }
-  .scrollbar-tab::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-3);
-  }
+  .org-tree > ul > li::after { display: none; }
+  .org-tree > ul > li > .org-card::before { display: none; }
 }
 
+/* ── Backward-compatible component classes ────────────────────────
+   Kept so legacy markup keeps working; implementations now use the
+   new token system. Prefer <Button>, <Card>, <Input>, <Badge>.      */
 @layer components {
-  /* Card base */
   .card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: rgb(255 255 255 / 0.72);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgb(var(--border) / 0.06);
     border-radius: var(--radius-lg);
-    transition: border-color 0.15s var(--ease-quint);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
+    transition: border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .card:hover { border-color: var(--color-border-sub); }
+  .card:hover { border-color: rgb(var(--border) / 0.10); }
 
-  /* Pill badge */
   .badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     padding: 2px 10px;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.4;
   }
-  .badge-success { background: var(--color-success-sub); color: var(--color-success); }
-  .badge-warning { background: var(--color-warning-sub); color: var(--color-warning); }
-  .badge-danger  { background: var(--color-danger-sub);  color: var(--color-danger);  }
-  .badge-ai      { background: var(--color-ai-sub);      color: var(--color-ai);      }
-  .badge-neutral { background: var(--color-panel); color: var(--color-text-2); border: 1px solid var(--color-border); }
+  .badge-success { background: rgb(var(--success-soft)); color: rgb(var(--success)); }
+  .badge-warning { background: rgb(var(--warning-soft)); color: rgb(var(--warning)); }
+  .badge-danger  { background: rgb(var(--danger-soft));  color: rgb(var(--danger));  }
+  .badge-ai      { background: rgb(var(--primary-soft)); color: rgb(var(--primary)); }
+  .badge-neutral {
+    background: rgb(var(--surface-2));
+    color: rgb(var(--foreground-muted));
+    border: 1px solid rgb(var(--border) / 0.06);
+  }
 
-  /* Primary button */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: var(--color-accent);
-    color: oklch(99% 0 0);
-    border-radius: var(--radius-md);
+    background: rgb(var(--primary));
+    color: white;
+    border-radius: var(--radius-pill);
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
     border: none;
-    transition: background 0.15s var(--ease-quint), transform 0.1s;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.15);
+    transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s;
   }
-  .btn-primary:hover  { background: var(--color-accent-hover); }
-  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:hover  { background: rgb(var(--primary-hover)); transform: scale(1.02); }
+  .btn-primary:active { background: rgb(var(--primary-active)); transform: scale(0.98); }
 
-  /* Secondary button */
   .btn-secondary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: transparent;
-    color: var(--color-text-2);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    background: rgb(var(--surface));
+    color: rgb(var(--foreground));
+    border: 1px solid rgb(var(--border) / 0.06);
+    border-radius: var(--radius-pill);
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s var(--ease-quint), border-color 0.15s;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
+    transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .btn-secondary:hover {
-    background: var(--color-panel);
-    border-color: var(--color-border);
-    color: var(--color-text-1);
-  }
+  .btn-secondary:hover { background: rgb(var(--hover) / 0.035); }
 
-  /* Ghost button */
   .btn-ghost {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 8px 12px;
     background: transparent;
-    color: var(--color-text-2);
+    color: rgb(var(--foreground-muted));
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-pill);
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s var(--ease-quint), color 0.15s;
+    transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.5s;
   }
-  .btn-ghost:hover { background: var(--color-panel); color: var(--color-text-1); }
+  .btn-ghost:hover {
+    background: rgb(var(--hover) / 0.04);
+    color: rgb(var(--foreground));
+  }
 
-  /* Input */
   .input {
     width: 100%;
     padding: 10px 14px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--border) / 0.06);
     border-radius: var(--radius-sm);
     font-size: 0.875rem;
-    color: var(--color-text-1);
-    transition: border-color 0.15s var(--ease-quint);
+    color: rgb(var(--foreground));
+    transition: border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     outline: none;
   }
-  .input::placeholder { color: var(--color-text-3); }
-  .input:focus { border-color: var(--color-accent); }
+  .input::placeholder { color: rgb(var(--foreground-subtle)); }
+  .input:focus { border-color: rgb(var(--primary)); }
 }
 
 /* ── Animations ─────────────────────────────────────────────────── */
@@ -373,8 +501,10 @@ h4 { font-size: 1.32rem; }
 }
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
+  50%      { opacity: 0.45; }
 }
-.animate-fade-in  { animation: fade-in  0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-fade-up  { animation: fade-up  0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in    { animation: fade-in  0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-up    { animation: fade-up  0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+.animate-slide-up   { animation: slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-float      { animation: float 8s ease-in-out infinite; }
