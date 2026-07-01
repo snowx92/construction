@@ -6,6 +6,7 @@ import { TrendingUp, TrendingDown, Minus, RefreshCw, Zap } from "lucide-react";
 import { COUNTRIES, COUNTRY_LIST, convertFromAED, type CountryCode } from "@/lib/countries";
 import { useT } from "@/lib/i18n";
 import { useLocalizedPrices } from "@/lib/i18n/use-localized-data";
+import { NeedsBackend } from "@/components/shared/needs-backend";
 import { cn } from "@/lib/utils";
 
 function MiniSparkline({ data, trend }: { data: { price: number }[]; trend: "up" | "down" | "stable" }) {
@@ -58,6 +59,13 @@ export default function LivePricingPage() {
           <p className="mt-1 text-sm text-foreground-muted">
             {mockPrices.length} {t("pricingPage.materials")} · {cfg.flag} {cfg.name} {t("pricingPage.market")} ({cfg.currency})
           </p>
+          <div className="mt-4 max-w-2xl">
+            <NeedsBackend
+              endpoint="GET /api/market-prices?country={code}&category={cat}"
+              what="Live material/commodity market prices"
+              details={`Response: { prices: [{ id, name, category, unit, currency, price, trend: "up"|"down"|"stable", changePercent, history: [{price, at}], updatedAt }] }`}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs text-foreground-subtle">

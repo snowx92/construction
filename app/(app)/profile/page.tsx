@@ -7,7 +7,8 @@ import { useAuth } from "@/lib/auth-context";
 import { updateMyProfile } from "@/lib/api/users";
 import { ApiError } from "@/lib/api/client";
 import { initials } from "@/lib/initials";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { NeedsBackend } from "@/components/shared/needs-backend";
+import { Loader2 } from "lucide-react";
 
 interface FieldDef {
   key: "displayName" | "email" | "jobTitle" | "department" | "phone";
@@ -89,8 +90,6 @@ export default function ProfilePage() {
     );
   }
 
-  const mockFeatures = ["unlimited_tenders", "ai_insights", "pdf_generation", "team_collaboration"];
-
   return (
     <div className="mx-auto max-w-[900px] px-8 py-10">
       <div className="mb-8">
@@ -156,22 +155,16 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Plan features (still placeholder until billing API exists) */}
+      {/* Plan features */}
       <div className="card p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-foreground">
-            {t("profile.planFeatures", { plan: t("profile.planPro") })}
-          </h2>
-          <button className="btn-primary text-sm">{t("profile.upgrade")}</button>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {mockFeatures.map((f) => (
-            <div key={f} className="flex items-center gap-2.5">
-              <CheckCircle className="h-4 w-4 shrink-0 text-success" strokeWidth={1.5} />
-              <span className="text-sm capitalize text-foreground-muted">{f.replace(/_/g, " ")}</span>
-            </div>
-          ))}
-        </div>
+        <h2 className="text-base font-semibold mb-3 text-foreground">
+          {t("profile.planFeatures", { plan: "—" })}
+        </h2>
+        <NeedsBackend
+          endpoint="GET /api/billing/plan"
+          what="Current plan + feature list + limits"
+          details="Response: { plan: 'pro'|'business'|'enterprise', features: string[], limits: { maxUsers, maxProjects, maxAiRequests, storageBytes } }. Blocks the Upgrade button too."
+        />
       </div>
     </div>
   );

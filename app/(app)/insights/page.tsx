@@ -4,6 +4,7 @@ import { useInsightsStore } from "@/store";
 import { AlertTriangle, TrendingUp, Zap, Users, ArrowUpRight, CheckCheck, X } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useLocalizedInsights } from "@/lib/i18n/use-localized-data";
+import { NeedsBackend } from "@/components/shared/needs-backend";
 import { cn } from "@/lib/utils";
 
 const TYPE_CONFIG = {
@@ -30,6 +31,13 @@ export default function InsightsPage() {
           <p className="mt-1 text-sm text-foreground-muted">
             {unread.length} {t("insights.unread")} · {insights.length} {t("insights.total")}
           </p>
+          <div className="mt-4">
+            <NeedsBackend
+              endpoint="GET /api/insights?companyId={cid}"
+              what="Replace mock insights store with real backend feed"
+              details="Response: { insights: [{ insightId, severity, type, title, body, projectId?, read, createdAt }] } — Also POST /api/insights/{id}/read"
+            />
+          </div>
         </div>
         {unread.length > 0 && (
           <button

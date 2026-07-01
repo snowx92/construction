@@ -6,18 +6,14 @@ import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useInsightsStore } from "@/store";
 import { useProjects } from "@/lib/use-projects";
-import { mockTenders, mockInsights as mockInsightsData } from "@/data/mock";
 import { useT } from "@/lib/i18n";
-import { useLocalizedTenders, useLocalizedInsights } from "@/lib/i18n/use-localized-data";
-import type { Tender, AIInsight } from "@/types";
+import { useLocalizedInsights } from "@/lib/i18n/use-localized-data";
 
 type SearchResult =
-  | { type: "tender"; id: string; title: string; subtitle: string; href: string }
   | { type: "project"; id: string; title: string; subtitle: string; href: string }
   | { type: "insight"; id: string; title: string; subtitle: string; href: string };
 
 const BADGE_STYLES: Record<SearchResult["type"], string> = {
-  tender:  "bg-warning-soft text-warning",
   project: "bg-primary-soft text-primary",
   insight: "bg-primary-soft text-primary",
 };
@@ -56,35 +52,19 @@ function useGlobalSearch(query: string) {
   const { projects } = useProjects();
   const rawInsights  = useInsightsStore((s) => s.insights);
   const insights = useLocalizedInsights(rawInsights);
-  const tenders  = useLocalizedTenders(mockTenders);
 
   const results = useMemo(() => {
     const searchTerm = query.toLowerCase().trim();
     if (!searchTerm) return [];
 
-    const results: SearchResult[] = [];
-
-    tenders.forEach((tender) => {
-      if (
-        tender.title.toLowerCase().includes(searchTerm) ||
-        tender.client.toLowerCase().includes(searchTerm)
-      ) {
-        results.push({
-          type: "tender",
-          id: tender.id,
-          title: tender.title,
-          subtitle: tender.client,
-          href: `/tender/${tender.id}`,
-        });
-      }
-    });
+    const out: SearchResult[] = [];
 
     projects.forEach((p) => {
       const name   = p.name.toLowerCase();
       const client = (p.client ?? "").toLowerCase();
       const loc    = (p.location ?? "").toLowerCase();
       if (name.includes(searchTerm) || client.includes(searchTerm) || loc.includes(searchTerm)) {
-        results.push({
+        out.push({
           type: "project",
           id: p.projectId,
           title: p.name,
@@ -94,12 +74,13 @@ function useGlobalSearch(query: string) {
       }
     });
 
+    // NEEDS_BACKEND: replace insights mock store with GET /api/insights
     insights.forEach((insight) => {
       if (
         insight.title.toLowerCase().includes(searchTerm) ||
         insight.body.toLowerCase().includes(searchTerm)
       ) {
-        results.push({
+        out.push({
           type: "insight",
           id: insight.id,
           title: insight.title,
@@ -109,8 +90,8 @@ function useGlobalSearch(query: string) {
       }
     });
 
-    return results.slice(0, 8);
-  }, [query, projects, insights, tenders]);
+    return out.slice(0, 8);
+  }, [query, projects, insights]);
 
   return results;
 }

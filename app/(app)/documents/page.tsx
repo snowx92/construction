@@ -3,6 +3,7 @@
 import { mockFiles, mockTenders } from "@/data/mock";
 import { Folder, FileText, ChevronRight, Download, Eye } from "lucide-react";
 import { useT } from "@/lib/i18n";
+import { NeedsBackend } from "@/components/shared/needs-backend";
 
 export default function DocumentsPage() {
   const t = useT();
@@ -17,6 +18,13 @@ export default function DocumentsPage() {
         <p className="text-xs font-medium uppercase tracking-widest text-foreground-subtle mb-1">{t("documents.eyebrow")}</p>
         <h1 className="text-3xl font-semibold text-foreground">{t("documents.title")}</h1>
         <p className="mt-1 text-sm text-foreground-muted">{t("documents.subtitle")}</p>
+        <div className="mt-4 max-w-2xl">
+          <NeedsBackend
+            endpoint="GET /api/documents?companyId={cid}"
+            what="Cross-project documents library"
+            details="Docs currently only accessible per-project via Firestore listener. Add a top-level GET that returns all docs for the company with filters: projectId?, status?, mimeType?, tag?. Alternative: aggregate via Firestore collectionGroup('documents') client-side."
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

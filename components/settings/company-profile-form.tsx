@@ -10,6 +10,7 @@ import {
   FileText, Truck, HardHat, Globe, Linkedin,
 } from "lucide-react";
 import { generateCompanyPDF, type PDFTheme } from "@/lib/generate-company-pdf";
+import { NeedsBackend } from "@/components/shared/needs-backend";
 import type { PastProject, StaffMember, Equipment, LabourCategory } from "@/types";
 
 type Section = "company" | "track-record" | "staff" | "org-chart" | "equipment" | "labour" | "export";
@@ -89,6 +90,11 @@ export function CompanyProfileForm() {
 
   return (
     <div className="space-y-6">
+      <NeedsBackend
+        endpoint="/api/company/{staff,equipment,labour,past-projects,branding}"
+        what="Company assets — staff / equipment / labour / past projects / brand kit"
+        details={`All data here is client-only. Needs CRUD endpoints:\n• GET/POST /api/company/staff, PUT/DELETE /api/company/staff/{id}\n• GET/POST /api/company/equipment, PUT/DELETE /api/company/equipment/{id}\n• GET/POST /api/company/labour, PUT/DELETE /api/company/labour/{id}\n• GET/POST /api/company/past-projects, PUT/DELETE /api/company/past-projects/{id}\n• PUT /api/company/branding — logo + PDF theme colors\nAlso: certifications live on the company doc — accepted via PUT /api/admin/companies/settings.\nCritical for AI proposal generation (technical proposal cites staff, equipment, past projects).`}
+      />
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>

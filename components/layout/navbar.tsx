@@ -46,11 +46,11 @@ export function Navbar() {
         </Link>
 
         <Link
-          href="/tender"
+          href="/projects"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium text-foreground-muted transition-colors hover:bg-black/[0.035]"
         >
           <FileText className="h-3.5 w-3.5" strokeWidth={1.5} />
-          {t("nav.tenders")}
+          {t("nav.projects")}
         </Link>
       </div>
 

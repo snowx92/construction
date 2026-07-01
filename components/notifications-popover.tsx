@@ -6,6 +6,7 @@ import { Bell, X, AlertCircle, TrendingUp, Users, Lightbulb, Zap } from "lucide-
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
+import { NeedsBackend } from "@/components/shared/needs-backend";
 
 const INSIGHT_ICONS = {
   risk: AlertCircle,
@@ -77,6 +78,14 @@ export function NotificationsPopover() {
                   {unread.length} {t("insights.unread")}
                 </span>
               )}
+            </div>
+
+            <div className="shrink-0 px-3 pt-2">
+              <NeedsBackend
+                variant="inline"
+                endpoint="GET /api/notifications"
+                what="User-scoped notification stream"
+              />
             </div>
 
             {/* Insights List */}

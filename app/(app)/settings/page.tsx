@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { mockSubscription } from "@/data/mock";
 import { useT } from "@/lib/i18n";
 import { SettingsForm } from "@/components/forms/settings-form";
 import { CompanyProfileForm } from "@/components/settings/company-profile-form";
 import { TeamPanel } from "@/components/settings/team-panel";
 import { PasswordForm } from "@/components/settings/password-form";
 import { CompanyDefaultsForm } from "@/components/settings/company-defaults-form";
+import { NeedsBackend } from "@/components/shared/needs-backend";
 import { User, Bell, CreditCard, Key, Palette, Users, Shield, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const PLAN_LABELS: Record<string, string> = { starter: "Starter", pro: "Pro", business: "Business", enterprise: "Enterprise" };
 
 const SECTIONS = [
   { id: "company-profile", labelKey: "settings.sectionCompanyProfile", icon: Building2 },
@@ -69,58 +67,40 @@ export default function SettingsPage() {
           {activeSection === "notifications" && (
             <div className="card p-6">
               <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.notificationsTitle")}</h2>
-              <p className="text-foreground-subtle">{t("settings.notificationsPlaceholder")}</p>
+              <NeedsBackend
+                endpoint="GET/PUT /api/notifications/preferences"
+                what="User notification preferences (email, in-app, digest frequency, per-event toggles)"
+                details="Response: { email: { deadlines, pricing, teamActivity }, inApp: {...}, digestFrequency: 'daily'|'weekly'|'off' }"
+              />
             </div>
           )}
 
           {activeSection === "billing" && (
-            <div className="space-y-6">
-              <div className="card p-6">
-                <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.subscriptionTitle")}</h2>
-                <div className="flex items-center justify-between rounded-[16px] px-5 py-4 mb-4 bg-primary-soft border border-primary-soft">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {PLAN_LABELS[mockSubscription.plan]} {t("settings.plan")}
-                    </p>
-                    <p className="text-xs mt-0.5 text-foreground-subtle">
-                      {t("settings.renews")} {new Date(mockSubscription.currentPeriodEnd).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2.5 py-0.5 text-xs font-medium bg-success-soft text-success">{mockSubscription.status}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="rounded-[12px] px-4 py-3 bg-surface-2">
-                    <p className="text-xs mb-1 text-foreground-subtle">{t("settings.maxUsers")}</p>
-                    <p className="text-sm font-semibold text-foreground">
-                      {mockSubscription.maxUsers === "unlimited" ? t("settings.unlimited") : mockSubscription.maxUsers}
-                    </p>
-                  </div>
-                  <div className="rounded-[12px] px-4 py-3 bg-surface-2">
-                    <p className="text-xs mb-1 text-foreground-subtle">{t("common.projects")}</p>
-                    <p className="text-sm font-semibold text-foreground">
-                      {mockSubscription.maxProjects === "unlimited" ? t("settings.unlimited") : mockSubscription.maxProjects}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-surface text-foreground border border-black/[0.06] text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-500 ease-out hover:bg-black/[0.035]">{t("settings.manageBilling")}</button>
-                  <button className="inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-pill)] bg-primary text-white text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-out hover:bg-primary-hover hover:scale-[1.02]">{t("settings.upgradePlan")}</button>
-                </div>
-              </div>
+            <div className="card p-6">
+              <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.subscriptionTitle")}</h2>
+              <NeedsBackend
+                endpoint="GET /api/billing/subscription"
+                what="Stripe subscription + plan info"
+                details={`Also needs:\n• GET /api/billing/plan → { plan, features[], limits: { maxUsers, maxProjects, maxAiRequests } }\n• POST /api/billing/portal-session → { url } (Stripe customer portal redirect)\n• GET /api/billing/invoices → { invoices: [{ id, amount, currency, status, pdfUrl, createdAt }] }\n• POST /api/billing/checkout-session { plan } → { url } (Stripe checkout for upgrade)`}
+              />
             </div>
           )}
 
           {activeSection === "api" && (
             <div className="card p-6">
               <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.apiTitle")}</h2>
-              <p className="text-foreground-subtle">{t("settings.apiPlaceholder")}</p>
+              <NeedsBackend
+                endpoint="GET/POST/DELETE /api/company/api-keys"
+                what="Programmatic API keys for company integrations"
+                details="POST returns full key ONCE, subsequent GETs return masked. Fields: { keyId, name, prefix, scopes[], lastUsedAt, createdAt }"
+              />
             </div>
           )}
 
           {activeSection === "appearance" && (
             <div className="card p-6">
               <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.appearanceTitle")}</h2>
-              <p className="text-foreground-subtle">{t("settings.appearancePlaceholder")}</p>
+              <p className="text-sm text-foreground-subtle">Language and RTL/LTR toggle live in the top-right of every page. Dark mode + theme controls will be added client-side.</p>
             </div>
           )}
 
