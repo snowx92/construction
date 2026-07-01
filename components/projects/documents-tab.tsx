@@ -1,8 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { useRef, useState } from "react";
 import {
   Upload, FileText, FileSpreadsheet, FileImage, FileArchive,
   Loader2, CheckCircle2, AlertCircle, Trash2, RotateCcw, Download,
@@ -69,28 +67,6 @@ export function DocumentsTab({ projectId }: { projectId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const [dragging, setDragging] = useState(false);
-  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
-
-  const storageKey = `hidden-docs:${companyId}:${projectId}`;
-
-  // Load persisted hidden IDs
-  useEffect(() => {
-    if (typeof window === "undefined" || !companyId) return;
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) setHiddenIds(new Set(JSON.parse(raw)));
-    } catch { /* ignore */ }
-  }, [storageKey, companyId]);
-
-  const persistHidden = useCallback((next: Set<string>) => {
-    setHiddenIds(next);
-    try { localStorage.setItem(storageKey, JSON.stringify([...next])); } catch { /* ignore */ }
-  }, [storageKey]);
-
-  const visibleDocuments = useMemo(
-    () => documents.filter((d) => !hiddenIds.has(d.documentId)),
-    [documents, hiddenIds]
-  );
 
   async function handleFiles(files: File[]) {
     if (!companyId) return;
@@ -179,34 +155,14 @@ export function DocumentsTab({ projectId }: { projectId: string }) {
     const name = d.filename || d.name || d.documentId;
     if (!confirm(t("documents.confirmDelete", { name }))) return;
 
-    // Hide immediately AND persist — the user wants it gone from their view
-    // regardless of what the backend/Firestore mirror decides.
-    const nextHidden = new Set(hiddenIds).add(d.documentId);
-    persistHidden(nextHidden);
-
-    // Fire the API call (best-effort). Also try to nuke the Firestore mirror
-    // so the entry doesn't leak into other clients or come back on rehydrate.
-    let apiOk = false;
     try {
       await deleteDocument(d.documentId, { companyId, projectId });
-      apiOk = true;
+      showToast(t("documents.delete"), "success");
+      // Firestore real-time listener removes the row automatically.
     } catch (err) {
-      const isMissing =
-        err instanceof ApiError && (err.status === 404 || err.code === "not-found");
-      if (!isMissing) {
-        console.error("[delete-api]", err);
-        showToast(err instanceof ApiError ? err.message : "Delete failed", "error");
-        // Row stays hidden anyway — user asked for it.
-      }
+      console.error("[delete]", err);
+      showToast(err instanceof ApiError ? err.message : "Delete failed", "error");
     }
-
-    // Always try to clean up the Firestore mirror. If rules block us it's
-    // silently ignored; the local hidden-list still keeps it out of view.
-    try {
-      await deleteDoc(doc(db, "companies", companyId, "projects", projectId, "documents", d.documentId));
-    } catch { /* ignore */ }
-
-    if (apiOk) showToast(t("documents.delete"), "success");
   }
 
   async function handleRetry(d: DocumentRecord) {
@@ -297,11 +253,11 @@ export function DocumentsTab({ projectId }: { projectId: string }) {
         <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           <AlertCircle className="mt-0.5 h-4 w-4" /> <span>{error}</span>
         </div>
-      ) : visibleDocuments.length === 0 && pending.length === 0 ? (
+      ) : documents.length === 0 && pending.length === 0 ? (
         <p className="py-8 text-center text-sm text-foreground-subtle">{t("documents.empty")}</p>
       ) : (
         <div className="space-y-2">
-          {visibleDocuments.map((d) => {
+          {documents.map((d) => {
             const Icon = iconFor(d.mimeType);
             const s = statusOf(d);
             const stepKey = d.currentStep ? `documents.step_${d.currentStep}` : null;
