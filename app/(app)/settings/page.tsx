@@ -6,6 +6,8 @@ import { useT } from "@/lib/i18n";
 import { SettingsForm } from "@/components/forms/settings-form";
 import { CompanyProfileForm } from "@/components/settings/company-profile-form";
 import { TeamPanel } from "@/components/settings/team-panel";
+import { PasswordForm } from "@/components/settings/password-form";
+import { CompanyDefaultsForm } from "@/components/settings/company-defaults-form";
 import { User, Bell, CreditCard, Key, Palette, Users, Shield, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +56,12 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="lg:col-span-3">
-          {activeSection === "company-profile" && <CompanyProfileForm />}
+          {activeSection === "company-profile" && (
+            <div className="space-y-6">
+              <CompanyDefaultsForm />
+              <CompanyProfileForm />
+            </div>
+          )}
           {activeSection === "preferences" && <SettingsForm />}
 
           {activeSection === "team" && <TeamPanel />}
@@ -117,12 +124,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {activeSection === "security" && (
-            <div className="card p-6">
-              <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.securityTitle")}</h2>
-              <p className="text-foreground-subtle">{t("settings.securityPlaceholder")}</p>
-            </div>
-          )}
+          {activeSection === "security" && <PasswordForm />}
         </div>
       </div>
     </div>

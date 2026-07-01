@@ -5,30 +5,37 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, TrendingUp, MessageSquare, Lightbulb,
-  Settings, Building2, Plus, Pin, ChevronRight, FileText,
+  Settings, Building2, Plus, ChevronRight, FileText, Truck, Activity,
 } from "lucide-react";
-import { useProjectStore } from "@/store";
 import { useT, useLocale } from "@/lib/i18n";
-import { useLocalizedWorkspaces } from "@/lib/i18n/use-localized-data";
 import { useAuth } from "@/lib/auth-context";
+import { useProjects } from "@/lib/use-projects";
+import { useIsAdmin } from "@/lib/use-role";
 import { initials, roleLabel } from "@/lib/initials";
+import type { ProjectStatus } from "@/lib/api/types";
 
-const STATUS_DOT: Record<string, string> = {
-  ready:       "rgb(var(--success))",
-  analyzing:   "rgb(var(--primary))",
-  in_progress: "rgb(var(--warning))",
-  new:         "rgb(var(--border) / 0.10)",
-  completed:   "rgb(var(--foreground-subtle))",
-  uploading:   "rgb(var(--primary))",
+const STATUS_DOT: Record<ProjectStatus, string> = {
+  draft:               "rgb(var(--border) / 0.20)",
+  uploading:           "rgb(var(--primary))",
+  processing:          "rgb(var(--primary))",
+  needs_review:        "rgb(var(--warning))",
+  ready:               "rgb(var(--success))",
+  pricing:             "rgb(var(--primary))",
+  generating_proposal: "rgb(var(--primary))",
+  submitted:           "rgb(var(--foreground-subtle))",
+  awarded:             "rgb(var(--success))",
+  lost:                "rgb(var(--danger))",
+  archived:            "rgb(var(--foreground-subtle))",
 };
 
 export function Sidebar() {
   const pathname = usePathname();
-  const rawWorkspaces = useProjectStore((s) => s.workspaces);
-  const workspaces    = useLocalizedWorkspaces(rawWorkspaces);
   const t = useT();
   const { dir } = useLocale();
   const { profile } = useAuth();
+  const { projects } = useProjects();
+  const isAdmin = useIsAdmin();
+  const workspaces = projects.filter((p) => p.status !== "archived");
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -39,6 +46,8 @@ export function Sidebar() {
     { href: "/pricing",   label: t("nav.pricing"),    icon: TrendingUp       },
     { href: "/copilot",   label: t("nav.copilot"),    icon: MessageSquare    },
     { href: "/insights",  label: t("nav.insights"),   icon: Lightbulb        },
+    { href: "/suppliers", label: t("suppliersPage.title"), icon: Truck        },
+    ...(isAdmin ? [{ href: "/admin/operations", label: t("operationsPage.title"), icon: Activity }] : []),
   ];
 
   return (
@@ -99,19 +108,18 @@ export function Sidebar() {
             {t("nav.allProjects")}
           </Link>
 
-          {/* Pinned first, then rest */}
           <ul className="space-y-0.5">
-            {[...workspaces].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map((ws) => {
-              const active = pathname.startsWith(`/projects/${ws.id}`);
+            {workspaces.slice(0, 12).map((ws, i) => {
+              const key = ws.projectId || `ws-${i}`;
+              const active = pathname.startsWith(`/projects/${ws.projectId}`);
               return (
-                <li key={ws.id}>
-                  <Link href={`/projects/${ws.id}`} className={cn(
+                <li key={key}>
+                  <Link href={`/projects/${ws.projectId}`} className={cn(
                     "group flex items-center gap-2 rounded-[var(--radius-sm)] px-3 py-2 transition-all duration-500 ease-out",
                     active ? "bg-black/[0.04]" : "hover:bg-black/[0.035]",
                   )}>
                     <div className="relative shrink-0">
                       <div className="h-1.5 w-1.5 rounded-full" style={{ background: STATUS_DOT[ws.status] ?? "rgb(var(--foreground-subtle))" }} />
-                      {ws.pinned && <Pin className={cn("absolute -top-1 h-2 w-2 text-primary", dir === "rtl" ? "-left-1" : "-right-1")} />}
                     </div>
                     <span className={cn(
                       "flex-1 min-w-0 truncate text-xs",

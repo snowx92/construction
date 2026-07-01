@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { notFound } from "next/navigation";
+import { ApiProjectDetail } from "@/components/projects/api-project-detail";
 import { formatCurrency, cn } from "@/lib/utils";
 import { useT, useLocale } from "@/lib/i18n";
 import { useProjectStore, useCompanyProfileStore } from "@/store";
@@ -259,7 +259,7 @@ export default function ProjectWorkspacePage({ params }: { params: { id: string 
     localStorage.setItem("cs-show-help", String(showHelp));
   }, [showHelp]);
 
-  if (!ws) notFound();
+  if (!ws) return <ApiProjectDetail projectId={params.id} />;
 
   const TABS = [
     { id: "overview",    label: t("project.tabs.overview"),    icon: FileText,       help: "Project summary including tender source, BOQ items, key dates, and a checklist of generated documents." },

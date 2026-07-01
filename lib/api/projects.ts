@@ -6,8 +6,13 @@ import type {
   UpdateProjectBody,
 } from "./types";
 
+function normalize(p: Project & { id?: string }): Project {
+  return p.projectId ? p : { ...p, projectId: p.id ?? "" };
+}
+
 function unwrapList(data: Project[] | { projects: Project[] }): Project[] {
-  return Array.isArray(data) ? data : data.projects ?? [];
+  const list = Array.isArray(data) ? data : data.projects ?? [];
+  return (list as (Project & { id?: string })[]).map(normalize).filter((p) => !!p.projectId);
 }
 
 export function listProjects(companyId: string) {

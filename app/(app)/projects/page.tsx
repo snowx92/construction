@@ -1,123 +1,156 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useProjectStore } from "@/store";
 import { useT } from "@/lib/i18n";
-import { useLocalizedWorkspaces } from "@/lib/i18n/use-localized-data";
-import { Plus, Pin, FileText, Zap, Clock, CheckCircle, Loader2, Upload } from "lucide-react";
-
-const STATUS_CONFIG = {
-  new:         { labelKey: "common.new",        cls: "badge-neutral",  icon: FileText   },
-  uploading:   { labelKey: "common.uploading",  cls: "badge-ai",       icon: Upload     },
-  analyzing:   { labelKey: "tender.statusAnalyzing", cls: "badge-ai",       icon: Loader2    },
-  ready:       { labelKey: "common.ready",      cls: "badge-success",  icon: CheckCircle},
-  in_progress: { labelKey: "common.inProgress", cls: "badge-warning",  icon: Clock      },
-  completed:   { labelKey: "common.completed",  cls: "badge-neutral",  icon: CheckCircle},
-} as const;
-
-function timeAgo(iso: string) {
-  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (d < 60)   return `${d}m ago`;
-  if (d < 1440) return `${Math.floor(d / 60)}h ago`;
-  return `${Math.floor(d / 1440)}d ago`;
-}
+import { useProjects } from "@/lib/use-projects";
+import { STATUS_BADGE, timeAgoFromIso } from "@/lib/project-status";
+import { showToast } from "@/lib/toast";
+import { ApiError } from "@/lib/api/client";
+import { Plus, FileText, Zap, Loader2, AlertCircle, Archive, RotateCcw } from "lucide-react";
 
 export default function ProjectsPage() {
   const t = useT();
-  const rawWorkspaces = useProjectStore((s) => s.workspaces);
-  const workspaces    = useLocalizedWorkspaces(rawWorkspaces);
-  const pinned        = workspaces.filter((w) => w.pinned);
-  const recent        = workspaces.filter((w) => !w.pinned);
+  const { projects, loading, error, reload, archive, restore } = useProjects();
+  const [showArchived, setShowArchived] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const visible = useMemo(
+    () => projects.filter((p) => (showArchived ? p.status === "archived" : p.status !== "archived")),
+    [projects, showArchived]
+  );
+
+  async function handleArchive(projectId: string) {
+    setBusyId(projectId);
+    try {
+      await archive(projectId);
+      showToast(t("projects.archived"), "success");
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleRestore(projectId: string) {
+    setBusyId(projectId);
+    try {
+      await restore(projectId);
+      showToast(t("common.ready"), "success");
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-[1000px] px-8 py-10">
-
-      {/* Header */}
       <div className="mb-10 flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-foreground-subtle mb-1">{t("projects.eyebrow")}</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-foreground-subtle mb-1">
+            {t("projects.eyebrow")}
+          </p>
           <h1 className="text-3xl font-semibold text-foreground">{t("projects.title")}</h1>
           <p className="mt-1 text-sm text-foreground-muted">
-            {t("projects.subtitle", { count: workspaces.length })}
+            {t("projects.subtitle", { count: visible.length })}
           </p>
         </div>
-        <Link href="/projects/new" className="btn-primary">
-          <Plus className="h-4 w-4" strokeWidth={1.5} />
-          {t("projects.newProject")}
-        </Link>
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-xs text-foreground-muted cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(e) => setShowArchived(e.target.checked)}
+              className="rounded"
+            />
+            {t("projects.archivedFilter")}
+          </label>
+          <Link href="/projects/new" className="btn-primary">
+            <Plus className="h-4 w-4" strokeWidth={1.5} />
+            {t("projects.newProject")}
+          </Link>
+        </div>
       </div>
 
-      {/* Pinned */}
-      {pinned.length > 0 && (
-        <div className="mb-8">
-          <div className="flex items-center gap-1.5 mb-3">
-            <Pin className="h-3 w-3 text-foreground-subtle" strokeWidth={2} />
-            <p className="text-xs font-medium uppercase tracking-widest text-foreground-subtle">{t("projects.pinned")}</p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {pinned.map((ws) => {
-              const sc = STATUS_CONFIG[ws.status];
-              return (
-                <Link key={ws.id} href={`/projects/${ws.id}`} className="card p-6 hover:shadow-[var(--shadow-lg)] transition-all">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-primary-soft">
-                      <FileText className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                    </div>
-                    <span className={`badge ${sc.cls}`}>{t(sc.labelKey)}</span>
-                  </div>
-                  <h3 className="text-base font-semibold mb-0.5 text-foreground">{ws.name}</h3>
-                  <p className="text-xs mb-4 text-foreground-subtle">{ws.clientName} · {ws.projectType}</p>
-                  <div className="flex items-center justify-between text-xs text-foreground-subtle">
-                    <span>{t("projects.proposalCount", { count: ws.proposals.length })}</span>
-                    <span>{t("projects.updated")} {timeAgo(ws.updatedAt)}</span>
-                  </div>
-                </Link>
-              );
-            })}
+      {loading && projects.length === 0 ? (
+        <div className="flex h-48 items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-foreground-subtle" />
+        </div>
+      ) : error ? (
+        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <div className="flex-1">
+            <p>{t("projects.loadFailed")}: {error}</p>
+            <button onClick={reload} className="mt-1 text-xs underline">Retry</button>
           </div>
         </div>
-      )}
-
-      {/* Recent */}
-      {recent.length > 0 && (
-        <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-foreground-subtle mb-3">{t("projects.recent")}</p>
-          <div className="space-y-2">
-            {recent.map((ws) => {
-              const sc   = STATUS_CONFIG[ws.status];
-              const Icon = sc.icon;
-              return (
-                <Link key={ws.id} href={`/projects/${ws.id}`} className="card flex items-center gap-4 px-5 py-4 transition-all hover:shadow-[var(--shadow-sm)]">
+      ) : visible.length === 0 ? (
+        <div className="rounded-[24px] p-10 text-center bg-surface border border-dashed border-black/[0.06]">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[16px] bg-primary-soft">
+            <Zap className="h-5 w-5 text-primary" strokeWidth={1.5} />
+          </div>
+          <p className="text-sm font-semibold mb-1 text-foreground">
+            {showArchived ? t("projects.archived") : t("projects.empty")}
+          </p>
+          <p className="text-xs mb-5 text-foreground-subtle">{t("projects.ctaSub")}</p>
+          {!showArchived && (
+            <Link href="/projects/new" className="btn-primary mx-auto w-fit">
+              <Plus className="h-4 w-4" strokeWidth={1.5} />
+              {t("projects.createNew")}
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {visible.map((p) => {
+            const isArchived = p.status === "archived";
+            return (
+              <div
+                key={p.projectId}
+                className="card flex items-center gap-4 px-5 py-4 transition-all hover:shadow-[var(--shadow-sm)]"
+              >
+                <Link
+                  href={`/projects/${p.projectId}`}
+                  className="flex flex-1 min-w-0 items-center gap-4"
+                >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-surface-2">
-                    <Icon className="h-4 w-4 text-foreground-subtle" strokeWidth={1.5} />
+                    <FileText className="h-4 w-4 text-foreground-subtle" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate text-foreground">{ws.name}</p>
-                    <p className="text-xs text-foreground-subtle">{ws.clientName} · {ws.projectType}</p>
+                    <p className="text-sm font-semibold truncate text-foreground">{p.name}</p>
+                    <p className="text-xs text-foreground-subtle truncate">
+                      {[p.client, p.location].filter(Boolean).join(" · ") || "—"}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-foreground-subtle">{timeAgo(ws.updatedAt)}</span>
-                    <span className={`badge ${sc.cls}`}>{t(sc.labelKey)}</span>
+                    <span className="text-xs text-foreground-subtle hidden sm:block">
+                      {timeAgoFromIso(p.updatedAt)}
+                    </span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGE[p.status]}`}>
+                      {t(`projects.status_${p.status}`)}
+                    </span>
                   </div>
                 </Link>
-              );
-            })}
-          </div>
+                <button
+                  onClick={() => (isArchived ? handleRestore(p.projectId) : handleArchive(p.projectId))}
+                  disabled={busyId === p.projectId}
+                  className="shrink-0 rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-black/[0.04] hover:text-foreground disabled:opacity-50"
+                  title={isArchived ? t("projects.restore") : t("projects.archive")}
+                >
+                  {busyId === p.projectId ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isArchived ? (
+                    <RotateCcw className="h-4 w-4" />
+                  ) : (
+                    <Archive className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
-
-      {/* CTA */}
-      <div className="mt-10 rounded-[24px] p-10 text-center bg-surface border border-dashed border-black/[0.06]">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[16px] bg-primary-soft">
-          <Zap className="h-5 w-5 text-primary" strokeWidth={1.5} />
-        </div>
-        <p className="text-sm font-semibold mb-1 text-foreground">{t("projects.ctaTitle")}</p>
-        <p className="text-xs mb-5 text-foreground-subtle">{t("projects.ctaSub")}</p>
-        <Link href="/projects/new" className="btn-primary mx-auto w-fit">
-          <Plus className="h-4 w-4" strokeWidth={1.5} />
-          {t("projects.createNew")}
-        </Link>
-      </div>
     </div>
   );
 }

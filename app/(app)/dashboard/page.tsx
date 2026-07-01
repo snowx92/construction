@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { mockTenders, mockPrices } from "@/data/mock";
-import { useProjectStore } from "@/store";
 import { useInsightsStore } from "@/store";
+import { useProjects } from "@/lib/use-projects";
+import { STATUS_BADGE, timeAgoFromIso } from "@/lib/project-status";
 import { formatCurrency, cn } from "@/lib/utils";
 import { useT, useLocale } from "@/lib/i18n";
-import { useLocalizedTenders, useLocalizedWorkspaces, useLocalizedInsights, useLocalizedPrices } from "@/lib/i18n/use-localized-data";
+import { useLocalizedTenders, useLocalizedInsights, useLocalizedPrices } from "@/lib/i18n/use-localized-data";
 import { ArrowRight, TrendingUp, TrendingDown, Minus, AlertTriangle, FileText, Zap, BarChart2, FolderKanban } from "lucide-react";
 
 const TENDER_STATUS_CLS: Record<string, string> = {
@@ -49,18 +50,20 @@ export default function DashboardPage() {
   const t = useT();
   const { dir } = useLocale();
   const { insights: rawInsights } = useInsightsStore();
-  const { workspaces: rawWorkspaces } = useProjectStore();
+  const { projects } = useProjects();
 
   // Localized lists for AR display
   const insights    = useLocalizedInsights(rawInsights);
-  const workspaces  = useLocalizedWorkspaces(rawWorkspaces);
   const allTenders  = useLocalizedTenders(mockTenders);
   const prices      = useLocalizedPrices(mockPrices);
 
   const unread         = insights.filter((i) => !i.read);
   const activeTenders  = allTenders.filter((t) => t.status !== "won" && t.status !== "lost");
   const pipeline       = activeTenders.reduce((s, t) => s + (t.value ?? 0), 0);
-  const activeWs       = workspaces.filter((w) => w.status === "in_progress" || w.status === "ready");
+  const liveProjects   = projects.filter((p) => p.status !== "archived");
+  const activeWs       = liveProjects.filter((p) =>
+    ["draft","uploading","processing","needs_review","ready","pricing","generating_proposal"].includes(p.status)
+  );
 
   return (
     <div className="mx-auto max-w-[1200px] px-8 py-10">
@@ -80,7 +83,7 @@ export default function DashboardPage() {
         {[
           { label: t("dashboard.kpiActive"),    value: activeTenders.length.toString(),  sub: `${allTenders.filter(x => x.status === "ready").length} ${t("dashboard.kpiActiveSub")}`,  href: "/tender" },
           { label: t("dashboard.kpiValue"),     value: formatCurrency(pipeline, "AED"),   sub: t("dashboard.kpiValueSub"),                                                                href: "/tender" },
-          { label: t("dashboard.kpiProjects"),  value: activeWs.length.toString(),        sub: `${workspaces.length} ${t("dashboard.kpiProjectsSub")}`,                                   href: "/projects" },
+          { label: t("dashboard.kpiProjects"),  value: activeWs.length.toString(),        sub: `${liveProjects.length} ${t("dashboard.kpiProjectsSub")}`,                                 href: "/projects" },
           { label: t("dashboard.kpiInsights"),  value: unread.length.toString(),          sub: t("dashboard.kpiInsightsSub"), accent: true,                                               href: "/insights" },
         ].map(({ label, value, sub, accent, href }) => (
           <Link key={label} href={href} className="card px-5 py-5 block transition-all duration-500 ease-out hover:border-black/[0.10]">
@@ -185,32 +188,32 @@ export default function DashboardPage() {
           <Link href="/projects" className="text-xs text-primary">{t("dashboard.viewAll")}</Link>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {workspaces.slice(0, 3).map((ws) => {
-            const boqCount    = ws.analysis?.boqItems.length ?? 0;
-            const readyProps  = ws.proposals.filter((p) => p.status === "ready").length;
-            const totalProps  = 9; // tender doc + 3 analysis + 6 proposals
-            const pct         = Math.round((readyProps / totalProps) * 100);
-            const cls         = WS_STATUS_CLS[ws.status];
-            const statusLbl   = t(WS_STATUS_KEY[ws.status] ?? "common.ready");
-            return (
-              <Link key={ws.id} href={`/projects/${ws.id}`} className="card p-5 block transition-all duration-500 ease-out hover:border-black/[0.10]">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate text-foreground">{ws.name}</p>
-                    <p className="text-xs mt-0.5 text-foreground-subtle">{boqCount} BOQ items · {readyProps} docs</p>
-                  </div>
-                  <span className={cn("inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2.5 py-0.5 text-xs font-medium shrink-0 ml-2", cls)}>{statusLbl}</span>
+          {liveProjects.slice(0, 3).map((p) => (
+            <Link key={p.projectId} href={`/projects/${p.projectId}`} className="card p-5 block transition-all duration-500 ease-out hover:border-black/[0.10]">
+              <div className="flex items-start justify-between mb-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate text-foreground">{p.name}</p>
+                  <p className="text-xs mt-0.5 text-foreground-subtle truncate">
+                    {[p.client, p.location].filter(Boolean).join(" · ") || "—"}
+                  </p>
                 </div>
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="text-foreground-subtle">{t("dashboard.completion")}</span>
-                  <span className="font-semibold text-foreground">{pct}%</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full overflow-hidden bg-black/[0.06]">
-                  <div className="h-full rounded-full bg-primary transition-all duration-500 ease-out" style={{ width: `${pct}%` }} />
-                </div>
-              </Link>
-            );
-          })}
+                <span className={`shrink-0 ml-2 rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGE[p.status]}`}>
+                  {t(`projects.status_${p.status}`)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-foreground-subtle">
+                <span>{t("projects.updated")} {timeAgoFromIso(p.updatedAt)}</span>
+                {p.submissionDeadline && typeof p.submissionDeadline === "string" && (
+                  <span>{t("dashboard.due")} {new Date(p.submissionDeadline).toLocaleDateString()}</span>
+                )}
+              </div>
+            </Link>
+          ))}
+          {liveProjects.length === 0 && (
+            <div className="col-span-full card p-8 text-center text-sm text-foreground-subtle">
+              {t("projects.empty")}
+            </div>
+          )}
         </div>
       </div>
     </div>

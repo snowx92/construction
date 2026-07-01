@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProjectStore, useInsightsStore } from "@/store";
+import { useInsightsStore } from "@/store";
+import { useProjects } from "@/lib/use-projects";
 import { mockTenders, mockInsights as mockInsightsData } from "@/data/mock";
 import { useT } from "@/lib/i18n";
-import { useLocalizedTenders, useLocalizedWorkspaces, useLocalizedInsights } from "@/lib/i18n/use-localized-data";
-import type { Tender, AIInsight, ProjectWorkspace } from "@/types";
+import { useLocalizedTenders, useLocalizedInsights } from "@/lib/i18n/use-localized-data";
+import type { Tender, AIInsight } from "@/types";
 
 type SearchResult =
   | { type: "tender"; id: string; title: string; subtitle: string; href: string }
@@ -52,11 +53,10 @@ function useRecentSearches() {
 }
 
 function useGlobalSearch(query: string) {
-  const rawWorkspaces = useProjectStore((s) => s.workspaces);
-  const rawInsights   = useInsightsStore((s) => s.insights);
-  const workspaces = useLocalizedWorkspaces(rawWorkspaces);
-  const insights   = useLocalizedInsights(rawInsights);
-  const tenders    = useLocalizedTenders(mockTenders);
+  const { projects } = useProjects();
+  const rawInsights  = useInsightsStore((s) => s.insights);
+  const insights = useLocalizedInsights(rawInsights);
+  const tenders  = useLocalizedTenders(mockTenders);
 
   const results = useMemo(() => {
     const searchTerm = query.toLowerCase().trim();
@@ -79,14 +79,17 @@ function useGlobalSearch(query: string) {
       }
     });
 
-    workspaces.forEach((ws) => {
-      if (ws.name.toLowerCase().includes(searchTerm) || ws.clientName.toLowerCase().includes(searchTerm)) {
+    projects.forEach((p) => {
+      const name   = p.name.toLowerCase();
+      const client = (p.client ?? "").toLowerCase();
+      const loc    = (p.location ?? "").toLowerCase();
+      if (name.includes(searchTerm) || client.includes(searchTerm) || loc.includes(searchTerm)) {
         results.push({
           type: "project",
-          id: ws.id,
-          title: ws.name,
-          subtitle: ws.clientName,
-          href: `/projects/${ws.id}`,
+          id: p.projectId,
+          title: p.name,
+          subtitle: [p.client, p.location].filter(Boolean).join(" · ") || "—",
+          href: `/projects/${p.projectId}`,
         });
       }
     });
@@ -107,7 +110,7 @@ function useGlobalSearch(query: string) {
     });
 
     return results.slice(0, 8);
-  }, [query, workspaces, insights, tenders]);
+  }, [query, projects, insights, tenders]);
 
   return results;
 }
