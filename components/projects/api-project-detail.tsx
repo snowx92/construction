@@ -20,6 +20,7 @@ import { PricingTab } from "./pricing-tab";
 import { ProposalsTab } from "./proposals-tab";
 import { ExportsTab } from "./exports-tab";
 import { CopilotTab } from "./copilot-tab";
+import { ProjectStepper } from "./project-stepper";
 import { cn } from "@/lib/utils";
 import type { ContractType, Project, TenderType } from "@/lib/api/types";
 
@@ -203,6 +204,13 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
           )}
         </div>
       </div>
+
+      {/* Guided progress stepper */}
+      <ProjectStepper
+        projectId={projectId}
+        activeTab={tab}
+        onNavigate={(t) => setTab(t)}
+      />
 
       {/* Tab strip */}
       <div className="mb-6 flex gap-1 border-b border-black/[0.06]">
