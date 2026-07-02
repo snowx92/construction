@@ -94,6 +94,7 @@
   --color-background:          rgb(var(--background));
   --color-surface:             rgb(var(--surface));
   --color-surface-2:           rgb(var(--surface-2));
+  --color-card:                rgb(255 255 255);
   --color-foreground:          rgb(var(--foreground));
   --color-foreground-muted:    rgb(var(--foreground-muted));
   --color-foreground-subtle:   rgb(var(--foreground-subtle));

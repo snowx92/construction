@@ -130,6 +130,13 @@ export function CopilotTab({ projectId }: { projectId: string }) {
   );
 }
 
+interface PendingMessage {
+  clientId: string;
+  content: string;
+  createdAt: number;
+  serverMessageId?: string;
+}
+
 function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: string }) {
   const t = useT();
   const { dir } = useLocale();
@@ -139,17 +146,37 @@ function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: str
 
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [pending, setPending] = useState<PendingMessage[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom on new messages
+  // Drop pending entries once the Firestore mirror catches up
+  useEffect(() => {
+    if (pending.length === 0) return;
+    setPending((prev) => prev.filter((p) => {
+      // Prefer serverMessageId match if we have it, otherwise match by content+role
+      if (p.serverMessageId && messages.some((m) => m.messageId === p.serverMessageId)) return false;
+      if (messages.some((m) => m.role === "user" && m.content === p.content)) return false;
+      return true;
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length]);
+
+  // Merge pending + Firestore messages for display
+  const displayMessages: Array<ChatMessage | (PendingMessage & { __pending: true })> = [
+    ...messages,
+    ...pending.map((p) => ({ ...p, __pending: true as const })),
+  ];
+
+  // Auto-scroll on new content
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length, messages[messages.length - 1]?.content]);
+  }, [displayMessages.length, messages[messages.length - 1]?.content]);
 
-  const lastMsg = messages[messages.length - 1];
+  const lastReal = messages[messages.length - 1];
   const awaitingAi =
-    lastMsg?.role === "user" ||
-    (lastMsg?.role === "assistant" && (lastMsg.status === "pending" || lastMsg.status === "running"));
+    pending.length > 0 ||
+    lastReal?.role === "user" ||
+    (lastReal?.role === "assistant" && (lastReal.status === "pending" || lastReal.status === "running"));
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -157,11 +184,19 @@ function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: str
     const content = input.trim();
     setInput("");
     setSending(true);
+
+    const clientId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setPending((prev) => [...prev, { clientId, content, createdAt: Date.now() }]);
+
     try {
-      await sendChatMessage({ companyId, projectId, sessionId, content });
+      const res = await sendChatMessage({ companyId, projectId, sessionId, content });
+      setPending((prev) => prev.map((p) =>
+        p.clientId === clientId ? { ...p, serverMessageId: res.messageId } : p
+      ));
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : "Failed", "error");
-      setInput(content); // restore
+      setInput(content);
+      setPending((prev) => prev.filter((p) => p.clientId !== clientId));
     } finally {
       setSending(false);
     }
@@ -174,17 +209,32 @@ function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: str
           <div className="flex h-full items-center justify-center">
             <Loader2 className="h-5 w-5 animate-spin text-foreground-subtle" />
           </div>
-        ) : messages.length === 0 ? (
+        ) : displayMessages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
             <Sparkles className="h-6 w-6 text-foreground-subtle" />
             <p className="text-sm text-foreground-subtle">{t("copilotTab.empty")}</p>
           </div>
         ) : (
-          messages.map((m) => (
-            <MessageBubble key={m.messageId} message={m} projectId={projectId} />
-          ))
+          displayMessages.map((m) => {
+            if ("__pending" in m) {
+              return (
+                <MessageBubble
+                  key={m.clientId}
+                  message={{
+                    messageId: m.clientId,
+                    sessionId,
+                    role: "user",
+                    content: m.content,
+                    status: "completed",
+                  }}
+                  projectId={projectId}
+                />
+              );
+            }
+            return <MessageBubble key={m.messageId} message={m} projectId={projectId} />;
+          })
         )}
-        {awaitingAi && lastMsg?.role === "user" && (
+        {awaitingAi && (
           <div className="flex items-center gap-2 text-xs text-foreground-subtle">
             <Sparkles className="h-3.5 w-3.5" />
             <span>{t("copilotTab.thinking")}</span>
