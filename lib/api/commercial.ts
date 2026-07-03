@@ -30,3 +30,34 @@ export function generateSchedule(body: { companyId: string; projectId: string })
     body,
   });
 }
+
+export function updateCompliance(
+  complianceId: string,
+  body: { companyId: string; projectId: string; checklist?: unknown[]; status?: string },
+) {
+  return apiFetch<{ complianceId: string; updated: boolean }>(
+    `/api/commercial/compliance/${complianceId}`,
+    { method: "PATCH", body },
+  );
+}
+
+export function updateProgramme(
+  programmeId: string,
+  body: { companyId: string; projectId: string; milestones?: unknown[]; criticalPath?: string[]; status?: string },
+) {
+  return apiFetch<{ programmeId: string; updated: boolean }>(
+    `/api/commercial/schedule/${programmeId}`,
+    { method: "PATCH", body },
+  );
+}
+
+export function updateProgrammeActivity(
+  programmeId: string,
+  activityId: string,
+  body: { companyId: string; projectId: string; name?: string; durationDays?: number; dependencies?: string[] },
+) {
+  return apiFetch<{ activityId: string; updated: boolean }>(
+    `/api/commercial/schedule/${programmeId}/activities/${activityId}`,
+    { method: "PATCH", body },
+  );
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Loader2, AlertCircle, Plus, X, Lock, CheckCircle2, ChevronRight, ArrowLeft,
   RefreshCw, FileText, ShieldCheck, Calendar, Pencil, Trash2,
@@ -18,6 +18,7 @@ import { useProposal, useProposals, useProposalSections } from "@/lib/use-propos
 import { usePricingRuns } from "@/lib/use-pricing";
 import { formatPricingTotal } from "@/lib/pricing-helpers";
 import { useJob } from "@/lib/use-job";
+import { CommercialArtifactsPanel } from "./commercial-artifacts";
 import { proposalSectionText, truncateProposalSectionText } from "@/lib/proposal-section-content";
 import { sectionStatusLabelKey } from "@/lib/normalize-status";
 import { timeAgoFromIso } from "@/lib/project-status";
@@ -47,6 +48,26 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
   const [genComp, setGenComp]   = useState(false);
   const [genSched, setGenSched] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [compJobId, setCompJobId] = useState<string | null>(null);
+  const [schedJobId, setSchedJobId] = useState<string | null>(null);
+  const [artifactsRefresh, setArtifactsRefresh] = useState(0);
+
+  const { job: compJob } = useJob(compJobId, projectId);
+  const { job: schedJob } = useJob(schedJobId, projectId);
+
+  useEffect(() => {
+    if (compJob?.status === "completed") {
+      setCompJobId(null);
+      setArtifactsRefresh((n) => n + 1);
+    }
+  }, [compJob?.status]);
+
+  useEffect(() => {
+    if (schedJob?.status === "completed") {
+      setSchedJobId(null);
+      setArtifactsRefresh((n) => n + 1);
+    }
+  }, [schedJob?.status]);
 
   async function handleDeleteProposal(proposal: Proposal, e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -72,7 +93,9 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
     if (!companyId) return;
     setGenComp(true);
     try {
-      await generateComplianceChecklist({ companyId, projectId });
+      const res = await generateComplianceChecklist({ companyId, projectId });
+      if (res.jobId) setCompJobId(res.jobId);
+      setArtifactsRefresh((n) => n + 1);
       showToast(t("proposalsCommercial.queued"), "success");
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : "Failed", "error");
@@ -83,7 +106,9 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
     if (!companyId) return;
     setGenSched(true);
     try {
-      await generateSchedule({ companyId, projectId });
+      const res = await generateSchedule({ companyId, projectId });
+      if (res.jobId) setSchedJobId(res.jobId);
+      setArtifactsRefresh((n) => n + 1);
       showToast(t("proposalsCommercial.queued"), "success");
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : "Failed", "error");
@@ -135,6 +160,14 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
           </button>
         </div>
       </div>
+
+      {companyId && (
+        <CommercialArtifactsPanel
+          projectId={projectId}
+          companyId={companyId}
+          refreshKey={artifactsRefresh}
+        />
+      )}
 
       {loading ? (
         <div className="flex h-24 items-center justify-center">

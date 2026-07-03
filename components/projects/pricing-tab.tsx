@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Loader2, AlertCircle, Plus, X, Lock, CheckCircle2, ChevronRight, ArrowLeft, ChevronDown, Trash2,
 } from "lucide-react";
@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useIsOneOf } from "@/lib/use-role";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
-import { approvePricingRun, deletePricingRun, startPricingRun, updatePricingLineItem, updatePricingRun } from "@/lib/api/pricing";
+import { approvePricingRun, deletePricingRun, listPricingHistory, startPricingRun, updatePricingLineItem, updatePricingRun } from "@/lib/api/pricing";
 import { usePricingItems, usePricingRun, usePricingRuns } from "@/lib/use-pricing";
 import { formatPricingTotal, pricingCurrency, pricingGrandTotal, pricingMarginAmount } from "@/lib/pricing-helpers";
 import { timeAgoFromIso } from "@/lib/project-status";
@@ -31,6 +31,14 @@ export function PricingTab({ projectId }: { projectId: string }) {
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [showStart, setShowStart] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [history, setHistory] = useState<PricingRun[]>([]);
+
+  useEffect(() => {
+    if (!companyId) return;
+    listPricingHistory(companyId, projectId)
+      .then(setHistory)
+      .catch(() => setHistory([]));
+  }, [companyId, projectId, runs.length]);
 
   async function handleDeleteRun(run: PricingRun, e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -141,6 +149,27 @@ export function PricingTab({ projectId }: { projectId: string }) {
           onClose={() => setShowStart(false)}
           onStarted={(runId) => { setShowStart(false); setActiveRunId(runId); }}
         />
+      )}
+
+      {history.length > 0 && (
+        <div className="rounded-xl border border-black/[0.06] bg-card p-4">
+          <h3 className="text-sm font-semibold text-foreground">{t("pricingTab.historyTitle")}</h3>
+          <p className="mt-0.5 text-xs text-foreground-subtle">{t("pricingTab.historySubtitle")}</p>
+          <ul className="mt-3 divide-y divide-black/[0.04] text-xs">
+            {history.slice(0, 10).map((h) => (
+              <li key={h.pricingRunId} className="flex items-center justify-between py-2">
+                <span className="text-foreground-muted">
+                  {h.runType ? t(`pricingTab.type_${h.runType}`) : "—"}
+                  {" · "}
+                  {timeAgoFromIso(h.createdAt)}
+                </span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGE[h.status]}`}>
+                  {t(`pricingTab.status_${h.status}`)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

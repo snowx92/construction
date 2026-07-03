@@ -1,16 +1,35 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useCompanyProfileStore } from "@/store";
 import { useT } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth-context";
+import { useIsAdmin } from "@/lib/use-role";
 import { formatCurrency } from "@/lib/utils";
+import { showToast } from "@/lib/toast";
+import { ApiError } from "@/lib/api/client";
+import {
+  loadFullCompanyProfile,
+  updateCompanyProfile,
+  createPastProject,
+  updatePastProject as apiUpdatePastProject,
+  deletePastProject,
+  createStaff,
+  updateStaff as apiUpdateStaff,
+  deleteStaff,
+  createEquipment,
+  updateEquipment as apiUpdateEquipment,
+  deleteEquipment,
+  createLabour,
+  updateLabour as apiUpdateLabour,
+  deleteLabour,
+} from "@/lib/api/company";
 import {
   Building2, Plus, Trash2, Download, Pencil, X,
-  Users, Briefcase, GitBranch, Award, Check, ChevronDown, ChevronRight,
-  FileText, Truck, HardHat, Globe, Linkedin,
+  Users, Briefcase, GitBranch, Award, Check,
+  FileText, Truck, HardHat, Globe, Linkedin, Loader2, AlertCircle,
 } from "lucide-react";
 import { generateCompanyPDF, type PDFTheme } from "@/lib/generate-company-pdf";
-import { NeedsBackend } from "@/components/shared/needs-backend";
 import type { PastProject, StaffMember, Equipment, LabourCategory } from "@/types";
 
 type Section = "company" | "track-record" | "staff" | "org-chart" | "equipment" | "labour" | "export";
@@ -41,11 +60,15 @@ const STATUS_CONFIG = {
 
 export function CompanyProfileForm() {
   const t = useT();
-  const { profile, updateField, addCertification, removeCertification,
-          addPastProject, updatePastProject, removePastProject,
-          addStaff, updateStaff, removeStaff,
-          addEquipment, updateEquipment, removeEquipment,
-          addLabour, updateLabour, removeLabour } = useCompanyProfileStore();
+  const { profile: authProfile } = useAuth();
+  const isAdmin = useIsAdmin();
+  const companyId = authProfile?.activeCompanyId;
+
+  const { profile, setProfile, updateField, addCertification, removeCertification,
+          updatePastProject, removePastProject,
+          updateStaff, removeStaff,
+          updateEquipment, removeEquipment,
+          updateLabour, removeLabour } = useCompanyProfileStore();
 
   const [section, setSection] = useState<Section>("company");
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -59,6 +82,83 @@ export function CompanyProfileForm() {
   const [newCert, setNewCert]                   = useState("");
   const [exporting, setExporting]               = useState(false);
   const [pdfTheme, setPdfTheme]                 = useState<PDFTheme>("corporate");
+  const [loading, setLoading]                   = useState(true);
+  const [savingProfile, setSavingProfile]       = useState(false);
+  const [error, setError]                       = useState("");
+
+  const reload = useCallback(async () => {
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const data = await loadFullCompanyProfile(companyId);
+      setProfile(data);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  }, [companyId, setProfile]);
+
+  useEffect(() => { reload(); }, [reload]);
+
+  async function handleSaveProfile() {
+    if (!companyId || !isAdmin) return;
+    setSavingProfile(true);
+    setError("");
+    try {
+      const { pastProjects: _p, staff: _s, equipment: _e, labour: _l, ...fields } = profile;
+      await updateCompanyProfile(companyId, fields);
+      showToast(t("companyDefaults.saved"), "success");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to save");
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  async function handleRemovePastProject(id: string) {
+    if (!companyId || !isAdmin) return;
+    try {
+      await deletePastProject(id, companyId);
+      removePastProject(id);
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    }
+  }
+
+  async function handleRemoveStaff(id: string) {
+    if (!companyId || !isAdmin) return;
+    try {
+      await deleteStaff(id, companyId);
+      removeStaff(id);
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    }
+  }
+
+  async function handleRemoveEquipment(id: string) {
+    if (!companyId || !isAdmin) return;
+    try {
+      await deleteEquipment(id, companyId);
+      removeEquipment(id);
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    }
+  }
+
+  async function handleRemoveLabour(id: string) {
+    if (!companyId || !isAdmin) return;
+    try {
+      await deleteLabour(id, companyId);
+      removeLabour(id);
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    }
+  }
 
   /* ── Org tree built from staff.reportsTo links ────────────────── */
   const orgTree = useMemo(() => {
@@ -88,13 +188,29 @@ export function CompanyProfileForm() {
     { id: "export"       as Section, label: t("company.sectionExport"),      icon: Download },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex h-48 items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin" style={{ color: "rgb(var(--foreground-subtle))" }} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <NeedsBackend
-        endpoint="/api/company/{staff,equipment,labour,past-projects,branding}"
-        what="Company assets — staff / equipment / labour / past projects / brand kit"
-        details={`All data here is client-only. Needs CRUD endpoints:\n• GET/POST /api/company/staff, PUT/DELETE /api/company/staff/{id}\n• GET/POST /api/company/equipment, PUT/DELETE /api/company/equipment/{id}\n• GET/POST /api/company/labour, PUT/DELETE /api/company/labour/{id}\n• GET/POST /api/company/past-projects, PUT/DELETE /api/company/past-projects/{id}\n• PUT /api/company/branding — logo + PDF theme colors\nAlso: certifications live on the company doc — accepted via PUT /api/admin/companies/settings.\nCritical for AI proposal generation (technical proposal cites staff, equipment, past projects).`}
-      />
+      {!isAdmin && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{t("companyDefaults.noPermGate")}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -254,6 +370,17 @@ export function CompanyProfileForm() {
               </button>
             </div>
           </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleSaveProfile}
+              disabled={savingProfile || !isAdmin}
+              className="btn-primary gap-2 disabled:opacity-50"
+            >
+              {savingProfile && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t("common.save")}
+            </button>
+          </div>
         </div>
       )}
 
@@ -262,7 +389,7 @@ export function CompanyProfileForm() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.trackRecordSub")}</p>
-            <button onClick={() => { setEditProject(null); setShowProjectModal(true); }} className="btn-primary text-sm gap-2">
+            <button onClick={() => { setEditProject(null); setShowProjectModal(true); }} disabled={!isAdmin} className="btn-primary text-sm gap-2 disabled:opacity-50">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addProject")}
             </button>
@@ -293,7 +420,7 @@ export function CompanyProfileForm() {
                           <button onClick={() => { setEditProject(p); setShowProjectModal(true); }} className="btn-ghost p-1" title={t("common.edit")}>
                             <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                           </button>
-                          <button onClick={() => removePastProject(p.id)} className="btn-ghost p-1" title={t("common.delete")}>
+                          <button onClick={() => handleRemovePastProject(p.id)} className="btn-ghost p-1" title={t("common.delete")} disabled={!isAdmin}>
                             <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} />
                           </button>
                         </div>
@@ -321,7 +448,7 @@ export function CompanyProfileForm() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.staffSub")}</p>
-            <button onClick={() => { setEditStaff(null); setShowStaffModal(true); }} className="btn-primary text-sm gap-2">
+            <button onClick={() => { setEditStaff(null); setShowStaffModal(true); }} disabled={!isAdmin} className="btn-primary text-sm gap-2 disabled:opacity-50">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addStaff")}
             </button>
@@ -350,7 +477,7 @@ export function CompanyProfileForm() {
                         <button onClick={() => { setEditStaff(s); setShowStaffModal(true); }} className="btn-ghost p-1" title={t("common.edit")}>
                           <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} />
                         </button>
-                        <button onClick={() => removeStaff(s.id)} className="btn-ghost p-1" title={t("common.delete")}>
+                        <button onClick={() => handleRemoveStaff(s.id)} className="btn-ghost p-1" title={t("common.delete")} disabled={!isAdmin}>
                           <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} />
                         </button>
                       </div>
@@ -393,7 +520,7 @@ export function CompanyProfileForm() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.equipmentSub")}</p>
-            <button onClick={() => { setEditEquip(null); setShowEquipModal(true); }} className="btn-primary text-sm gap-2">
+            <button onClick={() => { setEditEquip(null); setShowEquipModal(true); }} disabled={!isAdmin} className="btn-primary text-sm gap-2 disabled:opacity-50">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addEquipment")}
             </button>
@@ -421,7 +548,7 @@ export function CompanyProfileForm() {
                     <td className="px-5 py-3">
                       <div className="flex gap-1">
                         <button onClick={() => { setEditEquip(e); setShowEquipModal(true); }} className="btn-ghost p-1"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} /></button>
-                        <button onClick={() => removeEquipment(e.id)} className="btn-ghost p-1"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} /></button>
+                        <button onClick={() => handleRemoveEquipment(e.id)} className="btn-ghost p-1" disabled={!isAdmin}><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} /></button>
                       </div>
                     </td>
                   </tr>
@@ -446,7 +573,7 @@ export function CompanyProfileForm() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: "rgb(var(--foreground-muted))" }}>{t("company.labourSub")}</p>
-            <button onClick={() => { setEditLabour(null); setShowLabourModal(true); }} className="btn-primary text-sm gap-2">
+            <button onClick={() => { setEditLabour(null); setShowLabourModal(true); }} disabled={!isAdmin} className="btn-primary text-sm gap-2 disabled:opacity-50">
               <Plus className="h-4 w-4" strokeWidth={1.5} />
               {t("company.addLabour")}
             </button>
@@ -498,7 +625,7 @@ export function CompanyProfileForm() {
                     <td className="px-5 py-3">
                       <div className="flex gap-1">
                         <button onClick={() => { setEditLabour(l); setShowLabourModal(true); }} className="btn-ghost p-1"><Pencil className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--foreground-subtle))" }} /></button>
-                        <button onClick={() => removeLabour(l.id)} className="btn-ghost p-1"><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} /></button>
+                        <button onClick={() => handleRemoveLabour(l.id)} className="btn-ghost p-1" disabled={!isAdmin}><Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} style={{ color: "rgb(var(--danger))" }} /></button>
                       </div>
                     </td>
                   </tr>
@@ -572,11 +699,21 @@ export function CompanyProfileForm() {
           t={t}
           project={editProject}
           onClose={() => { setShowProjectModal(false); setEditProject(null); }}
-          onSave={(p) => {
-            if (editProject) updatePastProject(editProject.id, p);
-            else addPastProject(p);
-            setShowProjectModal(false);
-            setEditProject(null);
+          onSave={async (p) => {
+            if (!companyId) return;
+            try {
+              if (editProject) {
+                const updated = await apiUpdatePastProject(editProject.id, companyId, p);
+                updatePastProject(editProject.id, updated);
+              } else {
+                const created = await createPastProject(companyId, p);
+                setProfile({ ...profile, pastProjects: [created, ...profile.pastProjects] });
+              }
+              setShowProjectModal(false);
+              setEditProject(null);
+            } catch (err) {
+              showToast(err instanceof ApiError ? err.message : "Failed", "error");
+            }
           }}
         />
       )}
@@ -586,11 +723,21 @@ export function CompanyProfileForm() {
           staffMember={editStaff}
           allStaff={profile.staff}
           onClose={() => { setShowStaffModal(false); setEditStaff(null); }}
-          onSave={(s) => {
-            if (editStaff) updateStaff(editStaff.id, s);
-            else addStaff(s);
-            setShowStaffModal(false);
-            setEditStaff(null);
+          onSave={async (s) => {
+            if (!companyId) return;
+            try {
+              if (editStaff) {
+                const updated = await apiUpdateStaff(editStaff.id, companyId, s);
+                updateStaff(editStaff.id, updated);
+              } else {
+                const created = await createStaff(companyId, s);
+                setProfile({ ...profile, staff: [created, ...profile.staff] });
+              }
+              setShowStaffModal(false);
+              setEditStaff(null);
+            } catch (err) {
+              showToast(err instanceof ApiError ? err.message : "Failed", "error");
+            }
           }}
         />
       )}
@@ -599,11 +746,21 @@ export function CompanyProfileForm() {
           t={t}
           item={editEquip}
           onClose={() => { setShowEquipModal(false); setEditEquip(null); }}
-          onSave={(e) => {
-            if (editEquip) updateEquipment(editEquip.id, e);
-            else addEquipment(e);
-            setShowEquipModal(false);
-            setEditEquip(null);
+          onSave={async (e) => {
+            if (!companyId) return;
+            try {
+              if (editEquip) {
+                const updated = await apiUpdateEquipment(editEquip.id, companyId, e);
+                updateEquipment(editEquip.id, updated);
+              } else {
+                const created = await createEquipment(companyId, e);
+                setProfile({ ...profile, equipment: [created, ...profile.equipment] });
+              }
+              setShowEquipModal(false);
+              setEditEquip(null);
+            } catch (err) {
+              showToast(err instanceof ApiError ? err.message : "Failed", "error");
+            }
           }}
         />
       )}
@@ -612,11 +769,21 @@ export function CompanyProfileForm() {
           t={t}
           item={editLabour}
           onClose={() => { setShowLabourModal(false); setEditLabour(null); }}
-          onSave={(l) => {
-            if (editLabour) updateLabour(editLabour.id, l);
-            else addLabour(l);
-            setShowLabourModal(false);
-            setEditLabour(null);
+          onSave={async (l) => {
+            if (!companyId) return;
+            try {
+              if (editLabour) {
+                const updated = await apiUpdateLabour(editLabour.id, companyId, l);
+                updateLabour(editLabour.id, updated);
+              } else {
+                const created = await createLabour(companyId, l);
+                setProfile({ ...profile, labour: [created, ...profile.labour] });
+              }
+              setShowLabourModal(false);
+              setEditLabour(null);
+            } catch (err) {
+              showToast(err instanceof ApiError ? err.message : "Failed", "error");
+            }
           }}
         />
       )}

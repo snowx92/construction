@@ -1,17 +1,47 @@
 "use client";
-import { mockSubscription } from "@/data/mock";
-import type { Plan } from "@/types";
 
-const PLAN_FEATURES: Record<Plan, string[]> = {
-  starter:    ["ai_tender_analysis"],
-  pro:        ["ai_tender_analysis", "proposal_generation", "vendor_management", "live_pricing", "document_management"],
-  business:   ["ai_tender_analysis", "proposal_generation", "vendor_management", "live_pricing", "document_management", "crew_scheduling", "advanced_reporting", "subcontractor_management"],
-  enterprise: ["ai_tender_analysis", "proposal_generation", "vendor_management", "live_pricing", "document_management", "crew_scheduling", "advanced_reporting", "subcontractor_management", "api_access", "multi_company"],
-};
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { getCompanySettings } from "@/lib/api/companies";
 
 export function useFeatureFlag(feature: string): boolean {
-  const plan = mockSubscription.plan;
-  return PLAN_FEATURES[plan]?.includes(feature) ?? false;
+  const { profile } = useAuth();
+  const companyId = profile?.activeCompanyId;
+  const [enabled, setEnabled] = useState(true);
+
+  useEffect(() => {
+    if (!companyId) return;
+    getCompanySettings(companyId)
+      .then((s) => {
+        const flags = s.featureFlags as Record<string, boolean> | undefined;
+        if (flags && feature in flags) {
+          setEnabled(Boolean(flags[feature]));
+          return;
+        }
+        const quotas = s.quotas;
+        if (feature === "exports" && quotas?.maxProjects === 0) setEnabled(false);
+        else setEnabled(true);
+      })
+      .catch(() => setEnabled(true));
+  }, [companyId, feature]);
+
+  return enabled;
 }
 
-export function usePlan(): Plan { return mockSubscription.plan; }
+export function usePlan(): string {
+  const { profile } = useAuth();
+  const companyId = profile?.activeCompanyId;
+  const [plan, setPlan] = useState("standard");
+
+  useEffect(() => {
+    if (!companyId) return;
+    getCompanySettings(companyId)
+      .then((s) => {
+        const flags = s.featureFlags as Record<string, unknown> | undefined;
+        setPlan(String(flags?.plan || "standard"));
+      })
+      .catch(() => setPlan("standard"));
+  }, [companyId]);
+
+  return plan;
+}

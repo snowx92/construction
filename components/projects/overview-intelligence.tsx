@@ -7,6 +7,8 @@ import {
   listBoqItems,
   listRequirements,
   listRisks,
+  updateRequirement,
+  updateRisk,
   type RequirementItem,
   type RiskItem,
 } from "@/lib/api/projects";
@@ -166,14 +168,34 @@ export function OverviewIntelligence({ projectId, companyId }: Props) {
 
   const requirementItems = (data?.requirements ?? []).map((req, index) => {
     const labelKey = levelLabelKey("priority", req.priority);
+    const reqId = req.requirementId || `req-${index}`;
     return {
-      id: req.requirementId || `req-${index}`,
+      id: reqId,
       node: (
         <div className="space-y-1">
           <div className="flex items-start gap-2">
             <p className="min-w-0 flex-1 text-sm font-medium text-foreground">
               {req.title || req.type || t("project.overview.requirementsTitle")}
             </p>
+            <select
+              value={req.status || "open"}
+              onChange={async (e) => {
+                try {
+                  await updateRequirement(projectId, reqId, { companyId, status: e.target.value });
+                  setData((d) => d ? {
+                    ...d,
+                    requirements: d.requirements.map((r) =>
+                      (r.requirementId || r.id) === reqId ? { ...r, status: e.target.value } : r
+                    ),
+                  } : d);
+                } catch { /* ignore */ }
+              }}
+              className="shrink-0 rounded border border-black/[0.08] px-1.5 py-0.5 text-[10px]"
+            >
+              <option value="open">open</option>
+              <option value="completed">completed</option>
+              <option value="waived">waived</option>
+            </select>
             {labelKey && (
               <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium", levelBadgeClass(req.priority))}>
                 {t(labelKey)}
@@ -196,14 +218,34 @@ export function OverviewIntelligence({ projectId, companyId }: Props) {
   const riskItems = (data?.risks ?? []).map((risk, index) => {
     const severity = risk.severity || risk.level;
     const labelKey = levelLabelKey("severity", severity);
+    const riskId = risk.riskId || `risk-${index}`;
     return {
-      id: risk.riskId || `risk-${index}`,
+      id: riskId,
       node: (
         <div className="space-y-1">
           <div className="flex items-start gap-2">
             <p className="min-w-0 flex-1 text-sm font-medium text-foreground">
               {risk.title || t("project.overview.risksTitle")}
             </p>
+            <select
+              value={risk.status || "open"}
+              onChange={async (e) => {
+                try {
+                  await updateRisk(projectId, riskId, { companyId, status: e.target.value });
+                  setData((d) => d ? {
+                    ...d,
+                    risks: d.risks.map((r) =>
+                      (r.riskId || r.id) === riskId ? { ...r, status: e.target.value } : r
+                    ),
+                  } : d);
+                } catch { /* ignore */ }
+              }}
+              className="shrink-0 rounded border border-black/[0.08] px-1.5 py-0.5 text-[10px]"
+            >
+              <option value="open">open</option>
+              <option value="mitigated">mitigated</option>
+              <option value="accepted">accepted</option>
+            </select>
             {labelKey && (
               <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium", levelBadgeClass(severity))}>
                 {t(labelKey)}

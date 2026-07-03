@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, TrendingUp, Lightbulb,
-  Settings, Building2, Plus, ChevronRight, FileText, Truck, Activity,
+  Settings, Building2, Plus, ChevronRight, FileText, Truck, Activity, FolderOpen,
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
@@ -45,6 +45,7 @@ export function Sidebar() {
     { href: "/dashboard", label: t("nav.dashboard"),  icon: LayoutDashboard },
     { href: "/pricing",   label: t("nav.pricing"),    icon: TrendingUp       },
     { href: "/insights",  label: t("nav.insights"),   icon: Lightbulb        },
+    { href: "/documents", label: t("nav.documents"),  icon: FolderOpen       },
     { href: "/suppliers", label: t("suppliersPage.title"), icon: Truck        },
     ...(isAdmin ? [{ href: "/admin/operations", label: t("operationsPage.title"), icon: Activity }] : []),
   ];

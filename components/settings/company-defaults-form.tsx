@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, AlertCircle, Building2 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-role";
-import { updateCompanySettings } from "@/lib/api/companies";
+import { getCompanySettings, updateCompanySettings } from "@/lib/api/companies";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
 import type { SupportedCountry } from "@/lib/api/types";
@@ -24,7 +24,28 @@ export function CompanyDefaultsForm() {
   const [maxAi, setMaxAi]             = useState<number | "">("");
   const [maxConcurrent, setMaxConc]   = useState<number | "">("");
   const [saving, setSaving]           = useState(false);
+  const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState("");
+
+  useEffect(() => {
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getCompanySettings(companyId)
+      .then((s) => {
+        if (s.country) setCountry(s.country as SupportedCountry);
+        if (s.defaultCurrency) setCurrency(s.defaultCurrency);
+        if (s.quotas?.maxProjects != null) setMaxProjects(s.quotas.maxProjects);
+        if (s.quotas?.maxUsers != null) setMaxUsers(s.quotas.maxUsers);
+        if (s.quotas?.maxStorageBytes != null) setMaxStorage(s.quotas.maxStorageBytes);
+        if (s.quotas?.maxAiRequestsPerMonth != null) setMaxAi(s.quotas.maxAiRequestsPerMonth);
+        if (s.quotas?.maxConcurrentJobs != null) setMaxConc(s.quotas.maxConcurrentJobs);
+      })
+      .catch(() => { /* use defaults */ })
+      .finally(() => setLoading(false));
+  }, [companyId]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Loader2, Plus, X, AlertCircle, Building2, Mail, Phone, MapPin, Globe,
+  Loader2, Plus, X, AlertCircle, Building2, Mail, Phone, MapPin, Globe, Pencil, Trash2,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
-import { createSupplier, listSuppliers } from "@/lib/api/suppliers";
+import { createSupplier, deleteSupplier, listSuppliers, updateSupplier } from "@/lib/api/suppliers";
 import { timeAgoFromIso } from "@/lib/project-status";
 import type { Supplier } from "@/lib/api/types";
 
@@ -20,6 +20,8 @@ export default function SuppliersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState<Supplier | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!companyId) return;
@@ -36,6 +38,21 @@ export default function SuppliersPage() {
   }, [companyId]);
 
   useEffect(() => { reload(); }, [reload]);
+
+  async function handleDelete(s: Supplier) {
+    if (!companyId) return;
+    if (!confirm(t("suppliersPage.deleteConfirm"))) return;
+    setDeletingId(s.supplierId);
+    try {
+      await deleteSupplier(s.supplierId, companyId);
+      showToast(t("suppliersPage.deleted"), "success");
+      reload();
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-[1100px] px-8 py-10">
@@ -90,6 +107,27 @@ export default function SuppliersPage() {
                     {s.status}
                   </span>
                 )}
+                <div className="flex shrink-0 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(s)}
+                    className="rounded-md p-1.5 text-foreground-subtle hover:bg-black/[0.04]"
+                    title={t("suppliersPage.edit")}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(s)}
+                    disabled={deletingId === s.supplierId}
+                    className="rounded-md p-1.5 text-foreground-subtle hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                    title={t("suppliersPage.delete")}
+                  >
+                    {deletingId === s.supplierId
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : <Trash2 className="h-3.5 w-3.5" />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-1.5 text-xs text-foreground-muted">
                 {s.contactName && <p>{s.contactName}</p>}
@@ -120,23 +158,44 @@ export default function SuppliersPage() {
       )}
 
       {showAdd && companyId && (
-        <AddSupplierModal
+        <SupplierFormModal
           companyId={companyId}
           onClose={() => setShowAdd(false)}
-          onAdded={() => { setShowAdd(false); reload(); }}
+          onSaved={() => { setShowAdd(false); reload(); }}
+        />
+      )}
+      {editing && companyId && (
+        <SupplierFormModal
+          companyId={companyId}
+          supplier={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => { setEditing(null); reload(); }}
         />
       )}
     </div>
   );
 }
 
-function AddSupplierModal({
-  companyId, onClose, onAdded,
-}: { companyId: string; onClose: () => void; onAdded: () => void }) {
+function SupplierFormModal({
+  companyId, supplier, onClose, onSaved,
+}: {
+  companyId: string;
+  supplier?: Supplier;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const t = useT();
+  const isEdit = Boolean(supplier);
   const [form, setForm] = useState({
-    name: "", category: "", contactName: "", email: "", phone: "",
-    country: "", city: "", website: "", notes: "",
+    name: supplier?.name ?? "",
+    category: supplier?.category ?? "",
+    contactName: supplier?.contactName ?? "",
+    email: supplier?.email ?? "",
+    phone: supplier?.phone ?? "",
+    country: supplier?.country ?? "",
+    city: supplier?.city ?? "",
+    website: supplier?.website ?? "",
+    notes: supplier?.notes ?? "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -146,7 +205,7 @@ function AddSupplierModal({
     setError("");
     setSubmitting(true);
     try {
-      await createSupplier({
+      const payload = {
         companyId,
         name: form.name.trim(),
         category: form.category.trim() || undefined,
@@ -157,9 +216,14 @@ function AddSupplierModal({
         city: form.city.trim() || undefined,
         website: form.website.trim() || undefined,
         notes: form.notes.trim() || undefined,
-      });
+      };
+      if (isEdit && supplier) {
+        await updateSupplier(supplier.supplierId, payload);
+      } else {
+        await createSupplier(payload);
+      }
       showToast(t("suppliersPage.save"), "success");
-      onAdded();
+      onSaved();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed");
     } finally {
@@ -175,7 +239,9 @@ function AddSupplierModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-lg rounded-2xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="mb-4 flex items-start justify-between">
-          <h3 className="text-base font-semibold text-foreground">{t("suppliersPage.modalTitle")}</h3>
+          <h3 className="text-base font-semibold text-foreground">
+            {isEdit ? t("suppliersPage.editTitle") : t("suppliersPage.modalTitle")}
+          </h3>
           <button onClick={onClose} className="rounded-md p-1 text-foreground-subtle hover:bg-black/[0.05]">
             <X className="h-4 w-4" />
           </button>

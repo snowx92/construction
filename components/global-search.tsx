@@ -4,10 +4,9 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useInsightsStore } from "@/store";
 import { useProjects } from "@/lib/use-projects";
+import { useInsights } from "@/lib/use-insights";
 import { useT } from "@/lib/i18n";
-import { useLocalizedInsights } from "@/lib/i18n/use-localized-data";
 
 type SearchResult =
   | { type: "project"; id: string; title: string; subtitle: string; href: string }
@@ -50,8 +49,7 @@ function useRecentSearches() {
 
 function useGlobalSearch(query: string) {
   const { projects } = useProjects();
-  const rawInsights  = useInsightsStore((s) => s.insights);
-  const insights = useLocalizedInsights(rawInsights);
+  const { insights } = useInsights(30);
 
   const results = useMemo(() => {
     const searchTerm = query.toLowerCase().trim();
@@ -74,18 +72,16 @@ function useGlobalSearch(query: string) {
       }
     });
 
-    // NEEDS_BACKEND: replace insights mock store with GET /api/insights
     insights.forEach((insight) => {
-      if (
-        insight.title.toLowerCase().includes(searchTerm) ||
-        insight.body.toLowerCase().includes(searchTerm)
-      ) {
+      const title = (insight.title || "").toLowerCase();
+      const body = (insight.body || "").toLowerCase();
+      if (title.includes(searchTerm) || body.includes(searchTerm)) {
         out.push({
           type: "insight",
-          id: insight.id,
-          title: insight.title,
-          subtitle: insight.type,
-          href: `/insights?type=${insight.type}`,
+          id: insight.insightId,
+          title: insight.title || insight.type || "Insight",
+          subtitle: insight.type || "",
+          href: `/insights?type=${insight.type || ""}`,
         });
       }
     });
@@ -107,27 +103,23 @@ export function GlobalSearch() {
   const { recent, addSearch } = useRecentSearches();
   const results = useGlobalSearch(query);
 
-  // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
       const cmdKey = isMac ? e.metaKey : e.ctrlKey;
 
-      // Cmd/Ctrl+K to focus search
       if (cmdKey && e.key === "k") {
         e.preventDefault();
         inputRef.current?.focus();
         setIsOpen(true);
       }
 
-      // Escape to close
       if (e.key === "Escape") {
         setIsOpen(false);
         setQuery("");
         setSelectedIndex(0);
       }
 
-      // Arrow keys for navigation
       if (isOpen && (results.length > 0 || recent.length > 0)) {
         const items = query ? results : recent.map((r) => ({ query: r.query }));
         if (e.key === "ArrowDown") {
@@ -149,7 +141,6 @@ export function GlobalSearch() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, query, results, recent, selectedIndex]);
 
-  // Close on click outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -177,19 +168,19 @@ export function GlobalSearch() {
   }
 
   function handleRecentClick(recentQuery: string) {
-    router.push(`?q=${encodeURIComponent(recentQuery)}`);
-    setIsOpen(false);
-    setQuery("");
+    setQuery(recentQuery);
+    setIsOpen(true);
     setSelectedIndex(0);
+    inputRef.current?.focus();
   }
 
+  const hasQuery = query.trim().length > 0;
   const displayResults = query ? results : [];
   const showRecent = !query && recent.length > 0;
-  const items = displayResults.length > 0 || showRecent;
+  const showDropdown = isOpen && (hasQuery || showRecent);
 
   return (
     <div className="relative flex-1 max-w-sm">
-      {/* Search Input */}
       <div
         className={cn(
           "relative flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 transition-all duration-500 ease-out",
@@ -238,15 +229,17 @@ export function GlobalSearch() {
         )}
       </div>
 
-      {/* Results Dropdown */}
-      {isOpen && items && (
+      {showDropdown && (
         <div
           ref={dropdownRef}
           className="absolute top-full left-0 right-0 z-50 mt-2 rounded-[var(--radius-md)] overflow-hidden glass-strong shadow-lg"
         >
-          {displayResults.length > 0 ? (
+          {hasQuery && displayResults.length === 0 ? (
+            <div className="px-3 py-8 text-center">
+              <p className="text-sm text-foreground-subtle">{t("search.noResults")}</p>
+            </div>
+          ) : displayResults.length > 0 ? (
             <div className="max-h-96 overflow-y-auto">
-              {/* Results Section */}
               {query && displayResults.length > 0 && (
                 <div>
                   <div className="px-3 py-2 text-xs font-medium text-foreground-subtle border-b border-black/[0.05]">
@@ -288,7 +281,7 @@ export function GlobalSearch() {
                 {t("search.recent")}
               </div>
               <ul className="space-y-1 p-2">
-                {recent.map((item, idx) => (
+                {recent.map((item) => (
                   <li key={item.timestamp}>
                     <button
                       onClick={() => handleRecentClick(item.query)}

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Loader2, AlertCircle, AlertTriangle, Activity, Cpu, Sparkles, Briefcase,
   Database, FileText, HardDrive, Users, ThumbsUp, ThumbsDown, Award, TrendingUp,
-  BookOpen, ScrollText, CalendarDays, MessageSquare, Hash,
+  BookOpen, ScrollText, CalendarDays, MessageSquare, Hash, Search, X,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
@@ -12,8 +12,10 @@ import { useIsAdmin } from "@/lib/use-role";
 import {
   getAiMetrics, getAlerts, getAnalyticsDashboard, getAuditLogs, getBusinessMetrics,
   getDailyAnalytics, getHealth, getJobsMetrics, getKnowledge, getQualityMetrics, getUsage,
+  searchKnowledge, dismissAlert,
 } from "@/lib/api/operations";
 import { ApiError } from "@/lib/api/client";
+import { showToast } from "@/lib/toast";
 import type {
   OpsAiMetrics, OpsAlert, OpsAnalyticsDashboard, OpsAuditLog, OpsBusinessMetrics,
   OpsHealth, OpsJobsMetrics, OpsKnowledgeItem, OpsQualityMetrics, OpsUsage,
@@ -36,6 +38,9 @@ export default function OperationsPage() {
   const [qual, setQual]           = useState<OpsQualityMetrics | null>(null);
   const [logs, setLogs]           = useState<OpsAuditLog[]>([]);
   const [knowledge, setKnowledge] = useState<OpsKnowledgeItem[]>([]);
+  const [knowledgeQuery, setKnowledgeQuery] = useState("");
+  const [knowledgeSearching, setKnowledgeSearching] = useState(false);
+  const [dismissingId, setDismissingId] = useState<string | null>(null);
   const [dailyDate, setDailyDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [daily, setDaily]         = useState<{ date: string; calls: number; tokens: number } | null>(null);
   const [dailyLoading, setDailyLoading] = useState(false);
@@ -107,6 +112,34 @@ export default function OperationsPage() {
     return () => { cancelled = true; };
   }, [companyId, isAdmin, dailyDate]);
 
+  async function handleKnowledgeSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!companyId || !knowledgeQuery.trim()) return;
+    setKnowledgeSearching(true);
+    try {
+      const items = await searchKnowledge(companyId, knowledgeQuery.trim());
+      setKnowledge(items);
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Search failed", "error");
+    } finally {
+      setKnowledgeSearching(false);
+    }
+  }
+
+  async function handleDismissAlert(alertId: string) {
+    if (!companyId) return;
+    setDismissingId(alertId);
+    try {
+      await dismissAlert(companyId, alertId);
+      setAlerts((prev) => prev.filter((a) => a.alertId !== alertId));
+      showToast(t("operationsPage.alertDismissed"), "success");
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Failed", "error");
+    } finally {
+      setDismissingId(null);
+    }
+  }
+
   if (!isAdmin) {
     return (
       <div className="mx-auto max-w-[1100px] px-8 py-10">
@@ -172,6 +205,19 @@ export default function OperationsPage() {
                       <p className="text-sm font-medium text-foreground">{a.title || a.alertType}</p>
                       <p className="text-xs text-foreground-subtle mt-0.5">{a.message}</p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDismissAlert(a.alertId)}
+                      disabled={dismissingId === a.alertId}
+                      className="shrink-0 inline-flex items-center gap-1 rounded-md border border-black/[0.08] px-2 py-1 text-[10px] font-medium text-foreground-muted hover:bg-black/[0.03] disabled:opacity-50"
+                    >
+                      {dismissingId === a.alertId ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <X className="h-3 w-3" />
+                      )}
+                      {t("operationsPage.dismissAlert")}
+                    </button>
                     {a.severity && (
                       <span className="text-[10px] font-medium uppercase tracking-widest text-foreground-subtle">
                         {a.severity}
@@ -287,6 +333,25 @@ export default function OperationsPage() {
 
           {/* Knowledge */}
           <Section title={t("operationsPage.knowledge")} icon={BookOpen}>
+            <form onSubmit={handleKnowledgeSearch} className="mb-4 flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-subtle" />
+                <input
+                  value={knowledgeQuery}
+                  onChange={(e) => setKnowledgeQuery(e.target.value)}
+                  placeholder={t("operationsPage.knowledgeSearchPh")}
+                  className="input w-full ps-9"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={knowledgeSearching || !knowledgeQuery.trim()}
+                className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {knowledgeSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                {t("operationsPage.knowledgeSearch")}
+              </button>
+            </form>
             {knowledge.length === 0 ? (
               <p className="rounded-xl border border-black/[0.06] bg-card p-4 text-sm text-foreground-subtle">
                 {t("operationsPage.noKnowledge")}

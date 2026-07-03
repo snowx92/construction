@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Loader2, AlertCircle, Plus, X, Download, Package, FileText, FileSpreadsheet,
   FileArchive, RotateCcw, CheckCircle2, Clock, Trash2,
@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useIsOneOf } from "@/lib/use-role";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
-import { createExport, deleteExport, getExportDownloadUrl } from "@/lib/api/exports";
+import { createExport, deleteExport, getExportDownloadUrl, validateExport } from "@/lib/api/exports";
 import { useExports } from "@/lib/use-exports";
 import { useProposals } from "@/lib/use-proposals";
 import { usePricingRuns } from "@/lib/use-pricing";
@@ -204,6 +204,20 @@ function CreateExportModal({
   const [artifacts, setArtifacts]   = useState<Set<ExportArtifact>>(new Set(EXPORT_ARTIFACTS));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState("");
+  const [warnings, setWarnings]     = useState<Array<{ code: string; message: string }>>([]);
+
+  useEffect(() => {
+    if (!companyId) return;
+    validateExport({
+      companyId,
+      projectId,
+      exportType,
+      proposalId: proposalId || undefined,
+      pricingRunId: pricingRunId || undefined,
+    })
+      .then((d) => setWarnings(d.warnings ?? []))
+      .catch(() => setWarnings([]));
+  }, [companyId, projectId, exportType, proposalId, pricingRunId]);
 
   function toggleArtifact(a: ExportArtifact) {
     setArtifacts((prev) => {
@@ -348,6 +362,15 @@ function CreateExportModal({
               })}
             </div>
           </div>
+
+          {warnings.length > 0 && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 space-y-1">
+              <p className="font-medium">{t("exportsTab.warningsTitle")}</p>
+              {warnings.map((w) => (
+                <p key={w.code}>• {w.message}</p>
+              ))}
+            </div>
+          )}
 
           {error && (
             <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

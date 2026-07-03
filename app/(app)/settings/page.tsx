@@ -7,6 +7,8 @@ import { CompanyProfileForm } from "@/components/settings/company-profile-form";
 import { TeamPanel } from "@/components/settings/team-panel";
 import { PasswordForm } from "@/components/settings/password-form";
 import { CompanyDefaultsForm } from "@/components/settings/company-defaults-form";
+import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form";
+import { ApiKeysPanel } from "@/components/settings/api-keys-panel";
 import { NeedsBackend } from "@/components/shared/needs-backend";
 import { User, Bell, CreditCard, Key, Palette, Users, Shield, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -67,11 +69,7 @@ export default function SettingsPage() {
           {activeSection === "notifications" && (
             <div className="card p-6">
               <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.notificationsTitle")}</h2>
-              <NeedsBackend
-                endpoint="GET/PUT /api/notifications/preferences"
-                what="User notification preferences (email, in-app, digest frequency, per-event toggles)"
-                details="Response: { email: { deadlines, pricing, teamActivity }, inApp: {...}, digestFrequency: 'daily'|'weekly'|'off' }"
-              />
+              <NotificationPreferencesForm />
             </div>
           )}
 
@@ -89,11 +87,7 @@ export default function SettingsPage() {
           {activeSection === "api" && (
             <div className="card p-6">
               <h2 className="text-base font-semibold mb-5 text-foreground">{t("settings.apiTitle")}</h2>
-              <NeedsBackend
-                endpoint="GET/POST/DELETE /api/company/api-keys"
-                what="Programmatic API keys for company integrations"
-                details="POST returns full key ONCE, subsequent GETs return masked. Fields: { keyId, name, prefix, scopes[], lastUsedAt, createdAt }"
-              />
+              <ApiKeysPanel />
             </div>
           )}
 

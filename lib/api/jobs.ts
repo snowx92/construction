@@ -1,6 +1,12 @@
 import { apiFetch } from "./client";
 import type { JobView } from "./types";
 
+export function listJobs(companyId: string, projectId: string, status?: string) {
+  return apiFetch<{ jobs: JobView[] }>("/api/jobs", {
+    query: { companyId, projectId, status },
+  }).then((d) => d.jobs ?? []);
+}
+
 export function getJob(jobId: string, companyId: string, projectId?: string) {
   return apiFetch<JobView>(`/api/jobs/${jobId}`, {
     query: { companyId, projectId },

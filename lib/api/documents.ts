@@ -21,6 +21,30 @@ export function listDocuments(companyId: string, projectId: string, limit = 200)
   );
 }
 
+export interface ListCompanyDocumentsParams {
+  companyId: string;
+  projectId?: string;
+  status?: string;
+  mimeType?: string;
+  limit?: number;
+}
+
+export function listCompanyDocuments(params: ListCompanyDocumentsParams) {
+  const { companyId, projectId, status, mimeType, limit } = params;
+  return apiFetch<{ documents: (DocumentRecord & { id?: string; originalFilename?: string })[] }>(
+    "/api/documents",
+    { query: { companyId, projectId, status, mimeType, limit } },
+  ).then((d) =>
+    (d.documents ?? []).map((doc) => ({
+      ...doc,
+      documentId: doc.documentId ?? doc.id ?? "",
+      companyId: doc.companyId ?? companyId,
+      projectId: doc.projectId ?? projectId ?? "",
+      filename: doc.filename ?? doc.name ?? doc.originalFilename,
+    }))
+  );
+}
+
 export function createUploadSessions(body: CreateUploadSessionsBody) {
   return apiFetch<CreateUploadSessionsResponse>("/api/documents/upload-sessions", {
     method: "POST",
@@ -54,6 +78,9 @@ export function getDownloadUrl(documentId: string, companyId: string, projectId:
     query: { companyId, projectId },
   });
 }
+
+/** @alias getDownloadUrl */
+export const getDocumentDownloadUrl = getDownloadUrl;
 
 /* ── CRC32 (IEEE, S3 flexible checksum) ─────────────────────────── */
 

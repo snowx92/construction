@@ -63,3 +63,17 @@ export function getKnowledge(companyId: string) {
     { query: { companyId } }
   ).then((d) => (Array.isArray(d) ? d : d.items ?? []));
 }
+
+export function searchKnowledge(companyId: string, q: string, limit?: number) {
+  return apiFetch<{ items: OpsKnowledgeItem[] }>(
+    "/api/operations/knowledge/search",
+    { query: { companyId, q, limit } },
+  ).then((d) => d.items ?? []);
+}
+
+export function dismissAlert(companyId: string, alertId: string) {
+  return apiFetch<{ alertId: string; status: string }>(
+    `/api/operations/alerts/${alertId}/dismiss`,
+    { method: "POST", body: { companyId } },
+  );
+}

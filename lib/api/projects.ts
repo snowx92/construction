@@ -74,6 +74,7 @@ export function reconcileProject(projectId: string, companyId: string) {
 export interface BoqItem {
   boqItemId?: string;
   id?: string;
+  itemNumber?: string;
   description?: string;
   quantity?: number;
   unit?: string;
@@ -163,5 +164,27 @@ export function listRisks(projectId: string, companyId: string) {
       ...risk,
       riskId: risk.riskId ?? risk.id ?? "",
     }))
+  );
+}
+
+export function updateRequirement(
+  projectId: string,
+  requirementId: string,
+  body: { companyId: string; status?: string; title?: string; description?: string; priority?: string },
+) {
+  return apiFetch<{ requirementId: string; updated: boolean }>(
+    `/api/projects/${projectId}/requirements/${requirementId}`,
+    { method: "PATCH", body },
+  );
+}
+
+export function updateRisk(
+  projectId: string,
+  riskId: string,
+  body: { companyId: string; status?: string; title?: string; description?: string; severity?: string; mitigation?: string },
+) {
+  return apiFetch<{ riskId: string; updated: boolean }>(
+    `/api/projects/${projectId}/risks/${riskId}`,
+    { method: "PATCH", body },
   );
 }

@@ -23,6 +23,8 @@ import { ExportsTab } from "./exports-tab";
 import { CopilotTab } from "./copilot-tab";
 import { ProjectStepper } from "./project-stepper";
 import { OverviewIntelligence } from "./overview-intelligence";
+import { BoqTab } from "./boq-tab";
+import { ProjectJobsBanner } from "./project-jobs-banner";
 import { cn } from "@/lib/utils";
 import type { ContractType, Project, TenderType } from "@/lib/api/types";
 
@@ -56,7 +58,10 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   useEffect(() => {
-    if (!companyId) return;
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError("");
     getProject(projectId, companyId)
@@ -288,7 +293,9 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
 
       {tab === "overview" && (
       <>
+      {companyId && <ProjectJobsBanner projectId={projectId} />}
       {companyId && <OverviewIntelligence projectId={projectId} companyId={companyId} />}
+      {companyId && <div className="card p-6 mb-6"><BoqTab projectId={projectId} /></div>}
       {/* Metadata card */}
       <div className="card p-6 mb-6">
         <div className="grid gap-5 sm:grid-cols-2">

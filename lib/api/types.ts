@@ -655,6 +655,11 @@ export interface CreateSupplierBody {
   notes?: string;
 }
 
+export interface UpdateSupplierBody extends Partial<Omit<CreateSupplierBody, "companyId">> {
+  companyId: string;
+  status?: "active" | "inactive";
+}
+
 export interface OpsHealth {
   llmHealthy?: boolean;
   llmLatencyMs?: number;

@@ -35,3 +35,16 @@ export function deleteExport(
     body,
   });
 }
+
+export function validateExport(body: {
+  companyId: string;
+  projectId: string;
+  exportType?: string;
+  proposalId?: string;
+  pricingRunId?: string;
+}) {
+  return apiFetch<{ warnings: Array<{ code: string; message: string; severity?: string }> }>(
+    "/api/exports/validate",
+    { method: "POST", body },
+  );
+}
