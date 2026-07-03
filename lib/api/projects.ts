@@ -58,3 +58,110 @@ export function restoreProject(projectId: string, companyId: string) {
     body: { companyId },
   });
 }
+
+export function reconcileProject(projectId: string, companyId: string) {
+  return apiFetch<{
+    projectId: string;
+    status?: string;
+    reconciliation?: Record<string, unknown>;
+    proposalReconciliation?: Record<string, unknown>;
+  }>(`/api/projects/${projectId}/reconcile`, {
+    method: "POST",
+    body: { companyId },
+  });
+}
+
+export interface BoqItem {
+  boqItemId?: string;
+  id?: string;
+  description?: string;
+  quantity?: number;
+  unit?: string;
+  unitRate?: number;
+  status?: string;
+  category?: string;
+  notes?: string;
+}
+
+export function listBoqItems(projectId: string, companyId: string) {
+  return apiFetch<{ items: BoqItem[] }>(`/api/projects/${projectId}/boq`, {
+    query: { companyId },
+  }).then((d) =>
+    (d.items ?? []).map((item) => ({
+      ...item,
+      boqItemId: item.boqItemId ?? item.id ?? "",
+    }))
+  );
+}
+
+export function extractBoq(projectId: string, companyId: string) {
+  return apiFetch<{ started: boolean; runId?: string; reason?: string }>(
+    `/api/projects/${projectId}/boq/extract`,
+    { method: "POST", body: { companyId } }
+  );
+}
+
+export function updateBoqItem(
+  projectId: string,
+  boqItemId: string,
+  body: {
+    companyId: string;
+    description?: string;
+    quantity?: number;
+    unit?: string;
+    unitRate?: number;
+    status?: string;
+    notes?: string;
+  }
+) {
+  return apiFetch<{ boqItemId: string; updated: boolean }>(
+    `/api/projects/${projectId}/boq/${boqItemId}`,
+    { method: "PUT", body }
+  );
+}
+
+export interface RequirementItem {
+  requirementId?: string;
+  id?: string;
+  type?: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  sourceClause?: string;
+}
+
+export function listRequirements(projectId: string, companyId: string) {
+  return apiFetch<{ requirements: RequirementItem[] }>(`/api/projects/${projectId}/requirements`, {
+    query: { companyId },
+  }).then((d) =>
+    (d.requirements ?? []).map((req) => ({
+      ...req,
+      requirementId: req.requirementId ?? req.id ?? "",
+    }))
+  );
+}
+
+export interface RiskItem {
+  riskId?: string;
+  id?: string;
+  title?: string;
+  description?: string;
+  level?: string;
+  severity?: string;
+  category?: string;
+  status?: string;
+  clause?: string;
+  sourceCitation?: string;
+}
+
+export function listRisks(projectId: string, companyId: string) {
+  return apiFetch<{ risks: RiskItem[] }>(`/api/projects/${projectId}/risks`, {
+    query: { companyId },
+  }).then((d) =>
+    (d.risks ?? []).map((risk) => ({
+      ...risk,
+      riskId: risk.riskId ?? risk.id ?? "",
+    }))
+  );
+}

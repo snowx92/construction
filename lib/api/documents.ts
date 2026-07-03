@@ -3,9 +3,23 @@ import type {
   ConfirmUploadBody,
   CreateUploadSessionsBody,
   CreateUploadSessionsResponse,
+  DocumentRecord,
   DownloadUrlResponse,
   RetryDocumentBody,
 } from "./types";
+
+export function listDocuments(companyId: string, projectId: string, limit = 200) {
+  return apiFetch<{ documents: (DocumentRecord & { id?: string })[] }>("/api/documents", {
+    query: { companyId, projectId, limit },
+  }).then((d) =>
+    (d.documents ?? []).map((doc) => ({
+      ...doc,
+      documentId: doc.documentId ?? doc.id ?? "",
+      companyId,
+      projectId,
+    }))
+  );
+}
 
 export function createUploadSessions(body: CreateUploadSessionsBody) {
   return apiFetch<CreateUploadSessionsResponse>("/api/documents/upload-sessions", {

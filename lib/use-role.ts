@@ -14,15 +14,17 @@ const RANK: Record<UserRole, number> = {
 
 /** Returns true if the current user's role is at least the given role's rank. */
 export function useHasRole(min: UserRole): boolean {
-  const { role } = useAuth();
-  if (!role) return false;
-  return RANK[role] >= RANK[min];
+  const { role, profile } = useAuth();
+  const effective = role ?? profile?.role ?? null;
+  if (!effective) return false;
+  return RANK[effective] >= RANK[min];
 }
 
 /** Returns true if user has exactly any of the listed roles. */
 export function useIsOneOf(...roles: UserRole[]): boolean {
-  const { role } = useAuth();
-  return role ? roles.includes(role) : false;
+  const { role, profile } = useAuth();
+  const effective = role ?? profile?.role ?? null;
+  return effective ? roles.includes(effective) : false;
 }
 
 /** Owner/admin gate — used for settings & operations surfaces. */

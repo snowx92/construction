@@ -34,6 +34,8 @@ export interface UserProfile {
   timezone?: string;
   companyIds?: string[];
   activeCompanyId?: string | null;
+  /** Role in activeCompanyId (from company membership). */
+  role?: UserRole | null;
   hasPassword?: boolean;
 }
 
@@ -148,6 +150,13 @@ export type TenderType = "open" | "limited" | "single_source" | "framework" | "e
 
 export type ContractType = "lump_sum" | "admeasurement" | "cost_plus" | "turnkey" | "framework";
 
+export interface ProjectProgressSummary {
+  currentStep?: string;
+  percentComplete?: number;
+  documentsReady?: number;
+  jobsPending?: number;
+}
+
 export interface Project {
   projectId: string;
   companyId: string;
@@ -159,6 +168,7 @@ export interface Project {
   contractType?: ContractType;
   disciplines?: string[];
   submissionDeadline?: string;
+  progressSummary?: ProjectProgressSummary;
   createdBy?: string;
   createdAt?: { _seconds: number; _nanoseconds: number } | string;
   updatedAt?: { _seconds: number; _nanoseconds: number } | string;
@@ -306,13 +316,23 @@ export type PricingRunStatus = "estimating" | "review" | "draft" | "locked";
 export type PricingRunType = "ai_assisted" | "manual" | "benchmark";
 
 export interface PricingTotals {
-  subtotal: number;
-  margin: number;
-  total: number;
-  currency: string;
+  subtotal?: number;
+  overhead?: number;
+  contingency?: number;
+  profit?: number;
+  grandTotal?: number;
+  /** @deprecated use grandTotal */
+  margin?: number;
+  /** @deprecated use grandTotal */
+  total?: number;
+  currency?: string;
 }
 
 export interface MarginPolicy {
+  overheadPercent?: number;
+  profitPercent?: number;
+  contingencyPercent?: number;
+  riskPercent?: number;
   targetMarginPct?: number;
   riskContingencyPct?: number;
 }
@@ -344,6 +364,10 @@ export interface PricingLineItem {
   manualRate?: number;
   finalRate?: number;
   amount?: number;
+  material?: number;
+  labor?: number;
+  equipment?: number;
+  subcontract?: number;
   source?: "ai" | "manual" | "benchmark";
   notes?: string;
 }
@@ -360,8 +384,22 @@ export interface OverrideRateBody {
   companyId: string;
   projectId: string;
   boqItemId: string;
-  finalRate: number;
+  finalRate?: number;
+  quantity?: number;
+  unit?: string;
+  description?: string;
+  material?: number;
+  labor?: number;
+  equipment?: number;
+  subcontract?: number;
   notes?: string;
+}
+
+export interface UpdatePricingRunBody {
+  companyId: string;
+  projectId: string;
+  marginPolicy?: MarginPolicy;
+  currency?: string;
 }
 
 export type ProposalStatus =
@@ -374,8 +412,10 @@ export interface ProposalSection {
   sectionId: string;
   sectionKey?: ProposalSectionKey | string;
   title?: string;
+  content?: string;
+  /** @deprecated use content */
   body?: string;
-  status?: "pending" | "generating" | "ready" | "failed";
+  status?: "pending" | "generating" | "complete" | "ready" | "failed";
   wordCount?: number;
   updatedAt?: { _seconds: number; _nanoseconds: number } | string;
 }
@@ -407,6 +447,75 @@ export interface RegenerateSectionBody {
   projectId: string;
   sectionId?: string;
   sectionKey?: ProposalSectionKey;
+}
+
+export interface UpdateProposalSectionBody {
+  companyId: string;
+  projectId: string;
+  title?: string;
+  content?: string;
+}
+
+export interface UpdateProposalBody {
+  companyId: string;
+  projectId: string;
+  title: string;
+}
+
+export type ComplianceChecklistStatus = "complete" | "missing" | "partial" | string;
+
+export interface ComplianceChecklistItem {
+  title?: string;
+  status?: ComplianceChecklistStatus;
+  requirementId?: string;
+  priority?: string;
+  notes?: string;
+}
+
+export interface ComplianceRun {
+  id: string;
+  companyId?: string;
+  projectId?: string;
+  status?: "generating" | "complete" | "failed" | string;
+  checklist?: ComplianceChecklistItem[];
+  requiredDocuments?: string[];
+  requiredCertificates?: string[];
+  requiredStaff?: string[];
+  missingItems?: ComplianceChecklistItem[];
+  readinessScore?: number;
+  blockers?: ComplianceChecklistItem[];
+  createdAt?: { _seconds: number; _nanoseconds: number } | string;
+  updatedAt?: { _seconds: number; _nanoseconds: number } | string;
+}
+
+export interface ProgrammeMilestone {
+  name?: string;
+  week?: number;
+  date?: string;
+}
+
+export interface ProgrammeRun {
+  id: string;
+  companyId?: string;
+  projectId?: string;
+  status?: "generating" | "complete" | "failed" | string;
+  milestones?: ProgrammeMilestone[];
+  criticalPath?: string[];
+  calendarAssumptions?: {
+    workingDaysPerWeek?: number;
+    hoursPerDay?: number;
+  };
+  createdAt?: { _seconds: number; _nanoseconds: number } | string;
+  updatedAt?: { _seconds: number; _nanoseconds: number } | string;
+}
+
+export interface ProgrammeActivity {
+  id: string;
+  programmeId?: string;
+  name?: string;
+  durationDays?: number;
+  dependencies?: string[];
+  isMilestone?: boolean;
 }
 
 export type ExportType = "zip" | "pdf" | "word" | "excel" | "submission_package";
@@ -637,4 +746,35 @@ export interface OpsKnowledgeItem {
   type?: string;
   status?: string;
   updatedAt?: string;
+}
+
+export type InsightSeverity = "critical" | "high" | "medium" | "low";
+export type InsightType = "risk" | "opportunity" | "pricing" | "vendor" | "market";
+
+export interface CompanyInsight {
+  insightId: string;
+  type: InsightType;
+  severity: InsightSeverity;
+  title: string;
+  body: string;
+  projectId?: string | null;
+  projectName?: string | null;
+  relatedTo?: { type: string; id: string; label: string } | null;
+  read: boolean;
+  createdAt: string;
+}
+
+export type MarketPriceTrend = "up" | "down" | "stable";
+
+export interface MarketPrice {
+  id: string;
+  name: string;
+  category?: string;
+  unit: string;
+  currency: string;
+  price: number;
+  trend: MarketPriceTrend;
+  changePercent: number;
+  updatedAt?: string;
+  source?: string;
 }

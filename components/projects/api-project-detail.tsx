@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import {
   AlertCircle, ArrowLeft, ArrowRight, Archive, RotateCcw,
   Loader2, Pencil, Save, X, FileText, FolderOpen, Tag, Zap, ListChecks, Info,
-  MessageSquare,
+  MessageSquare, RefreshCw,
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
-import { getProject } from "@/lib/api/projects";
+import { getProject, reconcileProject } from "@/lib/api/projects";
+import { reconcileProposal } from "@/lib/api/proposals";
 import { useProjects } from "@/lib/use-projects";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
@@ -21,6 +22,7 @@ import { ProposalsTab } from "./proposals-tab";
 import { ExportsTab } from "./exports-tab";
 import { CopilotTab } from "./copilot-tab";
 import { ProjectStepper } from "./project-stepper";
+import { OverviewIntelligence } from "./overview-intelligence";
 import { cn } from "@/lib/utils";
 import type { ContractType, Project, TenderType } from "@/lib/api/types";
 
@@ -43,6 +45,7 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [reconciling, setReconciling] = useState(false);
   const [tab, setTab] = useState<Tab>("overview");
 
   const [form, setForm] = useState<{
@@ -96,6 +99,27 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
       setSaving(false);
     }
   }
+
+  async function handleReconcile() {
+    if (!companyId || !project) return;
+    setReconciling(true);
+    try {
+      const res = await reconcileProject(projectId, companyId);
+      if (project.status === "generating_proposal") {
+        await reconcileProposal(companyId, projectId).catch(() => { /* optional */ });
+      }
+      const fresh = await getProject(projectId, companyId);
+      setProject(fresh);
+      showToast(`Reconciled — status: ${res.status ?? fresh.status}`, "success");
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Reconcile failed", "error");
+    } finally {
+      setReconciling(false);
+    }
+  }
+
+  const stuckStatuses = new Set(["processing", "needs_review", "pricing", "generating_proposal", "uploading"]);
+  const showReconcile = stuckStatuses.has(project?.status ?? "");
 
   async function handleArchive() {
     if (!project) return;
@@ -186,6 +210,17 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
             </>
           ) : (
             <>
+              {showReconcile && (
+                <button
+                  onClick={handleReconcile}
+                  disabled={reconciling}
+                  title="Retry stuck jobs and sync project state"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                >
+                  {reconciling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                  Reconcile
+                </button>
+              )}
               <button
                 onClick={() => setEditing(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-sm hover:bg-black/[0.03]"
@@ -253,6 +288,7 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
 
       {tab === "overview" && (
       <>
+      {companyId && <OverviewIntelligence projectId={projectId} companyId={companyId} />}
       {/* Metadata card */}
       <div className="card p-6 mb-6">
         <div className="grid gap-5 sm:grid-cols-2">

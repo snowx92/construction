@@ -25,3 +25,13 @@ export function getExportDownloadUrl(exportId: string, companyId: string, projec
     query: { companyId, projectId },
   });
 }
+
+export function deleteExport(
+  exportId: string,
+  body: { companyId: string; projectId: string }
+) {
+  return apiFetch<{ exportId: string; deleted: boolean }>(`/api/exports/${exportId}`, {
+    method: "DELETE",
+    body,
+  });
+}

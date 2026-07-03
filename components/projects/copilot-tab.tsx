@@ -11,7 +11,9 @@ import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
 import { createChatSession, rateChatMessage, sendChatMessage } from "@/lib/api/chat";
 import { useChatMessages, useChatSessions } from "@/lib/use-chat";
+import { useJob } from "@/lib/use-job";
 import { timeAgoFromIso } from "@/lib/project-status";
+import { copilotMessageText } from "@/lib/copilot-content";
 import { cn } from "@/lib/utils";
 import type { ChatMessage, ChatRating } from "@/lib/api/types";
 
@@ -142,12 +144,14 @@ function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: str
   const { dir } = useLocale();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const { messages, loading } = useChatMessages(sessionId);
+  const { messages, loading } = useChatMessages(projectId, sessionId);
 
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [pending, setPending] = useState<PendingMessage[]>([]);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { job: activeJob } = useJob(activeJobId, projectId);
 
   // Drop pending entries once the Firestore mirror catches up
   useEffect(() => {
@@ -175,6 +179,7 @@ function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: str
   const lastReal = messages[messages.length - 1];
   const awaitingAi =
     pending.length > 0 ||
+    (activeJobId && activeJob && !["completed", "failed", "cancelled"].includes(activeJob.status)) ||
     lastReal?.role === "user" ||
     (lastReal?.role === "assistant" && (lastReal.status === "pending" || lastReal.status === "running"));
 
@@ -193,6 +198,7 @@ function ChatPanel({ projectId, sessionId }: { projectId: string; sessionId: str
       setPending((prev) => prev.map((p) =>
         p.clientId === clientId ? { ...p, serverMessageId: res.messageId } : p
       ));
+      if (res.jobId) setActiveJobId(res.jobId);
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : "Failed", "error");
       setInput(content);
@@ -356,7 +362,7 @@ function MessageBubble({ message, projectId }: { message: ChatMessage; projectId
               <AlertCircle className="h-3 w-3" /> {message.error?.message || t("copilotTab.failed")}
             </span>
           ) : (
-            <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+            <p className="whitespace-pre-wrap leading-relaxed">{copilotMessageText(message.content)}</p>
           )}
         </div>
 

@@ -6,6 +6,7 @@ import { useDocuments } from "@/lib/use-documents";
 import { usePricingRuns } from "@/lib/use-pricing";
 import { useProposals } from "@/lib/use-proposals";
 import { useExports } from "@/lib/use-exports";
+import { useProjectProgress } from "@/lib/use-project-progress";
 import { cn } from "@/lib/utils";
 
 type StepState = "todo" | "in_progress" | "done";
@@ -32,7 +33,9 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
   const { runs }      = usePricingRuns(projectId);
   const { proposals } = useProposals(projectId);
   const { exports }   = useExports(projectId);
+  const { status: projectStatus, progressSummary } = useProjectProgress(projectId);
 
+  const currentStep = progressSummary?.currentStep;
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   // Step 1 — Documents
@@ -44,26 +47,43 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
   const docsState: StepState =
     documents.length === 0 ? "todo"
     : readyDocs.length === documents.length ? "done"
+    : processingDocs.length > 0 || projectStatus === "processing" || projectStatus === "uploading"
+      ? "in_progress"
     : "in_progress";
 
   // Step 2 — Pricing
   const lockedRuns = runs.filter((r) => r.status === "locked");
-  const inFlightRuns = runs.filter((r) => r.status === "estimating" || r.status === "review" || r.status === "draft");
+  const activePricingRuns = runs.filter((r) =>
+    r.status === "estimating" || r.status === "review" || r.status === "draft"
+  );
+  const completedPricingRuns = runs.filter((r) =>
+    r.status === "review" || r.status === "draft" || r.status === "locked"
+  );
   const pricingState: StepState =
     docsState !== "done" ? "todo"
-    : lockedRuns.length > 0 ? "done"
-    : inFlightRuns.length > 0 ? "in_progress"
+    : lockedRuns.length > 0 || currentStep === "pricing_complete" ? "done"
+    : activePricingRuns.length > 0 ||
+      currentStep === "pricing" ||
+      currentStep === "pricing_review" ||
+      projectStatus === "pricing"
+      ? "in_progress"
     : "todo";
 
-  // Step 3 — Proposal
+  // Step 3 — Proposal (unlocks once any pricing run has left estimating)
+  const pricingReadyForProposal = completedPricingRuns.length > 0;
   const lockedProposals = proposals.filter((p) => p.status === "locked");
   const inFlightProposals = proposals.filter((p) =>
     p.status === "draft" || p.status === "generating" || p.status === "review" || p.status === "approved"
   );
   const proposalsState: StepState =
-    pricingState !== "done" ? "todo"
+    !pricingReadyForProposal ? "todo"
     : lockedProposals.length > 0 ? "done"
-    : inFlightProposals.length > 0 ? "in_progress"
+    : inFlightProposals.length > 0 ||
+      currentStep === "generating_proposal" ||
+      currentStep === "proposal_review" ||
+      projectStatus === "generating_proposal" ||
+      proposals.some((p) => p.status === "review")
+      ? "in_progress"
     : "todo";
 
   // Step 4 — Submission
@@ -94,7 +114,9 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
       hintKey: pricingState === "done"
         ? "stepper.pricingDone"
         : pricingState === "in_progress"
-          ? "stepper.pricingInProgress"
+          ? currentStep === "pricing_review"
+            ? "stepper.pricingInProgress"
+            : "stepper.pricingInProgress"
           : docsState === "done" ? "stepper.pricingTodo" : "stepper.pricingWaiting",
       icon: Tag,
       state: pricingState,
@@ -105,8 +127,12 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
       hintKey: proposalsState === "done"
         ? "stepper.proposalDone"
         : proposalsState === "in_progress"
-          ? "stepper.proposalInProgress"
-          : pricingState === "done" ? "stepper.proposalTodo" : "stepper.proposalWaiting",
+          ? currentStep === "generating_proposal"
+            ? "stepper.proposalInProgress"
+            : currentStep === "proposal_review"
+              ? "stepper.proposalInProgress"
+              : "stepper.proposalInProgress"
+          : pricingReadyForProposal ? "stepper.proposalTodo" : "stepper.proposalWaiting",
       icon: Zap,
       state: proposalsState,
     },
@@ -123,22 +149,16 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
     },
   ];
 
-  // First non-"done" step is the next action; if all done, no CTA.
   const nextStep = steps.find((s) => s.state !== "done");
   const isOnNextStep = nextStep && activeTab === nextStep.key;
   const allDone = !nextStep;
 
   return (
     <div className="mb-6 rounded-2xl border border-black/[0.06] bg-card p-4">
-      {/* Steps row */}
       <div className="flex items-center gap-2 overflow-x-auto">
         {steps.map((step, i) => {
           const isActive = activeTab === step.key;
           const Icon = step.icon;
-          const stateIcon =
-            step.state === "done" ? CheckCircle2
-            : step.state === "in_progress" ? Loader2
-            : Circle;
           const stateColor =
             step.state === "done" ? "text-emerald-600"
             : step.state === "in_progress" ? "text-primary"
@@ -176,12 +196,7 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
                         {step.countLabel}
                       </span>
                     )}
-                    <span
-                      className={cn(
-                        "flex h-3.5 w-3.5 items-center justify-center",
-                        stateColor
-                      )}
-                    >
+                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center", stateColor)}>
                       {step.state === "done" && <CheckCircle2 className="h-3.5 w-3.5" />}
                     </span>
                   </div>
@@ -199,7 +214,6 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
         })}
       </div>
 
-      {/* Do this next CTA */}
       {!allDone && nextStep && !isOnNextStep && (
         <div className="mt-3 flex items-center justify-between rounded-xl bg-primary-soft px-4 py-2.5">
           <div className="flex items-center gap-2 min-w-0">

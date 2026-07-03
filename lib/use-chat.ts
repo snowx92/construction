@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 import { useAuth } from "./auth-context";
-import type { ChatMessage, ChatSession } from "./api/types";
+import { listChatMessages } from "./api/chat";
+import type { ChatMessage, ChatMessageStatus, ChatSession } from "./api/types";
+import { normalizeChatStatus } from "./normalize-status";
+import { copilotMessageText } from "./copilot-content";
 
 /**
  * Firestore timestamp normalisation. Docs may carry either a Firebase
@@ -20,12 +23,34 @@ function toMillis(value: unknown): number {
   return secs != null ? secs * 1000 + Math.floor(ns / 1e6) : 0;
 }
 
+function normalizeChatMessage(
+  data: Record<string, unknown>,
+  messageId: string,
+  sessionId: string,
+): ChatMessage {
+  const rating = data.feedback as { rating?: string } | undefined;
+  const role = data.role as ChatMessage["role"];
+  const rawContent = (data.content ?? data.body) as string | undefined;
+  return {
+    messageId,
+    sessionId,
+    projectId: data.projectId as string | undefined,
+    role,
+    content: role === "assistant" ? copilotMessageText(rawContent) : rawContent,
+    status: normalizeChatStatus(data.status as string | undefined),
+    rating: (rating?.rating ?? data.rating) as ChatMessage["rating"],
+    ratingComment: (data.ratingComment as string | null) ?? null,
+    citations: data.citations as ChatMessage["citations"],
+    jobId: (data.jobId as string | null) ?? null,
+    error: data.error as ChatMessage["error"],
+    createdAt: data.createdAt as ChatMessage["createdAt"],
+    updatedAt: data.updatedAt as ChatMessage["updatedAt"],
+  };
+}
+
 /**
  * Real-time chat sessions for a project.
- * Reads from `companies/{cid}/chatSessions` filtered by projectId.
- *
- * We omit orderBy from the Firestore query so no composite index is required;
- * sort is done client-side.
+ * Reads from `companies/{cid}/projects/{pid}/chatSessions`.
  */
 export function useChatSessions(projectId: string | null | undefined) {
   const { profile } = useAuth();
@@ -39,11 +64,10 @@ export function useChatSessions(projectId: string | null | undefined) {
     setLoading(true);
     setError(null);
 
-    const ref = collection(db, "companies", companyId, "chatSessions");
-    const q = query(ref, where("projectId", "==", projectId));
+    const ref = collection(db, "companies", companyId, "projects", projectId, "chatSessions");
 
     const unsub = onSnapshot(
-      q,
+      ref,
       (snap) => {
         const list: ChatSession[] = snap.docs.map((d) => ({
           sessionId: d.id,
@@ -69,87 +93,67 @@ export function useChatSessions(projectId: string | null | undefined) {
 
 /**
  * Real-time messages for a chat session.
- *
- * The backend can store messages at either:
- *   (A) companies/{cid}/chatSessions/{sid}/messages           (nested)
- *   (B) companies/{cid}/chatMessages   with sessionId field   (flat)
- *
- * We subscribe to BOTH and merge — whichever the backend actually writes to
- * shows up. Sort is done client-side to avoid composite-index requirements.
+ * Primary: `companies/{cid}/projects/{pid}/chatMessages` filtered by sessionId.
+ * Fallback: GET /api/chat/messages when Firestore is empty.
  */
-export function useChatMessages(sessionId: string | null | undefined) {
+export function useChatMessages(
+  projectId: string | null | undefined,
+  sessionId: string | null | undefined,
+) {
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const apiFetched = useRef(false);
 
   useEffect(() => {
-    if (!companyId || !sessionId) { setLoading(false); setMessages([]); return; }
+    apiFetched.current = false;
+    if (!companyId || !projectId || !sessionId) {
+      setLoading(false);
+      setMessages([]);
+      return;
+    }
     setLoading(true);
     setError(null);
 
-    let nested: ChatMessage[] = [];
-    let flat: ChatMessage[]   = [];
+    const ref = collection(db, "companies", companyId, "projects", projectId, "chatMessages");
+    const q = query(ref, where("sessionId", "==", sessionId));
 
-    const emit = () => {
-      const byId = new Map<string, ChatMessage>();
-      for (const m of [...nested, ...flat]) byId.set(m.messageId, m);
-      const list = [...byId.values()];
-      list.sort((a, b) => toMillis(a.createdAt) - toMillis(b.createdAt));
-      setMessages(list);
-      setLoading(false);
-    };
-
-    // (A) Nested subcollection: companies/{cid}/chatSessions/{sid}/messages
-    // Some backends don't use this path — permission-denied here is expected
-    // and we drop the listener silently so it doesn't retry/log-spam.
-    const nestedRef = collection(db, "companies", companyId, "chatSessions", sessionId, "messages");
-    let nestedUnsub: (() => void) | null = null;
-    nestedUnsub = onSnapshot(
-      nestedRef,
+    const unsub = onSnapshot(
+      q,
       (snap) => {
-        nested = snap.docs.map((d) => ({
-          messageId: d.id,
-          sessionId,
-          ...(d.data() as Omit<ChatMessage, "messageId" | "sessionId">),
-        }));
-        emit();
-      },
-      (err) => {
-        // permission-denied = path not used by this backend; unfailable-path = 400
-        if ((err as { code?: string }).code !== "permission-denied") {
-          console.warn("[chat-messages nested]", err.message);
+        const list = snap.docs.map((d) =>
+          normalizeChatMessage(d.data() as Record<string, unknown>, d.id, sessionId)
+        );
+        list.sort((a, b) => toMillis(a.createdAt) - toMillis(b.createdAt));
+        setMessages(list);
+        setLoading(false);
+
+        if (list.length === 0 && !apiFetched.current) {
+          apiFetched.current = true;
+          listChatMessages(companyId, projectId, sessionId)
+            .then((apiMsgs) => {
+              if (apiMsgs.length > 0) setMessages(apiMsgs);
+            })
+            .catch((e) => console.warn("[chat-messages api fallback]", e));
         }
-        if (nestedUnsub) { nestedUnsub(); nestedUnsub = null; }
-      }
-    );
-
-    // (B) Flat collection with sessionId filter — no orderBy so no composite index
-    const flatRef = collection(db, "companies", companyId, "chatMessages");
-    const flatQ = query(flatRef, where("sessionId", "==", sessionId));
-    const unsubFlat = onSnapshot(
-      flatQ,
-      (snap) => {
-        flat = snap.docs.map((d) => ({
-          messageId: d.id,
-          sessionId,
-          ...(d.data() as Omit<ChatMessage, "messageId" | "sessionId">),
-        }));
-        emit();
       },
       (err) => {
-        console.error("[chat-messages flat]", err);
+        console.error("[chat-messages]", err);
         setError(err.message);
         setLoading(false);
+        if (!apiFetched.current) {
+          apiFetched.current = true;
+          listChatMessages(companyId, projectId, sessionId)
+            .then(setMessages)
+            .catch((e) => setError(e instanceof Error ? e.message : "Failed to load messages"));
+        }
       }
     );
 
-    return () => {
-      if (nestedUnsub) nestedUnsub();
-      unsubFlat();
-    };
-  }, [companyId, sessionId]);
+    return unsub;
+  }, [companyId, projectId, sessionId]);
 
   return { messages, loading, error };
 }

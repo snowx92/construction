@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "./firebase";
-import { getMyProfile } from "./api/users";
+import { getMyProfile, getMyMembership } from "./api/users";
 import type { UserProfile, UserRole } from "./api/types";
 
 interface AuthContextValue {
@@ -50,7 +50,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProfile = useCallback(async () => {
     try {
       const p = await getMyProfile();
-      setProfile(p);
+      let membershipRole = p.role ?? null;
+      if (!membershipRole && p.activeCompanyId) {
+        try {
+          const membership = await getMyMembership(p.activeCompanyId);
+          membershipRole = membership.role;
+        } catch {
+          /* membership endpoint may be unavailable on older API */
+        }
+      }
+      const enriched = membershipRole ? { ...p, role: membershipRole } : p;
+      setProfile(enriched);
+      if (membershipRole) {
+        setRole(membershipRole);
+      }
     } catch {
       setProfile(null);
     }
@@ -63,19 +76,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const res = await u.getIdTokenResult(true);
-    setRole(extractRole(res.claims as Record<string, unknown>, profile?.activeCompanyId));
-  }, [profile?.activeCompanyId]);
+    const claimsRole = extractRole(res.claims as Record<string, unknown>, profile?.activeCompanyId);
+    setRole(claimsRole ?? profile?.role ?? null);
+  }, [profile?.activeCompanyId, profile?.role]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        await refreshProfile();
+        let loadedProfile: UserProfile | null = null;
+        try {
+          loadedProfile = await getMyProfile();
+          if (!loadedProfile.role && loadedProfile.activeCompanyId) {
+            try {
+              const membership = await getMyMembership(loadedProfile.activeCompanyId);
+              loadedProfile = { ...loadedProfile, role: membership.role };
+            } catch {
+              /* ignore */
+            }
+          }
+          setProfile(loadedProfile);
+        } catch {
+          setProfile(null);
+        }
         try {
           const res = await u.getIdTokenResult();
-          setRole(extractRole(res.claims as Record<string, unknown>));
+          const claimsRole = extractRole(res.claims as Record<string, unknown>, loadedProfile?.activeCompanyId);
+          setRole(claimsRole ?? loadedProfile?.role ?? null);
         } catch {
-          setRole(null);
+          setRole(loadedProfile?.role ?? null);
         }
       } else {
         setProfile(null);
@@ -84,15 +113,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
     return unsub;
-  }, [refreshProfile]);
+  }, []);
 
   // Recompute role when profile's activeCompanyId changes
   useEffect(() => {
     if (!user || !profile?.activeCompanyId) return;
     user.getIdTokenResult().then((res) => {
-      setRole(extractRole(res.claims as Record<string, unknown>, profile.activeCompanyId));
+      const claimsRole = extractRole(res.claims as Record<string, unknown>, profile.activeCompanyId);
+      setRole(claimsRole ?? profile.role ?? null);
     });
-  }, [user, profile?.activeCompanyId]);
+    // Refresh profile to pick up membership role for the active company
+    refreshProfile();
+  }, [user, profile?.activeCompanyId, refreshProfile]);
 
   return (
     <AuthContext.Provider value={{ user, profile, role, loading, refreshProfile, refreshClaims, setProfile }}>

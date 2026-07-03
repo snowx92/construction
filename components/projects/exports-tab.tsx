@@ -3,17 +3,18 @@
 import { useState } from "react";
 import {
   Loader2, AlertCircle, Plus, X, Download, Package, FileText, FileSpreadsheet,
-  FileArchive, RotateCcw, CheckCircle2, Clock,
+  FileArchive, RotateCcw, CheckCircle2, Clock, Trash2,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
 import { useIsOneOf } from "@/lib/use-role";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
-import { createExport, getExportDownloadUrl } from "@/lib/api/exports";
+import { createExport, deleteExport, getExportDownloadUrl } from "@/lib/api/exports";
 import { useExports } from "@/lib/use-exports";
 import { useProposals } from "@/lib/use-proposals";
 import { usePricingRuns } from "@/lib/use-pricing";
+import { formatPricingTotal } from "@/lib/pricing-helpers";
 import { timeAgoFromIso } from "@/lib/project-status";
 import { cn } from "@/lib/utils";
 import {
@@ -92,7 +93,9 @@ function ExportRow({ record, projectId }: { record: ExportRecord; projectId: str
   const t = useT();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
+  const canDelete = useIsOneOf("estimator", "tender_manager", "admin", "company_owner");
   const [downloading, setDownloading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const Icon = TYPE_ICON[record.exportType] ?? FileText;
   const status = record.status ?? "queued";
   const StatusIcon = status === "ready" ? CheckCircle2
@@ -109,6 +112,24 @@ function ExportRow({ record, projectId }: { record: ExportRecord; projectId: str
       showToast(err instanceof ApiError ? err.message : "Download failed", "error");
     } finally {
       setDownloading(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!companyId) return;
+    if (status === "processing") {
+      showToast(t("exportsTab.cannotDeleteWhileProcessing"), "error");
+      return;
+    }
+    if (!confirm(t("exportsTab.deleteConfirm"))) return;
+    setDeleting(true);
+    try {
+      await deleteExport(record.exportId, { companyId, projectId });
+      showToast(t("exportsTab.deleted"), "success");
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : "Delete failed", "error");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -145,6 +166,17 @@ function ExportRow({ record, projectId }: { record: ExportRecord; projectId: str
           >
             {downloading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
             {t("exportsTab.download")}
+          </button>
+        )}
+        {canDelete && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting || status === "processing"}
+            title={status === "processing" ? t("exportsTab.cannotDeleteWhileProcessing") : t("exportsTab.delete")}
+            className="rounded-md p-1.5 text-foreground-subtle hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+          >
+            {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
           </button>
         )}
       </div>
@@ -284,7 +316,7 @@ function CreateExportModal({
                   {lockedRuns.map((r) => (
                     <option key={r.pricingRunId} value={r.pricingRunId}>
                       {r.pricingRunId.slice(0, 8)}
-                      {r.totals ? ` · ${r.totals.total.toLocaleString()} ${r.totals.currency}` : ""}
+                      {formatPricingTotal(r) ? ` · ${formatPricingTotal(r)}` : ""}
                     </option>
                   ))}
                 </select>
