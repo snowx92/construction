@@ -6,7 +6,9 @@ import {
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
-import { useIsOneOf } from "@/lib/use-role";
+import { usePermission } from "@/lib/use-role";
+import { useProjectProgress } from "@/lib/use-project-progress";
+import { useDocuments } from "@/lib/use-documents";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
 import { approvePricingRun, deletePricingRun, listPricingHistory, startPricingRun, updatePricingLineItem, updatePricingRun } from "@/lib/api/pricing";
@@ -20,13 +22,20 @@ const STATUS_BADGE: Record<PricingRunStatus, string> = {
   review:     "bg-amber-50 text-amber-700",
   draft:      "bg-foreground-subtle/10 text-foreground-muted",
   locked:     "bg-emerald-50 text-emerald-700",
+  failed:     "bg-red-50 text-red-700",
 };
 
 export function PricingTab({ projectId }: { projectId: string }) {
   const t = useT();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canManage = useIsOneOf("estimator", "finance", "tender_manager", "admin", "company_owner");
+  const canManage = usePermission("managePricing");
+  const { status: projectStatus } = useProjectProgress(projectId);
+  const { documents } = useDocuments(projectId);
+  const readyDocs = documents.filter((d) => d.status === "ready");
+  const canStartPricing = canManage &&
+    (projectStatus === "ready" || projectStatus === "pricing") &&
+    readyDocs.length > 0;
   const { runs, loading, error } = usePricingRuns(projectId);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [showStart, setShowStart] = useState(false);
@@ -80,7 +89,14 @@ export function PricingTab({ projectId }: { projectId: string }) {
         </div>
         <button
           onClick={() => setShowStart(true)}
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover"
+          disabled={!canStartPricing}
+          title={
+            !canManage ? t("pricingTab.noPerm") :
+            projectStatus !== "ready" && projectStatus !== "pricing" ? t("pricingTab.notReady") :
+            readyDocs.length === 0 ? t("pricingTab.needDocs") :
+            undefined
+          }
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
         >
           <Plus className="h-3.5 w-3.5" /> {t("pricingTab.startCta")}
         </button>
@@ -183,8 +199,10 @@ function StartRunModal({
   const companyId = profile?.activeCompanyId;
   const [runType, setRunType]       = useState<PricingRunType>("ai_assisted");
   const [currency, setCurrency]     = useState("OMR");
-  const [margin, setMargin]         = useState<number | "">(12);
-  const [risk, setRisk]             = useState<number | "">(5);
+  const [overhead, setOverhead]     = useState<number | "">(12);
+  const [profit, setProfit]         = useState<number | "">(8);
+  const [contingency, setContingency] = useState<number | "">(5);
+  const [risk, setRisk]             = useState<number | "">(3);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState("");
 
@@ -200,8 +218,10 @@ function StartRunModal({
         currency,
         runType,
         marginPolicy: {
-          targetMarginPct: margin === "" ? undefined : Number(margin),
-          riskContingencyPct: risk === "" ? undefined : Number(risk),
+          overheadPercent: overhead === "" ? 12 : Number(overhead),
+          profitPercent: profit === "" ? 8 : Number(profit),
+          contingencyPercent: contingency === "" ? 5 : Number(contingency),
+          riskPercent: risk === "" ? 3 : Number(risk),
         },
       });
       onStarted(res.pricingRunId);
@@ -236,29 +256,50 @@ function StartRunModal({
             </select>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.currency")}</label>
+            <input
+              type="text"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value.toUpperCase())}
+              className="w-full rounded-xl border border-black/[0.08] bg-white px-3 py-2 text-sm"
+              maxLength={4}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.currency")}</label>
-              <input
-                type="text"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                className="w-full rounded-xl border border-black/[0.08] bg-white px-3 py-2 text-sm"
-                maxLength={4}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.targetMargin")}</label>
+              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.overhead")}</label>
               <input
                 type="number"
                 min={0} step={0.5}
-                value={margin}
-                onChange={(e) => setMargin(e.target.value === "" ? "" : Number(e.target.value))}
+                value={overhead}
+                onChange={(e) => setOverhead(e.target.value === "" ? "" : Number(e.target.value))}
                 className="w-full rounded-xl border border-black/[0.08] bg-white px-3 py-2 text-sm"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.riskContingency")}</label>
+              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.profit")}</label>
+              <input
+                type="number"
+                min={0} step={0.5}
+                value={profit}
+                onChange={(e) => setProfit(e.target.value === "" ? "" : Number(e.target.value))}
+                className="w-full rounded-xl border border-black/[0.08] bg-white px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.contingency")}</label>
+              <input
+                type="number"
+                min={0} step={0.5}
+                value={contingency}
+                onChange={(e) => setContingency(e.target.value === "" ? "" : Number(e.target.value))}
+                className="w-full rounded-xl border border-black/[0.08] bg-white px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground-muted">{t("pricingTab.risk")}</label>
               <input
                 type="number"
                 min={0} step={0.5}
@@ -305,8 +346,8 @@ function RunDetail({
   const { dir } = useLocale();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canApprove = useIsOneOf("estimator", "finance", "admin", "company_owner");
-  const canManage = useIsOneOf("estimator", "finance", "tender_manager", "admin", "company_owner");
+  const canApprove = usePermission("approvePricing");
+  const canManage = usePermission("managePricing");
 
   const { run } = usePricingRun(projectId, pricingRunId);
   const { items, loading } = usePricingItems(projectId, pricingRunId);
@@ -463,7 +504,7 @@ function MarginPolicyEditor({
   companyId?: string | null;
 }) {
   const t = useT();
-  const canEdit = useIsOneOf("estimator", "finance", "tender_manager", "admin", "company_owner");
+  const canEdit = usePermission("managePricing");
   const policy = run.marginPolicy || {};
   const [overhead, setOverhead] = useState(policy.overheadPercent ?? 12);
   const [profit, setProfit] = useState(policy.profitPercent ?? 8);
@@ -551,7 +592,7 @@ function ItemRow({
   const t = useT();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canEdit = useIsOneOf("estimator", "finance", "tender_manager", "admin", "company_owner") && !locked;
+  const canEdit = usePermission("managePricing") && !locked;
   const boqItemId = item.boqItemId || item.itemId;
 
   const [expanded, setExpanded] = useState(false);
@@ -565,17 +606,42 @@ function ItemRow({
   const [subcontract, setSubcontract] = useState<number | "">(item.subcontract ?? "");
   const [notes, setNotes] = useState(item.notes ?? "");
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
-  const dirty =
-    description !== (item.description ?? "") ||
-    qty !== (item.quantity ?? "") ||
-    unit !== (item.unit ?? "") ||
-    rate !== (item.finalRate ?? item.manualRate ?? item.aiRate ?? "") ||
-    material !== (item.material ?? "") ||
-    labor !== (item.labor ?? "") ||
-    equipment !== (item.equipment ?? "") ||
-    subcontract !== (item.subcontract ?? "") ||
-    notes !== (item.notes ?? "");
+  const serverRate = item.finalRate ?? item.manualRate ?? item.aiRate ?? "";
+  const serverKey = [
+    item.boqItemId || item.itemId,
+    item.description,
+    item.quantity,
+    item.unit,
+    serverRate,
+    item.material,
+    item.labor,
+    item.equipment,
+    item.subcontract,
+    item.notes,
+  ].join("|");
+
+  useEffect(() => {
+    if (dirty) return;
+    setDescription(item.description ?? "");
+    setQty(item.quantity ?? "");
+    setUnit(item.unit ?? "");
+    setRate(serverRate);
+    setMaterial(item.material ?? "");
+    setLabor(item.labor ?? "");
+    setEquipment(item.equipment ?? "");
+    setSubcontract(item.subcontract ?? "");
+    setNotes(item.notes ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when server payload changes and row is clean
+  }, [serverKey, dirty]);
+
+  function markDirty<T>(setter: (v: T) => void) {
+    return (v: T) => {
+      setDirty(true);
+      setter(v);
+    };
+  }
 
   async function handleSave() {
     if (!companyId || rate === "") return;
@@ -595,6 +661,7 @@ function ItemRow({
         subcontract: subcontract === "" ? undefined : Number(subcontract),
         notes: notes || undefined,
       });
+      setDirty(false);
       showToast(t("pricingTab.saveRate"), "success");
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : "Failed", "error");
@@ -614,7 +681,7 @@ function ItemRow({
           {canEdit ? (
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => markDirty(setDescription)(e.target.value)}
               rows={2}
               className="w-full min-w-[200px] rounded-md border border-black/[0.08] bg-white px-2 py-1 text-sm"
             />
@@ -629,7 +696,7 @@ function ItemRow({
               min={0}
               step={0.01}
               value={qty}
-              onChange={(e) => setQty(e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) => markDirty(setQty)(e.target.value === "" ? "" : Number(e.target.value))}
               className="w-20 rounded-md border border-black/[0.08] bg-white px-2 py-1 text-right text-sm"
             />
           ) : (
@@ -640,7 +707,7 @@ function ItemRow({
           {canEdit ? (
             <input
               value={unit}
-              onChange={(e) => setUnit(e.target.value)}
+              onChange={(e) => markDirty(setUnit)(e.target.value)}
               className="w-16 rounded-md border border-black/[0.08] bg-white px-2 py-1 text-sm"
             />
           ) : (
@@ -657,7 +724,7 @@ function ItemRow({
               min={0}
               step={0.01}
               value={rate}
-              onChange={(e) => setRate(e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) => markDirty(setRate)(e.target.value === "" ? "" : Number(e.target.value))}
               className="w-24 rounded-md border border-black/[0.08] bg-white px-2 py-1 text-right text-sm"
             />
           ) : (
@@ -687,10 +754,10 @@ function ItemRow({
           <td colSpan={6} className="px-4 py-3">
             <div className="grid gap-3 sm:grid-cols-4">
               {([
-                [t("pricingTab.material"), material, setMaterial],
-                [t("pricingTab.labor"), labor, setLabor],
-                [t("pricingTab.equipment"), equipment, setEquipment],
-                [t("pricingTab.subcontract"), subcontract, setSubcontract],
+                [t("pricingTab.material"), material, markDirty(setMaterial)],
+                [t("pricingTab.labor"), labor, markDirty(setLabor)],
+                [t("pricingTab.equipment"), equipment, markDirty(setEquipment)],
+                [t("pricingTab.subcontract"), subcontract, markDirty(setSubcontract)],
               ] as const).map(([label, val, setVal]) => (
                 <label key={label} className="space-y-1">
                   <span className="text-[10px] text-foreground-subtle">{label}</span>
@@ -709,7 +776,7 @@ function ItemRow({
               <span className="text-[10px] text-foreground-subtle">{t("pricingTab.ratesNote")}</span>
               <input
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => markDirty(setNotes)(e.target.value)}
                 className="input w-full text-sm"
               />
             </label>

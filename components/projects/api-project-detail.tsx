@@ -25,8 +25,9 @@ import { ProjectStepper } from "./project-stepper";
 import { OverviewIntelligence } from "./overview-intelligence";
 import { BoqTab } from "./boq-tab";
 import { ProjectJobsBanner } from "./project-jobs-banner";
+import { useProjectProgress } from "@/lib/use-project-progress";
 import { cn } from "@/lib/utils";
-import type { ContractType, Project, TenderType } from "@/lib/api/types";
+import type { ContractType, Project, ProjectStatus, TenderType } from "@/lib/api/types";
 
 type Tab = "overview" | "documents" | "pricing" | "proposals" | "submission" | "copilot";
 
@@ -49,6 +50,8 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
   const [busy, setBusy] = useState(false);
   const [reconciling, setReconciling] = useState(false);
   const [tab, setTab] = useState<Tab>("overview");
+  const { status: liveStatus } = useProjectProgress(projectId);
+  const displayStatus: ProjectStatus | undefined = liveStatus ?? project?.status;
 
   const [form, setForm] = useState<{
     name: string; client: string; location: string;
@@ -124,7 +127,7 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
   }
 
   const stuckStatuses = new Set(["processing", "needs_review", "pricing", "generating_proposal", "uploading"]);
-  const showReconcile = stuckStatuses.has(project?.status ?? "");
+  const showReconcile = stuckStatuses.has(displayStatus ?? project?.status ?? "");
 
   async function handleArchive() {
     if (!project) return;
@@ -187,8 +190,8 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
             <h1 className="text-3xl font-semibold text-foreground">{project.name}</h1>
           )}
           <div className="mt-2 flex items-center gap-3 text-sm text-foreground-muted">
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGE[project.status]}`}>
-              {t(`projects.status_${project.status}`)}
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGE[displayStatus ?? project.status]}`}>
+              {t(`projects.status_${displayStatus ?? project.status}`)}
             </span>
             <span>·</span>
             <span>{t("projects.updated")} {timeAgoFromIso(project.updatedAt)}</span>
@@ -252,6 +255,8 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
         onNavigate={(t) => setTab(t)}
       />
 
+      {companyId && <ProjectJobsBanner projectId={projectId} />}
+
       {/* Tab strip */}
       <div className="mb-6 flex gap-1 border-b border-black/[0.06]">
         {([
@@ -293,7 +298,6 @@ export function ApiProjectDetail({ projectId }: { projectId: string }) {
 
       {tab === "overview" && (
       <>
-      {companyId && <ProjectJobsBanner projectId={projectId} />}
       {companyId && <OverviewIntelligence projectId={projectId} companyId={companyId} />}
       {companyId && <div className="card p-6 mb-6"><BoqTab projectId={projectId} /></div>}
       {/* Metadata card */}

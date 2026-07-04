@@ -3,8 +3,10 @@ export type UserRole =
   | "admin"
   | "tender_manager"
   | "estimator"
+  | "planner"
   | "finance"
-  | "legal";
+  | "legal"
+  | "read_only";
 
 export type SupportedCountry = "OM" | "EG";
 
@@ -311,7 +313,7 @@ export type UploadSessionFile = UploadFileSpec;
 export type UploadSessionsBody = CreateUploadSessionsBody;
 export type DocumentDoc = DocumentRecord;
 
-export type PricingRunStatus = "estimating" | "review" | "draft" | "locked";
+export type PricingRunStatus = "estimating" | "review" | "draft" | "locked" | "failed";
 
 export type PricingRunType = "ai_assisted" | "manual" | "benchmark";
 
@@ -320,6 +322,7 @@ export interface PricingTotals {
   overhead?: number;
   contingency?: number;
   profit?: number;
+  risk?: number;
   grandTotal?: number;
   /** @deprecated use grandTotal */
   margin?: number;
@@ -333,8 +336,6 @@ export interface MarginPolicy {
   profitPercent?: number;
   contingencyPercent?: number;
   riskPercent?: number;
-  targetMarginPct?: number;
-  riskContingencyPct?: number;
 }
 
 export interface PricingRun {
@@ -406,7 +407,17 @@ export type ProposalStatus =
   | "draft" | "generating" | "review" | "approved" | "exported" | "locked";
 
 export type ProposalSectionKey =
-  | "executive_summary" | "methodology" | "pricing" | "schedule" | "compliance" | "team";
+  | "executive_summary"
+  | "company_profile"
+  | "understanding_scope"
+  | "methodology"
+  | "programme"
+  | "pricing"
+  | "compliance"
+  | "conclusion"
+  | "schedule"
+  | "team"
+  | (string & {});
 
 export interface ProposalSection {
   sectionId: string;
@@ -446,7 +457,7 @@ export interface RegenerateSectionBody {
   companyId: string;
   projectId: string;
   sectionId?: string;
-  sectionKey?: ProposalSectionKey;
+  sectionKey?: string;
 }
 
 export interface UpdateProposalSectionBody {

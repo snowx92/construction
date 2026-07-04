@@ -14,7 +14,7 @@ interface Props {
   projectId: string;
 }
 
-const ACTIVE = new Set(["pending", "queued", "processing", "running"]);
+const ACTIVE = new Set(["pending", "ready", "running", "retry"]);
 
 function jobLabelKey(jobType: string): string {
   const normalized = jobType.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");

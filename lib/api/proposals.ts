@@ -95,7 +95,10 @@ export function getProposal(
     { query: { companyId, projectId, includeContent: includeContent ? "true" : undefined } }
   ).then((d) => ({
     proposal: normalizeProposal(d.proposal),
-    sections: d.sections ?? [],
+    sections: (d.sections ?? []).map((s) => ({
+      ...s,
+      content: s.content ?? (s as ProposalSection & { body?: string }).body,
+    })),
   }));
 }
 

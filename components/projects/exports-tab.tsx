@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
-import { useIsOneOf } from "@/lib/use-role";
+import { usePermission } from "@/lib/use-role";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
 import { createExport, deleteExport, getExportDownloadUrl, validateExport } from "@/lib/api/exports";
@@ -40,7 +40,7 @@ const TYPE_ICON: Record<ExportType, typeof FileText> = {
 export function ExportsTab({ projectId }: { projectId: string }) {
   const t = useT();
   const { exports, loading, error } = useExports(projectId);
-  const canCreate = useIsOneOf("estimator", "tender_manager", "admin", "company_owner");
+  const canCreate = usePermission("exportPackage");
   const [showCreate, setShowCreate] = useState(false);
 
   return (
@@ -93,7 +93,7 @@ function ExportRow({ record, projectId }: { record: ExportRecord; projectId: str
   const t = useT();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canDelete = useIsOneOf("estimator", "tender_manager", "admin", "company_owner");
+  const canDelete = usePermission("exportPackage");
   const [downloading, setDownloading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const Icon = TYPE_ICON[record.exportType] ?? FileText;

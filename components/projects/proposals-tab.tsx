@@ -7,7 +7,8 @@ import {
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
-import { useIsOneOf } from "@/lib/use-role";
+import { usePermission } from "@/lib/use-role";
+import { useProjectProgress } from "@/lib/use-project-progress";
 import { showToast } from "@/lib/toast";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -22,7 +23,7 @@ import { CommercialArtifactsPanel } from "./commercial-artifacts";
 import { proposalSectionText, truncateProposalSectionText } from "@/lib/proposal-section-content";
 import { sectionStatusLabelKey } from "@/lib/normalize-status";
 import { timeAgoFromIso } from "@/lib/project-status";
-import type { Proposal, ProposalSection, ProposalSectionKey, ProposalStatus } from "@/lib/api/types";
+import type { Proposal, ProposalSection, ProposalStatus } from "@/lib/api/types";
 
 const STATUS_BADGE: Record<ProposalStatus, string> = {
   draft:      "bg-foreground-subtle/10 text-foreground-muted",
@@ -33,15 +34,20 @@ const STATUS_BADGE: Record<ProposalStatus, string> = {
   locked:     "bg-emerald-50 text-emerald-700",
 };
 
-const KNOWN_SECTION_KEYS: ProposalSectionKey[] = [
-  "executive_summary", "methodology", "pricing", "schedule", "compliance", "team",
-];
-
 export function ProposalsTab({ projectId }: { projectId: string }) {
   const t = useT();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canDelete = useIsOneOf("tender_manager", "admin", "company_owner");
+  const canGenerate = usePermission("generateProposal");
+  const canDelete = usePermission("generateProposal");
+  const canManageCompliance = usePermission("manageCompliance");
+  const canManageSchedule = usePermission("manageSchedule");
+  const { status: projectStatus } = useProjectProgress(projectId);
+  const { runs } = usePricingRuns(projectId);
+  const lockedPricing = runs.some((r) => r.status === "locked");
+  const canStartProposal = canGenerate &&
+    lockedPricing &&
+    (projectStatus === "ready" || projectStatus === "pricing" || projectStatus === "generating_proposal");
   const { proposals, loading, error } = useProposals(projectId);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showGen, setShowGen]   = useState(false);
@@ -136,8 +142,8 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleGenCompliance}
-            disabled={genComp}
-            title={t("proposalsCommercial.compliance")}
+            disabled={genComp || !canManageCompliance}
+            title={!canManageCompliance ? t("proposalsTab.noPerm") : t("proposalsCommercial.compliance")}
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-black/[0.08] bg-white px-3 py-2 text-xs font-medium hover:bg-black/[0.03] disabled:opacity-50"
           >
             {genComp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
@@ -145,8 +151,8 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
           </button>
           <button
             onClick={handleGenSchedule}
-            disabled={genSched}
-            title={t("proposalsCommercial.schedule")}
+            disabled={genSched || !canManageSchedule}
+            title={!canManageSchedule ? t("proposalsTab.noPerm") : t("proposalsCommercial.schedule")}
             className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-black/[0.08] bg-white px-3 py-2 text-xs font-medium hover:bg-black/[0.03] disabled:opacity-50"
           >
             {genSched ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calendar className="h-3.5 w-3.5" />}
@@ -154,7 +160,13 @@ export function ProposalsTab({ projectId }: { projectId: string }) {
           </button>
           <button
             onClick={() => setShowGen(true)}
-            className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover"
+            disabled={!canStartProposal}
+            title={
+              !canGenerate ? t("proposalsTab.noPerm") :
+              !lockedPricing ? t("proposalsTab.needLockedPricing") :
+              undefined
+            }
+            className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             <Plus className="h-3.5 w-3.5" /> {t("proposalsTab.generateCta")}
           </button>
@@ -295,16 +307,16 @@ function GenerateModal({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground-muted">{t("proposalsTab.pricingRun")}</label>
-            {runs.length === 0 ? (
-              <p className="text-xs text-foreground-subtle">{t("proposalsTab.pricingRunNone")}</p>
+            {lockedRuns.length === 0 ? (
+              <p className="text-xs text-foreground-subtle">{t("proposalsTab.needLockedPricing")}</p>
             ) : (
               <select
                 value={pricingRunId}
                 onChange={(e) => setPRun(e.target.value)}
                 className="w-full rounded-xl border border-black/[0.08] bg-white px-3 py-2 text-sm"
+                required
               >
-                <option value="">{t("proposalsTab.pricingRunLatest")}</option>
-                {runs.map((r) => (
+                {lockedRuns.map((r) => (
                   <option key={r.pricingRunId} value={r.pricingRunId}>
                     {r.pricingRunId.slice(0, 8)} · {r.status}
                     {formatPricingTotal(r) ? ` · ${formatPricingTotal(r)}` : ""}
@@ -327,7 +339,7 @@ function GenerateModal({
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !pricingRunId || lockedRuns.length === 0}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -347,9 +359,10 @@ function ProposalDetail({
   const { dir } = useLocale();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canApprove = useIsOneOf("tender_manager", "legal", "admin", "company_owner");
-  const canLock    = useIsOneOf("legal", "admin", "company_owner");
-  const canDelete  = useIsOneOf("tender_manager", "admin", "company_owner");
+  const canApprove = usePermission("approveProposal");
+  const canLock    = usePermission("approveProposal");
+  const canDelete  = usePermission("generateProposal");
+  const canEdit    = usePermission("generateProposal");
 
   const proposal = useProposal(projectId, proposalId);
   const { sections, loading } = useProposalSections(projectId, proposalId);
@@ -360,7 +373,6 @@ function ProposalDetail({
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const [savingTitle, setSavingTitle] = useState(false);
-  const canEdit = useIsOneOf("tender_manager", "estimator", "finance", "admin", "company_owner");
 
   const BackArrow = dir === "rtl" ? ChevronRight : ArrowLeft;
   const status = proposal?.status;
@@ -419,15 +431,7 @@ function ProposalDetail({
     }
   }
 
-  // Build display sections: prefer real, fall back to known keys with "pending"
-  const displaySections: ProposalSection[] = (() => {
-    if (sections.length > 0) return sections;
-    return KNOWN_SECTION_KEYS.map((k) => ({
-      sectionId: k,
-      sectionKey: k,
-      status: "pending" as const,
-    }));
-  })();
+  const displaySections: ProposalSection[] = sections;
 
   return (
     <div className="space-y-5">
@@ -581,7 +585,7 @@ function SectionCard({
   const t = useT();
   const { profile } = useAuth();
   const companyId = profile?.activeCompanyId;
-  const canEdit = useIsOneOf("tender_manager", "estimator", "finance", "admin", "company_owner") && !locked;
+  const canEdit = usePermission("generateProposal") && !locked;
   const canRegenerate = canEdit;
   const [regenerating, setRegenerating] = useState(false);
   const [regenJobId, setRegenJobId] = useState<string | null>(null);
@@ -606,8 +610,8 @@ function SectionCard({
       const res = await regenerateSection(proposalId, {
         companyId,
         projectId,
-        sectionId: section.sectionId.length > 8 ? section.sectionId : undefined,
-        sectionKey: KNOWN_SECTION_KEYS.includes(key as ProposalSectionKey) ? (key as ProposalSectionKey) : undefined,
+        sectionId: section.sectionId || undefined,
+        sectionKey: key || undefined,
       });
       if (res.jobId) setRegenJobId(res.jobId);
       showToast(t("proposalsTab.regenerating"), "success");

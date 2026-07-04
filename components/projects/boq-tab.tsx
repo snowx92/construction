@@ -45,13 +45,27 @@ export function BoqTab({ projectId }: Props) {
   async function handleExtract() {
     if (!companyId) return;
     setExtracting(true);
+    const previousCount = items.length;
     try {
       await extractBoq(projectId, companyId);
       showToast(t("boqTab.extractQueued"), "success");
-      setTimeout(load, 3000);
+      const started = Date.now();
+      const poll = async () => {
+        try {
+          const list = await listBoqItems(projectId, companyId);
+          setItems(list);
+          if (list.length > previousCount || Date.now() - started > 90_000) {
+            setExtracting(false);
+            return;
+          }
+        } catch {
+          /* keep polling */
+        }
+        setTimeout(poll, 3000);
+      };
+      setTimeout(poll, 2000);
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : "Failed", "error");
-    } finally {
       setExtracting(false);
     }
   }

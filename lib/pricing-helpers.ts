@@ -22,5 +22,6 @@ export function formatPricingTotal(run: Pick<PricingRun, "currency" | "totals">)
 export function pricingMarginAmount(totals?: PricingTotals | null): number {
   if (!totals) return 0;
   if (typeof totals.margin === "number") return totals.margin;
-  return (totals.profit ?? 0) + (totals.overhead ?? 0);
+  return (totals.profit ?? 0) + (totals.overhead ?? 0) +
+    (totals.contingency ?? 0) + (totals.risk ?? 0);
 }

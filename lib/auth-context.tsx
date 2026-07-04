@@ -102,7 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const res = await u.getIdTokenResult();
           const claimsRole = extractRole(res.claims as Record<string, unknown>, loadedProfile?.activeCompanyId);
-          setRole(claimsRole ?? loadedProfile?.role ?? null);
+          // Prefer membership/profile role; claims are a fallback only.
+          setRole(loadedProfile?.role ?? claimsRole ?? null);
         } catch {
           setRole(loadedProfile?.role ?? null);
         }
@@ -120,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user || !profile?.activeCompanyId) return;
     user.getIdTokenResult().then((res) => {
       const claimsRole = extractRole(res.claims as Record<string, unknown>, profile.activeCompanyId);
-      setRole(claimsRole ?? profile.role ?? null);
+      setRole(profile.role ?? claimsRole ?? null);
     });
     // Refresh profile to pick up membership role for the active company
     refreshProfile();

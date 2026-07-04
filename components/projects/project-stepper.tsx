@@ -46,10 +46,12 @@ export function ProjectStepper({ projectId, activeTab, onNavigate }: Props) {
   });
   const docsState: StepState =
     documents.length === 0 ? "todo"
-    : readyDocs.length === documents.length ? "done"
+    : readyDocs.length > 0 && processingDocs.length === 0 &&
+      projectStatus !== "processing" && projectStatus !== "uploading"
+      ? "done"
     : processingDocs.length > 0 || projectStatus === "processing" || projectStatus === "uploading"
       ? "in_progress"
-    : "in_progress";
+    : readyDocs.length > 0 ? "done" : "in_progress";
 
   // Step 2 — Pricing
   const lockedRuns = runs.filter((r) => r.status === "locked");

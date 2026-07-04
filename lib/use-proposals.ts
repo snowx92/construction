@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 import { useAuth } from "./auth-context";
-import { getLatestProposal } from "./api/proposals";
+import { getLatestProposal, getProposal } from "./api/proposals";
 import { proposalSectionText } from "./proposal-section-content";
 import type { Proposal, ProposalSection } from "./api/types";
 
@@ -124,9 +124,11 @@ export function useProposalSections(projectId: string | null | undefined, propos
 
         if (list.length === 0 && !apiFetched.current) {
           apiFetched.current = true;
-          getLatestProposal(companyId, projectId, true)
-            .then(({ sections: apiSections }) => {
-              if (apiSections.length > 0) setSections(apiSections);
+          getProposal(proposalId, companyId, projectId, true)
+            .then(({ proposal, sections: apiSections }) => {
+              if (proposal.proposalId === proposalId && apiSections.length > 0) {
+                setSections(apiSections);
+              }
             })
             .catch(() => { /* sections not ready */ });
         }
@@ -135,8 +137,12 @@ export function useProposalSections(projectId: string | null | undefined, propos
         setLoading(false);
         if (!apiFetched.current && companyId && projectId && proposalId) {
           apiFetched.current = true;
-          getLatestProposal(companyId, projectId, true)
-            .then(({ sections: apiSections }) => { if (apiSections.length) setSections(apiSections); })
+          getProposal(proposalId, companyId, projectId, true)
+            .then(({ proposal, sections: apiSections }) => {
+              if (proposal.proposalId === proposalId && apiSections.length) {
+                setSections(apiSections);
+              }
+            })
             .catch(() => { /* ignore */ });
         }
       }
