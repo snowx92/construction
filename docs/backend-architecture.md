@@ -1,7 +1,7 @@
 # Tender.ai — Backend Architecture & Product Brief
 
 **For:** Tech Lead / Backend Team  
-**Date:** May 2026  
+**Date:** May 2026  ss
 **Project:** Construction Tender Intelligence SaaS
 
 ---
